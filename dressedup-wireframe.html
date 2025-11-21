@@ -1,0 +1,2886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DressedUp Wireframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .phone {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        .header {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #333;
+            width: 40px;
+        }
+        
+        .header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .spacer {
+            width: 40px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            background: white;
+        }
+        
+        .content-with-nav {
+            padding-bottom: 100px;
+        }
+        
+        .center-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background: white;
+        }
+        
+        .logo {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+        
+        .app-name {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #333;
+            background: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #333;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+        }
+        
+        .btn-large {
+            padding: 20px;
+            font-size: 18px;
+            margin: 12px 0;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            color: #999;
+            transition: all 0.2s;
+            border-radius: 12px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .nav-icon {
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .card {
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.2s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card h3 {
+            font-size: 17px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .grid-item {
+            aspect-ratio: 1;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+        
+        .grid-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .item-image {
+            font-size: 44px;
+            margin-bottom: 6px;
+        }
+        
+        .item-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 4px;
+        }
+        
+        .outfit-display {
+            border: 2px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            text-align: center;
+            background: #fafafa;
+        }
+        
+        .outfit-item {
+            font-size: 64px;
+            margin: 12px 0;
+        }
+        
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .chip {
+            padding: 10px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .chip:hover {
+            border-color: #667eea;
+        }
+        
+        .chip.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .text-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 12px 0;
+            font-weight: 600;
+            text-align: center;
+            display: block;
+        }
+        
+        .progress-dots {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 24px 0;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            transition: all 0.2s;
+        }
+        
+        .dot.active {
+            background: #667eea;
+            width: 24px;
+            border-radius: 5px;
+        }
+        
+        .feed-post {
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .post-header {
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .username {
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        .post-video {
+            width: 100%;
+            aspect-ratio: 9/16;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            cursor: pointer;
+        }
+        
+        .post-actions {
+            padding: 14px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .list-item {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checkbox {
+            width: 26px;
+            height: 26px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .checkbox:hover {
+            border-color: #667eea;
+        }
+        
+        .checkbox.checked {
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-color: #667eea;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 12px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        
+        .badge-primary {
+            background: #e8eeff;
+            color: #667eea;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .tab {
+            padding: 10px 18px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .streak-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin: 16px 0;
+        }
+        
+        .day-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .day-cell.posted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .day-cell.empty {
+            background: #f5f5f5;
+            color: #ccc;
+        }
+        
+        .day-cell.today {
+            border: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <!-- 0: Loading Screen -->
+        <div class="screen active" id="loading">
+            <div class="center-content">
+                <div class="logo">👔</div>
+                <div class="app-name">DressedUp</div>
+                <p class="tagline">Loading...</p>
+            </div>
+        </div>
+
+        <!-- 1: Welcome Screen -->
+        <div class="screen" id="welcome">
+            <div class="center-content">
+                <div class="logo">👔</div>
+                <div class="app-name">DressedUp</div>
+                <p class="tagline">Your intelligent wardrobe assistant</p>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showScreen('signup')">Get Started</button>
+                <button class="btn" onclick="showScreen('login')">I have an account</button>
+            </div>
+        </div>
+
+        <!-- 2: Sign Up -->
+        <div class="screen" id="signup">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('welcome')">←</button>
+                <h2>Create Account</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <input type="text" class="input" placeholder="Full Name">
+                <input type="email" class="input" placeholder="Email">
+                <input type="password" class="input" placeholder="Password">
+                <input type="password" class="input" placeholder="Confirm Password">
+                <button class="btn btn-primary" onclick="showScreen('onboarding1')">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- 3: Login -->
+        <div class="screen" id="login">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('welcome')">←</button>
+                <h2>Log In</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <input type="email" class="input" placeholder="Email">
+                <input type="password" class="input" placeholder="Password">
+                <button class="btn btn-primary" onclick="showScreen('home-smart')">Log In</button>
+                <a class="text-link">Forgot password?</a>
+            </div>
+        </div>
+
+        <!-- 4: Onboarding 1 -->
+        <div class="screen" id="onboarding1">
+            <div class="center-content">
+                <div style="font-size: 100px; margin-bottom: 24px;">👕</div>
+                <h2 style="margin-bottom: 12px; font-size: 24px;">Build Your Digital Closet</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 15px;">Take photos of your clothes and we'll organize everything</p>
+                <div class="progress-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showScreen('onboarding2')">Next</button>
+            </div>
+        </div>
+
+        <!-- 5: Onboarding 2 -->
+        <div class="screen" id="onboarding2">
+            <div class="center-content">
+                <div style="font-size: 100px; margin-bottom: 24px;">🌤️</div>
+                <h2 style="margin-bottom: 12px; font-size: 24px;">Get Daily Suggestions</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 15px;">We learn your routine and suggest outfits automatically</p>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showScreen('onboarding3')">Next</button>
+            </div>
+        </div>
+
+        <!-- 6: Onboarding 3 -->
+        <div class="screen" id="onboarding3">
+            <div class="center-content">
+                <div style="font-size: 100px; margin-bottom: 24px;">✨</div>
+                <h2 style="margin-bottom: 12px; font-size: 24px;">Stay On Track</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 15px;">Track clean clothes and share your daily fits</p>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                </div>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showScreen('onboarding-style')">Get Started</button>
+            </div>
+        </div>
+
+        <!-- 42: Onboarding - Style Personality -->
+        <div class="screen" id="onboarding-style">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('onboarding3')">←</button>
+                <h2>Your Style</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700;">What's your style personality?</h3>
+                <p style="color: #666; margin-bottom: 24px; font-size: 15px;">Select all that describe you</p>
+                
+                <div class="card" style="cursor: pointer; border-color: #667eea; background: #f0f4ff;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 36px;">✨</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">Minimalist</div>
+                            <p style="font-size: 13px; color: #666;">Clean, simple, neutral colors</p>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #667eea; color: white; font-weight: 800;">✓</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 36px;">🎨</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">Bold & Colorful</div>
+                            <p style="font-size: 13px; color: #666;">Vibrant colors, statement pieces</p>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 36px;">👔</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">Classic & Timeless</div>
+                            <p style="font-size: 13px; color: #666;">Traditional, well-tailored looks</p>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 36px;">🔥</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">Trendy & Fashion-Forward</div>
+                            <p style="font-size: 13px; color: #666;">Latest styles, experimental looks</p>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 36px;">🏀</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">Streetwear & Casual</div>
+                            <p style="font-size: 13px; color: #666;">Relaxed, urban, athleisure</p>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 24px;" onclick="showScreen('onboarding-colors')">Continue</button>
+            </div>
+        </div>
+
+        <!-- 43: Onboarding - Color Preferences -->
+        <div class="screen" id="onboarding-colors">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('onboarding-style')">←</button>
+                <h2>Color Preferences</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700;">What colors do you love?</h3>
+                <p style="color: #666; margin-bottom: 24px; font-size: 15px;">Select your favorite colors to wear</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px;">
+                    <div style="aspect-ratio: 1; background: #000000; border-radius: 12px; border: 4px solid #667eea; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <span style="color: white; font-size: 24px; font-weight: 800;">✓</span>
+                    </div>
+                    <div style="aspect-ratio: 1; background: #FFFFFF; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #8B4513; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #808080; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #000080; border-radius: 12px; border: 4px solid #667eea; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <span style="color: white; font-size: 24px; font-weight: 800;">✓</span>
+                    </div>
+                    <div style="aspect-ratio: 1; background: #4169E1; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #228B22; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #006400; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #DC143C; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #FF69B4; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #FFD700; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #FF8C00; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                </div>
+                
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700;">Colors to avoid?</h3>
+                <p style="color: #666; margin-bottom: 24px; font-size: 15px;">Select colors you don't like wearing</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px;">
+                    <div style="aspect-ratio: 1; background: #000000; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #FFFFFF; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #8B4513; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #808080; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #000080; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #4169E1; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #228B22; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #006400; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #DC143C; border-radius: 12px; border: 4px solid #d32f2f; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <span style="color: white; font-size: 24px; font-weight: 800;">✕</span>
+                    </div>
+                    <div style="aspect-ratio: 1; background: #FF69B4; border-radius: 12px; border: 4px solid #d32f2f; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <span style="color: white; font-size: 24px; font-weight: 800;">✕</span>
+                    </div>
+                    <div style="aspect-ratio: 1; background: #FFD700; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                    <div style="aspect-ratio: 1; background: #FF8C00; border-radius: 12px; border: 4px solid #e0e0e0; cursor: pointer;"></div>
+                </div>
+                
+                <h3 style="font-size: 18px; margin-bottom: 16px; font-weight: 700;">Color Combination Style</h3>
+                <div class="chips">
+                    <div class="chip selected">Matching & Coordinated</div>
+                    <div class="chip">Monochrome</div>
+                    <div class="chip">Bold Contrasts</div>
+                    <div class="chip">Neutral Base</div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 32px;" onclick="showScreen('onboarding-fit')">Continue</button>
+            </div>
+        </div>
+
+        <!-- 44: Onboarding - Fit & Comfort -->
+        <div class="screen" id="onboarding-fit">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('onboarding-colors')">←</button>
+                <h2>Fit & Comfort</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700;">How do you like your clothes to fit?</h3>
+                <p style="color: #666; margin-bottom: 24px; font-size: 15px;">This helps us recommend the right combinations</p>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">Shirt Fit</h3>
+                    <div class="chips">
+                        <div class="chip">Slim</div>
+                        <div class="chip selected">Regular</div>
+                        <div class="chip">Relaxed</div>
+                        <div class="chip">Oversized</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">Pants Fit</h3>
+                    <div class="chips">
+                        <div class="chip">Skinny</div>
+                        <div class="chip selected">Slim</div>
+                        <div class="chip">Regular</div>
+                        <div class="chip">Relaxed</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">Do you like layering?</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Jackets, hoodies, cardigans over shirts</p>
+                    <div class="chips">
+                        <div class="chip selected">Yes, love layers</div>
+                        <div class="chip">Sometimes</div>
+                        <div class="chip">Rarely</div>
+                        <div class="chip">Never</div>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700; margin-top: 24px;">Any outfit rules you follow?</h3>
+                <p style="color: #666; margin-bottom: 16px; font-size: 15px;">Select all that apply</p>
+                
+                <div class="card" style="cursor: pointer; border-color: #667eea; background: #f0f4ff;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px;">Long pants with long sleeves only</div>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #667eea; color: white; font-weight: 800;">✓</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px;">Shorts with short sleeves only</div>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px;">Shoes must match belt</div>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer; border-color: #667eea; background: #f0f4ff;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px;">Underwear color must coordinate</div>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #667eea; color: white; font-weight: 800;">✓</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px;">Never mix patterns</div>
+                        </div>
+                        <div style="width: 28px; height: 28px; border: 3px solid #e0e0e0; border-radius: 50%;"></div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 32px;" onclick="showScreen('onboarding-occasions')">Continue</button>
+            </div>
+        </div>
+
+        <!-- 45: Onboarding - Occasion Split -->
+        <div class="screen" id="onboarding-occasions">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('onboarding-fit')">←</button>
+                <h2>Your Lifestyle</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 22px; margin-bottom: 12px; font-weight: 700;">What do you dress for most?</h3>
+                <p style="color: #666; margin-bottom: 24px; font-size: 15px;">This helps us prioritize recommendations</p>
+                
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; font-size: 18px;">Work</div>
+                        <div style="font-size: 28px; font-weight: 800;">50%</div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden;">
+                        <div style="width: 50%; height: 100%; background: white;"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; font-size: 18px;">Casual</div>
+                        <div style="font-size: 28px; font-weight: 800; color: #667eea;">30%</div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 30%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; font-size: 18px;">Gym/Athletic</div>
+                        <div style="font-size: 28px; font-weight: 800; color: #667eea;">20%</div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 20%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    </div>
+                </div>
+                
+                <p style="font-size: 13px; color: #666; text-align: center; margin: 24px 0; font-weight: 600;">Tap bars to adjust percentages</p>
+                
+                <h3 style="font-size: 18px; margin-bottom: 16px; font-weight: 700; margin-top: 32px;">Other Occasions</h3>
+                <div class="chips">
+                    <div class="chip selected">Date Night</div>
+                    <div class="chip selected">Formal Events</div>
+                    <div class="chip">Night Out</div>
+                    <div class="chip">Beach/Vacation</div>
+                    <div class="chip">Business Travel</div>
+                </div>
+                
+                <div class="card" style="background: #f0f7ff; border-color: #667eea; margin-top: 32px;">
+                    <h3 style="color: #667eea; margin-bottom: 8px; font-size: 16px;">📍 Location</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Where are you based?</p>
+                    <input type="text" class="input" placeholder="City, State" style="margin: 0;">
+                    <p style="font-size: 12px; color: #666; margin-top: 8px; font-weight: 600;">We'll use weather data to suggest appropriate outfits</p>
+                </div>
+                
+                <button class="btn btn-primary btn-large" style="margin-top: 32px;" onclick="showScreen('closet-setup')">Complete Setup</button>
+            </div>
+        </div>
+
+        <!-- 7: Closet Setup Prompt -->
+        <div class="screen" id="closet-setup">
+            <div class="center-content">
+                <div style="font-size: 100px; margin-bottom: 24px;">📸</div>
+                <h2 style="margin-bottom: 12px; font-size: 24px;">Let's Build Your Closet</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 15px;">Add at least 10 items to get started with outfit suggestions</p>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary btn-large" onclick="showScreen('add-item-photo')">Add First Item</button>
+                <button class="btn" onclick="showScreen('home-new')">Skip for Now</button>
+            </div>
+        </div>
+
+        <!-- 8: Add Item - Photo -->
+        <div class="screen" id="add-item-photo">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>Add Item</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="center-content" style="padding: 0;">
+                    <div style="width: 100%; aspect-ratio: 1; border: 3px dashed #ccc; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background: #fafafa;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 72px; margin-bottom: 12px;">📷</div>
+                            <p style="color: #666; font-size: 15px; font-weight: 600;">Take a photo of your item</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="showScreen('add-item-tags')">Take Photo</button>
+            </div>
+        </div>
+
+        <!-- 9: Add Item - Tags -->
+        <div class="screen" id="add-item-tags">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('add-item-photo')">←</button>
+                <h2>Tag Item</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Category</h3>
+                <div class="chips">
+                    <div class="chip">Shirt</div>
+                    <div class="chip selected">Pants</div>
+                    <div class="chip">Jacket</div>
+                    <div class="chip">Shoes</div>
+                    <div class="chip">Accessories</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Color</h3>
+                <div class="chips">
+                    <div class="chip">Black</div>
+                    <div class="chip">White</div>
+                    <div class="chip selected">Blue</div>
+                    <div class="chip">Red</div>
+                    <div class="chip">Other</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Warmth</h3>
+                <div class="chips">
+                    <div class="chip">Light</div>
+                    <div class="chip selected">Medium</div>
+                    <div class="chip">Heavy</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Occasions</h3>
+                <div class="chips">
+                    <div class="chip selected">Work</div>
+                    <div class="chip selected">Casual</div>
+                    <div class="chip">Formal</div>
+                    <div class="chip">Athletic</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Brand (Optional)</h3>
+                <input type="text" class="input" placeholder="e.g., Nike, Gap, Zara">
+                
+                <button class="btn btn-primary" style="margin-top: 24px;" onclick="showScreen('closet')">Save Item</button>
+            </div>
+        </div>
+
+        <!-- 10: Home Screen (Smart - with established routine) -->
+        <div class="screen" id="home-smart">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>DressedUp</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <h3 style="color: white; font-size: 18px; margin-bottom: 16px;">Today's Outfits</h3>
+                    
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 700; font-size: 15px;">Work Outfit</span>
+                            <span style="font-size: 12px; opacity: 0.9;">68°F, Cloudy</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <div style="font-size: 36px;">👔</div>
+                            <div style="font-size: 36px;">👖</div>
+                            <div style="font-size: 36px;">👞</div>
+                        </div>
+                        <!-- For Work Outfit -->
+                        <button class="btn" style="background: white; color: #667eea; border: none; padding: 10px; font-size: 14px;" onclick="showScreen('daily-suggestion-today-work')">View Details</button>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px;">
+                        <div style="font-weight: 700; font-size: 15px; margin-bottom: 10px;">Gym Outfit</div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <div style="font-size: 36px;">👕</div>
+                            <div style="font-size: 36px;">🩳</div>
+                            <div style="font-size: 36px;">👟</div>
+                        </div>
+                        <!-- For TODAY'S Gym Fit -->
+                        <button class="btn" style="background: white; color: #667eea; border: none; padding: 10px; font-size: 14px;" onclick="showScreen('daily-suggestion-today-gym')">View Details</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Tomorrow's Preview</h3>
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="flex: 1; text-align: center; padding: 12px; background: #f5f5f5; border-radius: 12px; cursor: pointer;" onclick="showScreen('daily-suggestion-tomorrow-work')">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 6px;">Work</div>
+                            <div style="display: flex; gap: 4px; justify-content: center;">
+                                <div style="font-size: 24px;">👔</div>
+                                <div style="font-size: 24px;">👖</div>
+                                <div style="font-size: 24px;">👞</div>
+                            </div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 12px; background: #f5f5f5; border-radius: 12px; cursor: pointer;" onclick="showScreen('daily-suggestion-tomorrow-gym')">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 6px;">Gym</div>
+                            <div style="display: flex; gap: 4px; justify-content: center;">
+                                <div style="font-size: 24px;">👕</div>
+                                <div style="font-size: 24px;">🩳</div>
+                                <div style="font-size: 24px;">👟</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="text-link" onclick="showScreen('daily-suggestion-tomorrow-work')">Change Tomorrow's Outfits</a>
+                </div>
+                
+                <button class="btn" style="border: 2px solid #667eea; color: #667eea;" onclick="showScreen('daily-occasion')">+ Add Another Outing</button>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;">Quick Stats</h3>
+                    <div style="display: flex; justify-content: space-around;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #667eea;">47</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Items</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #4CAF50;">38</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Clean</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #FF9800;">9</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Dirty</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('closet')">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11: Home Screen (New User - no established routine) -->
+        <div class="screen" id="home-new">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>DressedUp</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="card">
+                    <h3 style="font-size: 20px; margin-bottom: 12px;">What should I wear today?</h3>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 16px;">Get a personalized outfit suggestion</p>
+                    <button class="btn btn-primary btn-large" onclick="showScreen('daily-occasion')">Get Dressed</button>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;">Quick Stats</h3>
+                    <div style="display: flex; justify-content: space-around;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #667eea;">47</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Items</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #4CAF50;">38</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Clean</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #FF9800;">9</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Dirty</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 12px;">🎯</div>
+                    <h3 style="margin-bottom: 8px;">Build Your Routine</h3>
+                    <p style="color: #666; font-size: 14px;">Use DressedUp regularly and we'll learn your schedule to suggest fits automatically</p>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('home-new')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('closet')">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 12: Daily Fit - Occasion -->
+        <div class="screen" id="daily-occasion">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-smart')">←</button>
+                <h2>What's the Occasion?</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 52px; margin-bottom: 12px;">🌤️</div>
+                    <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;">68°F</div>
+                    <div style="color: #666; font-size: 15px;">Partly Cloudy</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Select Occasion</h3>
+                <div class="chips">
+                    <div class="chip selected">Work</div>
+                    <div class="chip">Casual</div>
+                    <div class="chip">Gym</div>
+                    <div class="chip">Date</div>
+                    <div class="chip">Formal</div>
+                    <div class="chip">Night Out</div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 32px;" onclick="showScreen('daily-suggestion')">Get Suggestion</button>
+                <a class="text-link" onclick="showScreen('daily-multi-context')">Add another occasion</a>
+            </div>
+        </div>
+
+        <!-- 13a: Today's Work Outfit -->
+        <div class="screen" id="daily-suggestion-today-work">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-smart')">←</button>
+                <h2>Today's Work Outfit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="outfit-display">
+                    <div class="outfit-item">👔</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">White Button-up</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Work, Casual</div>
+                    
+                    <div class="outfit-item">👖</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Navy Chinos</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Work, Casual</div>
+                    
+                    <div class="outfit-item">👞</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Brown Loafers</div>
+                    <div style="font-size: 12px; color: #666;">Work, Formal</div>
+                </div>
+                
+                <button class="btn" onclick="showScreen('daily-swap')">Swap an Item</button>
+                <button class="btn" onclick="showScreen('home-smart')">Looks Good!</button>
+                <button class="btn btn-primary" onclick="showScreen('daily-confirm')">✓ Mark as Worn</button>
+                <a class="text-link" onclick="showScreen('daily-alternatives-today-work')">See Other Options</a>
+            </div>
+        </div>
+
+        <!-- 13b: Today's Gym Outfit -->
+        <div class="screen" id="daily-suggestion-today-gym">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-smart')">←</button>
+                <h2>Today's Gym Outfit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="outfit-display">
+                    <div class="outfit-item">👕</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Blue T-shirt</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Athletic</div>
+                    
+                    <div class="outfit-item">🩳</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Orange Shorts</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Athletic</div>
+                    
+                    <div class="outfit-item">👟</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Gray Sneakers</div>
+                    <div style="font-size: 12px; color: #666;">Athletic</div>
+                </div>
+                
+                <button class="btn" onclick="showScreen('daily-swap')">Swap an Item</button>
+                <button class="btn" onclick="showScreen('home-smart')">Looks Good!</button>
+                <button class="btn btn-primary" onclick="showScreen('daily-confirm')">✓ Mark as Worn</button>
+                <a class="text-link" onclick="showScreen('daily-alternatives-today-gym')">See Other Options</a>
+            </div>
+        </div>
+
+        <!-- 13c: Tomorrow's Work Outfit -->
+        <div class="screen" id="daily-suggestion-tomorrow-work">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-smart')">←</button>
+                <h2>Tomorrow's Work Outfit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="outfit-display">
+                    <div class="outfit-item">👔</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">White Button-up</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Work, Casual</div>
+                    
+                    <div class="outfit-item">👖</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Navy Chinos</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Work, Casual</div>
+                    
+                    <div class="outfit-item">👞</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Brown Loafers</div>
+                    <div style="font-size: 12px; color: #666;">Work, Formal</div>
+                </div>
+                
+                <button class="btn" onclick="showScreen('daily-swap-tomorrow')">Swap an Item</button>
+                <button class="btn btn-primary" onclick="showScreen('home-smart')">Looks Good!</button>
+                <a class="text-link" onclick="showScreen('daily-alternatives-tomorrow-work')">See Other Options</a>
+            </div>
+        </div>
+
+        <!-- 13d: Tomorrow's Gym Outfit -->
+        <div class="screen" id="daily-suggestion-tomorrow-gym">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-smart')">←</button>
+                <h2>Tomorrow's Gym Outfit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="outfit-display">
+                    <div class="outfit-item">👕</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Blue T-shirt</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Athletic</div>
+                    
+                    <div class="outfit-item">🩳</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Orange Shorts</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 24px;">Athletic</div>
+                    
+                    <div class="outfit-item">👟</div>
+                    <div style="font-weight: 700; margin-bottom: 4px; font-size: 16px;">Gray Sneakers</div>
+                    <div style="font-size: 12px; color: #666;">Athletic</div>
+                </div>
+                
+                <button class="btn" onclick="showScreen('daily-swap-tomorrow')">Swap an Item</button>
+                <button class="btn btn-primary" onclick="showScreen('home-smart')">Looks Good!</button>
+                <a class="text-link" onclick="showScreen('daily-alternatives-tomorrow-gym')">See Other Options</a>
+            </div>
+        </div>
+
+        <!-- 14: Daily Fit - Swap Item -->
+        <div class="screen" id="daily-swap">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-suggestion')">←</button>
+                <h2>Swap Item</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <p style="margin-bottom: 16px; color: #666; font-weight: 600;">Which item do you want to swap?</p>
+                
+                <div class="card" onclick="showScreen('daily-swap-options')" style="cursor: pointer; display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 56px;">👔</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">White Button-up</div>
+                        <div style="font-size: 13px; color: #666;">Shirt</div>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="showScreen('daily-swap-options')" style="cursor: pointer; display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 56px;">👖</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">Navy Chinos</div>
+                        <div style="font-size: 13px; color: #666;">Pants</div>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="showScreen('daily-swap-options')" style="cursor: pointer; display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 56px;">👞</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">Brown Loafers</div>
+                        <div style="font-size: 13px; color: #666;">Shoes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 15: Daily Fit - Swap Options -->
+        <div class="screen" id="daily-swap-options">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-swap')">←</button>
+                <h2>Choose Replacement</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <p style="margin-bottom: 16px; color: #666; font-weight: 600;">Select a different shirt:</p>
+                
+                <div class="grid">
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">Blue Polo</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👔</div>
+                        <div class="item-label">Gray Shirt</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">Black Tee</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👔</div>
+                        <div class="item-label">Plaid Shirt</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">White Tee</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('daily-suggestion')">
+                        <div class="item-image">👔</div>
+                        <div class="item-label">Navy Shirt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 16: Daily Fit - Alternatives -->
+        <div class="screen" id="daily-alternatives">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-suggestion')">←</button>
+                <h2>Alternative Outfits</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" onclick="showScreen('daily-suggestion')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 2</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">👕</div>
+                        <div style="font-size: 48px;">👖</div>
+                        <div style="font-size: 48px;">👟</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Blue Polo • Black Jeans • White Sneakers</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('daily-suggestion')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 3</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">🧥</div>
+                        <div style="font-size: 48px;">👖</div>
+                        <div style="font-size: 48px;">👞</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Gray Blazer • Navy Chinos • Brown Loafers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 16b: Tomorrow's Work Alternatives -->
+        <div class="screen" id="daily-alternatives-tomorrow-work">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-suggestion-tomorrow-work')">←</button>
+                <h2>Alternative Outfits</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" onclick="showScreen('daily-suggestion-tomorrow-work')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 2</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">👕</div>
+                        <div style="font-size: 48px;">👖</div>
+                        <div style="font-size: 48px;">👟</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Blue Polo • Black Jeans • White Sneakers</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('daily-suggestion-tomorrow-work')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 3</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">🧥</div>
+                        <div style="font-size: 48px;">👖</div>
+                        <div style="font-size: 48px;">👞</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Gray Blazer • Navy Chinos • Brown Loafers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 16c: Tomorrow's Gym Alternatives -->
+        <div class="screen" id="daily-alternatives-tomorrow-gym">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-suggestion-tomorrow-gym')">←</button>
+                <h2>Alternative Outfits</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" onclick="showScreen('daily-suggestion-tomorrow-gym')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 2</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">👕</div>
+                        <div style="font-size: 48px;">🩳</div>
+                        <div style="font-size: 48px;">👟</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Black Tank • Gray Shorts • Running Shoes</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('daily-suggestion-tomorrow-gym')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 16px;">Option 3</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="font-size: 48px;">👕</div>
+                        <div style="font-size: 48px;">🩳</div>
+                        <div style="font-size: 48px;">👟</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">White Tee • Blue Shorts • Training Shoes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 17: Daily Fit - Confirmation -->
+        <div class="screen" id="daily-confirm">
+            <div class="center-content">
+                <div style="font-size: 100px; margin-bottom: 24px;">✔</div>
+                <h2 style="margin-bottom: 12px; font-size: 26px;">You're All Set!</h2>
+                <p style="color: #666; margin-bottom: 32px; font-size: 15px;">This outfit has been marked as worn</p>
+            </div>
+            <div style="padding: 20px;">
+                <button class="btn btn-primary" onclick="showScreen('home-smart')">Back to Home</button>
+                <button class="btn" onclick="showScreen('closet')">View Closet</button>
+            </div>
+        </div>
+
+        <!-- 18: Daily Fit - Multi-Context -->
+        <div class="screen" id="daily-multi-context">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-occasion')">←</button>
+                <h2>Multiple Occasions</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Occasion 1</h3>
+                    <div class="chips">
+                        <div class="chip selected">Work</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Occasion 2</h3>
+                    <div class="chips">
+                        <div class="chip">Casual</div>
+                        <div class="chip selected">Gym</div>
+                        <div class="chip">Date</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="alert('Add another occasion')">+ Add Another Occasion</button>
+                <button class="btn btn-primary" style="margin-top: 16px;" onclick="showScreen('daily-multi-suggestion')">Get Suggestions</button>
+            </div>
+        </div>
+
+        <!-- 19: Daily Fit - Multi Suggestions -->
+        <div class="screen" id="daily-multi-suggestion">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('daily-multi-context')">←</button>
+                <h2>Today's Outfits</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Work</h3>
+                    <div style="display: flex; gap: 12px; align-items: center; margin-top: 12px;">
+                        <div style="font-size: 48px;">👔</div>
+                        <div style="font-size: 48px;">👖</div>
+                        <div style="font-size: 48px;">👞</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">White Shirt • Navy Chinos • Brown Loafers</p>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Gym</h3>
+                    <div style="display: flex; gap: 12px; align-items: center; margin-top: 12px;">
+                        <div style="font-size: 48px;">👕</div>
+                        <div style="font-size: 48px;">🩳</div>
+                        <div style="font-size: 48px;">👟</div>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px; font-weight: 600;">Black Tee • Gray Shorts • Running Shoes</p>
+                </div>
+                
+                <button class="btn btn-primary" onclick="showScreen('daily-confirm')">Confirm Both</button>
+            </div>
+        </div>
+
+        <!-- 20: Closet Grid View -->
+        <div class="screen" id="closet">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>My Closet</h2>
+                <button onclick="showScreen('add-item-photo')" style="background: none; border: none; font-size: 28px; cursor: pointer;">+</button>
+            </div>
+            <div class="content content-with-nav">
+                <div class="card" onclick="showScreen('closet-fits')" style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 36px; font-weight: 800; margin-bottom: 4px;">138</div>
+                            <div style="font-size: 14px; font-weight: 600;">Outfits Available</div>
+                        </div>
+                        <div style="font-size: 48px;">✨</div>
+                    </div>
+                    <p style="font-size: 13px; margin-top: 12px; opacity: 0.9;">Based on your clean clothes</p>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active">All (47)</div>
+                    <div class="tab" onclick="showScreen('closet-by-type')">By Type</div>
+                    <div class="tab" onclick="showScreen('closet-by-brand')">By Brand</div>
+                    <div class="tab" onclick="showScreen('closet-by-occasion')">By Occasion</div>
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button class="chip selected">Clean (38)</button>
+                    <button class="chip">Dirty (9)</button>
+                </div>
+                
+                <div class="grid">
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👔</div>
+                        <div class="item-label">White Shirt</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👖</div>
+                        <div class="item-label">Navy Chinos</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👞</div>
+                        <div class="item-label">Brown Loafers</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">Blue Polo</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👖</div>
+                        <div class="item-label">Black Jeans</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👟</div>
+                        <div class="item-label">Sneakers</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">🧥</div>
+                        <div class="item-label">Gray Blazer</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('item-detail')">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">Black Tee</div>
+                    </div>
+                    <div class="grid-item" onclick="showScreen('add-item-photo')">
+                        <div style="font-size: 36px; color: #ccc;">+</div>
+                        <div class="item-label">Add Item</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 21: Closet - Fits Available -->
+        <div class="screen" id="closet-fits">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>Available Fits</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card">
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <div style="font-size: 48px; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">138</div>
+                        <div style="font-size: 14px; color: #666; font-weight: 600;">Total Outfits Available</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 12px; font-weight: 700;">By Occasion</h3>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">💼</div>
+                            <div style="font-weight: 700;">Work</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">45</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">💪</div>
+                            <div style="font-weight: 700;">Gym</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">23</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">👕</div>
+                            <div style="font-weight: 700;">Casual</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">38</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">💑</div>
+                            <div style="font-weight: 700;">Date Night</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">12</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">🎩</div>
+                            <div style="font-weight: 700;">Formal</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">8</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">🌙</div>
+                            <div style="font-weight: 700;">Night Out</div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #667eea;">12</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 22: Closet - By Type -->
+        <div class="screen" id="closet-by-type">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>By Type</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="tabs">
+                    <div class="tab" onclick="showScreen('closet')">All</div>
+                    <div class="tab active">By Type</div>
+                    <div class="tab" onclick="showScreen('closet-by-brand')">By Brand</div>
+                    <div class="tab" onclick="showScreen('closet-by-occasion')">By Occasion</div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Shirts</div>
+                        <div class="badge badge-primary">15</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Pants</div>
+                        <div class="badge badge-primary">12</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Shoes</div>
+                        <div class="badge badge-primary">8</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Jackets</div>
+                        <div class="badge badge-primary">6</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Hoodies & Sweaters</div>
+                        <div class="badge badge-primary">4</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Accessories</div>
+                        <div class="badge badge-primary">2</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 23: Closet - By Brand -->
+        <div class="screen" id="closet-by-brand">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>By Brand</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="tabs">
+                    <div class="tab" onclick="showScreen('closet')">All</div>
+                    <div class="tab" onclick="showScreen('closet-by-type')">By Type</div>
+                    <div class="tab active">By Brand</div>
+                    <div class="tab" onclick="showScreen('closet-by-occasion')">By Occasion</div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Nike</div>
+                        <div class="badge badge-primary">8</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Gap</div>
+                        <div class="badge badge-primary">6</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Puma</div>
+                        <div class="badge badge-primary">4</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Zara</div>
+                        <div class="badge badge-primary">5</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Other</div>
+                        <div class="badge badge-primary">24</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 24: Closet - By Occasion -->
+        <div class="screen" id="closet-by-occasion">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>By Occasion</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="tabs">
+                    <div class="tab" onclick="showScreen('closet')">All</div>
+                    <div class="tab" onclick="showScreen('closet-by-type')">By Type</div>
+                    <div class="tab" onclick="showScreen('closet-by-brand')">By Brand</div>
+                    <div class="tab active">By Occasion</div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Work</div>
+                        <div class="badge badge-primary">18</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Gym</div>
+                        <div class="badge badge-primary">12</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Casual</div>
+                        <div class="badge badge-primary">28</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Date Night</div>
+                        <div class="badge badge-primary">8</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 700;">Formal</div>
+                        <div class="badge badge-primary">6</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 25: Item Detail -->
+        <div class="screen" id="item-detail">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('closet')">←</button>
+                <h2>Item Details</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div style="width: 100%; aspect-ratio: 1; border: 1px solid #f0f0f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background: #fafafa;">
+                    <div style="font-size: 120px;">👔</div>
+                </div>
+                
+                <h2 style="margin-bottom: 6px; font-size: 22px;">White Button-up Shirt</h2>
+                <p style="color: #666; margin-bottom: 24px;">Added 2 weeks ago</p>
+                
+                <div class="card">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600; margin-bottom: 4px;">Category</div>
+                            <div style="font-weight: 700;">Shirt</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600; margin-bottom: 4px;">Color</div>
+                            <div style="font-weight: 700;">White</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600; margin-bottom: 4px;">Warmth</div>
+                            <div style="font-weight: 700;">Light</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600; margin-bottom: 4px;">Status</div>
+                            <div style="font-weight: 700; color: #4CAF50;">Clean</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600; margin-bottom: 4px;">Brand</div>
+                            <div style="font-weight: 700;">Gap</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Occasions</h3>
+                    <div class="chips">
+                        <div class="chip">Work</div>
+                        <div class="chip">Casual</div>
+                        <div class="chip">Formal</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 6px;">Worn 12 times</h3>
+                    <p style="font-size: 13px; color: #666; font-weight: 600;">Last worn 3 days ago</p>
+                </div>
+                
+                <button class="btn">Mark as Dirty</button>
+                <button class="btn" onclick="showScreen('add-item-tags')">Edit Item</button>
+                <button class="btn" style="color: #d32f2f; border-color: #d32f2f;">Delete Item</button>
+            </div>
+        </div>
+
+        <!-- 26: Shopping Home -->
+        <div class="screen" id="shopping">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>Wardrobe Builder</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content content-with-nav">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <h3 style="color: white; margin-bottom: 12px; font-size: 20px;">Unlock More Outfits</h3>
+                    <p style="font-size: 14px; margin-bottom: 16px;">Smart recommendations based on your closet</p>
+                    <button class="btn" style="background: white; color: #667eea; border: none;" onclick="showScreen('shopping-recommendations')">See Recommendations</button>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Top Picks for You</h3>
+                
+                <div class="card" onclick="showScreen('shopping-item')" style="cursor: pointer;">
+                    <div style="display: flex; gap: 16px;">
+                        <div style="width: 90px; height: 90px; border: 1px solid #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fafafa; flex-shrink: 0;">
+                            <div style="font-size: 48px;">🧥</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="margin-bottom: 6px; font-size: 16px;">Black Denim Jacket</h3>
+                            <p style="font-size: 13px; color: #666; margin-bottom: 10px; font-weight: 600;">$89.99</p>
+                            <p style="font-size: 15px; font-weight: 700; color: #667eea;">+15 new outfits</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="showScreen('shopping-item')" style="cursor: pointer;">
+                    <div style="display: flex; gap: 16px;">
+                        <div style="width: 90px; height: 90px; border: 1px solid #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fafafa; flex-shrink: 0;">
+                            <div style="font-size: 48px;">👟</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="margin-bottom: 6px; font-size: 16px;">White Canvas Sneakers</h3>
+                            <p style="font-size: 13px; color: #666; margin-bottom: 10px; font-weight: 600;">$65.00</p>
+                            <p style="font-size: 15px; font-weight: 700; color: #667eea;">+12 new outfits</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('closet')">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 27: Shopping Item Detail -->
+        <div class="screen" id="shopping-item">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('shopping')">←</button>
+                <h2>Item Details</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div style="width: 100%; aspect-ratio: 1; border: 1px solid #f0f0f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background: #fafafa;">
+                    <div style="font-size: 140px;">🧥</div>
+                </div>
+                
+                <h2 style="margin-bottom: 6px; font-size: 22px;">Black Denim Jacket</h2>
+                <p style="font-size: 22px; font-weight: 700; margin-bottom: 6px;">$89.99</p>
+                <p style="color: #666; margin-bottom: 24px; font-weight: 600;">By Urban Basics</p>
+                
+                <div class="card" style="background: #f0f7ff; border-color: #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 12px; font-size: 17px;">✨ Adds 15 New Outfits</h3>
+                    <p style="font-size: 14px; color: #666; font-weight: 600;">This jacket pairs with 15 items you already own</p>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Example Outfits</h3>
+                
+                <div style="display: flex; gap: 12px; overflow-x: auto; margin-bottom: 24px; padding-bottom: 8px;">
+                    <div style="min-width: 110px; text-align: center;">
+                        <div style="width: 110px; height: 140px; border: 1px solid #f0f0f0; border-radius: 12px; margin-bottom: 10px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px;">
+                            <div style="font-size: 32px;">🧥</div>
+                            <div style="font-size: 28px;">👕</div>
+                            <div style="font-size: 28px;">👖</div>
+                        </div>
+                        <p style="font-size: 12px; color: #666; font-weight: 600;">Casual Look</p>
+                    </div>
+                    <div style="min-width: 110px; text-align: center;">
+                        <div style="width: 110px; height: 140px; border: 1px solid #f0f0f0; border-radius: 12px; margin-bottom: 10px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px;">
+                            <div style="font-size: 32px;">🧥</div>
+                            <div style="font-size: 28px;">👔</div>
+                            <div style="font-size: 28px;">👖</div>
+                        </div>
+                        <p style="font-size: 12px; color: #666; font-weight: 600;">Smart Casual</p>
+                    </div>
+                    <div style="min-width: 110px; text-align: center;">
+                        <div style="width: 110px; height: 140px; border: 1px solid #f0f0f0; border-radius: 12px; margin-bottom: 10px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px;">
+                            <div style="font-size: 32px;">🧥</div>
+                            <div style="font-size: 28px;">👕</div>
+                            <div style="font-size: 28px;">🩳</div>
+                        </div>
+                        <p style="font-size: 12px; color: #666; font-weight: 600;">Weekend</p>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary btn-large">Shop Now</button>
+                <button class="btn">Save for Later</button>
+            </div>
+        </div>
+        <!-- 28: Feed Home (Locket Style) -->
+        <div class="screen" id="feed">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>Daily Fits</h2>
+                <button onclick="showScreen('feed-record')" style="background: none; border: none; font-size: 28px; cursor: pointer;">📷</button>
+            </div>
+            <div class="content content-with-nav">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 36px; font-weight: 800; margin-bottom: 4px;">7</div>
+                            <div style="font-size: 14px; font-weight: 600;">Day Streak 🔥</div>
+                        </div>
+                        <div style="font-size: 56px;">✨</div>
+                    </div>
+                    <p style="font-size: 13px; margin-top: 12px; opacity: 0.9;">Post today's fit to keep your streak!</p>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">This Week</h3>
+                <div class="streak-calendar">
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">MON</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">TUE</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">WED</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">THU</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">FRI</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">SAT</div>
+                        <div>✓</div>
+                    </div>
+                    <div class="day-cell today posted">
+                        <div style="font-size: 10px; margin-bottom: 4px;">SUN</div>
+                        <div>✓</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Friend Fits</h3>
+                
+                <div class="feed-post">
+                    <div class="post-header">
+                        <div class="avatar"></div>
+                        <div>
+                            <div class="username">Sarah M.</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="post-video" onclick="showScreen('feed-post-detail')">
+                        <div style="text-align: center;">
+                            <div style="font-size: 80px; margin-bottom: 12px;">▶️</div>
+                            <div style="font-size: 14px; color: #666; font-weight: 600;">Work fit today</div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn">❤️ <span style="font-size: 14px; font-weight: 600;">12</span></button>
+                        <button class="action-btn">💬 <span style="font-size: 14px; font-weight: 600;">3</span></button>
+                        <button class="action-btn" onclick="showScreen('clone-fit')">🔄</button>
+                    </div>
+                </div>
+                
+                <div class="feed-post">
+                    <div class="post-header">
+                        <div class="avatar"></div>
+                        <div>
+                            <div class="username">Mike J.</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">5 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="post-video" onclick="showScreen('feed-post-detail')">
+                        <div style="text-align: center;">
+                            <div style="font-size: 80px; margin-bottom: 12px;">▶️</div>
+                            <div style="font-size: 14px; color: #666; font-weight: 600;">Date night ready</div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn">❤️ <span style="font-size: 14px; font-weight: 600;">24</span></button>
+                        <button class="action-btn">💬 <span style="font-size: 14px; font-weight: 600;">8</span></button>
+                        <button class="action-btn" onclick="showScreen('clone-fit')">🔄</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('closet')">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 29: Feed Record -->
+        <div class="screen" id="feed-record">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('feed')">←</button>
+                <h2>Record Fit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="center-content" style="padding: 0;">
+                    <div style="width: 100%; aspect-ratio: 9/16; border: 1px solid #f0f0f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background: #fafafa;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 72px; margin-bottom: 12px;">🔹</div>
+                            <p style="color: #666; font-size: 15px; font-weight: 600;">Tap to record (max 10s)</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="showScreen('feed-tag')">Start Recording</button>
+            </div>
+        </div>
+
+        <!-- 30: Feed Tag Items -->
+        <div class="screen" id="feed-tag">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('feed-record')">←</button>
+                <h2>Tag Your Outfit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div style="width: 100%; aspect-ratio: 9/16; border: 1px solid #f0f0f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: #f0f0f0; position: relative;">
+                    <div style="font-size: 72px;">🔹</div>
+                    <div style="position: absolute; bottom: 12px; left: 12px; right: 12px;">
+                        <div style="background: rgba(0,0,0,0.75); color: white; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 6px; font-weight: 600;">
+                            👔 White Shirt
+                        </div>
+                        <div style="background: rgba(0,0,0,0.75); color: white; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;">
+                            👖 Navy Chinos
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Select Items</h3>
+                <div class="grid">
+                    <div class="grid-item" style="border-color: #667eea; background: #f0f4ff;">
+                        <div class="item-image">👔</div>
+                        <div class="item-label">White Shirt</div>
+                    </div>
+                    <div class="grid-item" style="border-color: #667eea; background: #f0f4ff;">
+                        <div class="item-image">👖</div>
+                        <div class="item-label">Navy Chinos</div>
+                    </div>
+                    <div class="grid-item">
+                        <div class="item-image">👞</div>
+                        <div class="item-label">Loafers</div>
+                    </div>
+                    <div class="grid-item">
+                        <div class="item-image">👕</div>
+                        <div class="item-label">Blue Polo</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 16px;" onclick="showScreen('feed-caption')">Continue</button>
+            </div>
+        </div>
+
+        <!-- 31: Feed Caption -->
+        <div class="screen" id="feed-caption">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('feed-tag')">←</button>
+                <h2>Add Details</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Occasion</h3>
+                <div class="chips">
+                    <div class="chip selected">Work</div>
+                    <div class="chip">Casual</div>
+                    <div class="chip">Date</div>
+                    <div class="chip">Formal</div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Caption (optional)</h3>
+                <input type="text" class="input" placeholder="Add a caption..." maxlength="60">
+                <p style="font-size: 12px; color: #666; margin-bottom: 24px; font-weight: 600;">60 characters max</p>
+                
+                <button class="btn btn-primary btn-large" onclick="showScreen('feed')">Post to Feed</button>
+            </div>
+        </div>
+
+        <!-- 32: Feed Post Detail -->
+        <div class="screen" id="feed-post-detail">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('feed')">←</button>
+                <h2>Post</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="post-header">
+                    <div class="avatar"></div>
+                    <div>
+                        <div class="username">Sarah M.</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">2 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="post-video" style="margin: 16px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 80px; margin-bottom: 12px;">▶️</div>
+                        <div style="font-size: 14px; color: #666; font-weight: 600;">Work fit today</div>
+                    </div>
+                </div>
+                
+                <div class="post-actions">
+                    <button class="action-btn">❤️ <span style="font-size: 14px; font-weight: 600;">12</span></button>
+                    <button class="action-btn">💬 <span style="font-size: 14px; font-weight: 600;">3</span></button>
+                    <button class="action-btn" onclick="showScreen('clone-fit')">🔄 Clone</button>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">Tagged Items</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px;">👔</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">White Shirt</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px;">👖</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Black Pants</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px;">👞</div>
+                            <div style="font-size: 12px; color: #666; font-weight: 600;">Dress Shoes</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Reactions & Comments</h3>
+                <div class="card">
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div class="avatar" style="width: 36px; height: 36px;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">Emma R.</div>
+                            <div style="font-size: 14px;">Clean fit! 🔥</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <div class="avatar" style="width: 36px; height: 36px;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">Alex K.</div>
+                            <div style="font-size: 14px;">Love those shoes!</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" class="input" placeholder="Add a reaction..." style="flex: 1; margin: 0;">
+                    <button class="btn btn-primary" style="margin: 0; padding: 16px 24px;">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 33: Clone Fit -->
+        <div class="screen" id="clone-fit">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('feed-post-detail')">←</button>
+                <h2>Clone This Fit</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" style="background: #f0f7ff; border-color: #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 12px; font-size: 17px;">✨ You have 2/3 items!</h3>
+                    <p style="font-size: 14px; color: #666; font-weight: 600;">Shop the missing item to complete this look</p>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">What You Have</h3>
+                <div class="card">
+                    <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
+                        <div style="font-size: 48px;">✅</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 15px;">White Button-up Shirt</div>
+                            <div style="font-size: 13px; color: #666; font-weight: 600;">From your closet</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <div style="font-size: 48px;">✅</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 15px;">Black Dress Pants</div>
+                            <div style="font-size: 13px; color: #666; font-weight: 600;">From your closet</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">What You Need</h3>
+                <div class="card" onclick="showScreen('shopping-item')" style="cursor: pointer;">
+                    <div style="display: flex; gap: 16px;">
+                        <div style="width: 90px; height: 90px; border: 1px solid #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fafafa; flex-shrink: 0;">
+                            <div style="font-size: 48px;">👞</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="margin-bottom: 6px; font-size: 16px;">Black Oxford Shoes</h3>
+                            <p style="font-size: 13px; color: #666; margin-bottom: 12px; font-weight: 600;">$129.99</p>
+                            <button class="btn btn-primary" style="padding: 10px 20px; font-size: 14px;">Shop Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn">Use What I Have Instead</button>
+            </div>
+        </div>
+
+        <!-- 34: Profile -->
+        <div class="screen" id="profile">
+            <div class="header">
+                <div class="spacer"></div>
+                <h2>Profile</h2>
+                <button onclick="showScreen('settings')" style="background: none; border: none; font-size: 28px; cursor: pointer;">⚙️</button>
+            </div>
+            <div class="content content-with-nav">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div class="avatar" style="width: 90px; height: 90px; margin: 0 auto 12px;"></div>
+                    <h2 style="margin-bottom: 6px; font-size: 22px;">Alex Johnson</h2>
+                    <p style="color: #666; font-weight: 600;">@alexj</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                    <div class="stat-box">
+                        <div class="stat-number" style="font-size: 28px;">47</div>
+                        <div class="stat-label">Items</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" style="font-size: 28px;">138</div>
+                        <div class="stat-label">Outfits</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" style="font-size: 28px;">7</div>
+                        <div class="stat-label">Streak</div>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="showScreen('premium')" style="cursor: pointer;">
+                    <h3 style="margin-bottom: 6px; font-size: 16px;">Free Trial</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">45 days remaining</p>
+                    <p style="font-size: 15px; font-weight: 700; color: #667eea;">Upgrade to Premium →</p>
+                </div>
+                
+                <button class="btn" onclick="showScreen('closet-stats')">View Closet Stats</button>
+                <button class="btn" onclick="showScreen('trip-list')">My Trips</button>
+                <button class="btn" onclick="showScreen('friend-circles')">Friend Circles</button>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home-smart')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('closet')">
+                    <div class="nav-icon">👔</div>
+                    <div class="nav-label">Closet</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('feed')">
+                    <div class="nav-icon">📱</div>
+                    <div class="nav-label">Feed</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('shopping')">
+                    <div class="nav-icon">🛍️</div>
+                    <div class="nav-label">Shop</div>
+                </div>
+                <div class="nav-item active">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 35: Closet Stats -->
+        <div class="screen" id="closet-stats">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('profile')">←</button>
+                <h2>Closet Stats</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="alert">
+                    <strong>⚠️ Laundry Time!</strong><br>
+                    You're running low on clean work shirts
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-number">47</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="stat-box">
+                        <div class="stat-number" style="color: #4CAF50;">38</div>
+                        <div class="stat-label">Clean</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" style="color: #FF9800;">9</div>
+                        <div class="stat-label">Dirty</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;">By Category</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-weight: 600;">Shirts (15)</span>
+                        <span style="color: #4CAF50; font-weight: 600;">12 clean</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-weight: 600;">Pants (12)</span>
+                        <span style="color: #4CAF50; font-weight: 600;">10 clean</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-weight: 600;">Shoes (8)</span>
+                        <span style="color: #4CAF50; font-weight: 600;">8 clean</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">Jackets (6)</span>
+                        <span style="color: #4CAF50; font-weight: 600;">5 clean</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary">Mark Items as Clean</button>
+            </div>
+        </div>
+
+        <!-- 36: Premium Subscription -->
+        <div class="screen" id="premium">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('profile')">←</button>
+                <h2>DressedUp Premium</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; text-align: center; padding: 40px 24px;">
+                    <div style="font-size: 72px; margin-bottom: 20px;">✨</div>
+                    <h2 style="color: white; margin-bottom: 12px; font-size: 24px;">Unlock Premium</h2>
+                    <p style="font-size: 16px; margin-bottom: 24px;">Get unlimited outfit suggestions and exclusive features</p>
+                    <div style="font-size: 40px; font-weight: 800; margin-bottom: 6px;">$5.99/mo</div>
+                    <p style="font-size: 14px; opacity: 0.95;">45 days free trial remaining</p>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Premium Features</h3>
+                
+                <div class="card">
+                    <div style="display: flex; gap: 16px; align-items: start;">
+                        <div style="font-size: 36px;">∞</div>
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 6px; font-size: 16px;">Unlimited Daily Suggestions</div>
+                            <p style="font-size: 14px; color: #666; font-weight: 600;">Get as many outfit suggestions as you need</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; gap: 16px; align-items: start;">
+                        <div style="font-size: 36px;">👥</div>
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 6px; font-size: 16px;">Private Friend Circles</div>
+                            <p style="font-size: 14px; color: #666; font-weight: 600;">Share fits with close friends only</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; gap: 16px; align-items: start;">
+                        <div style="font-size: 36px;">💑</div>
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 6px; font-size: 16px;">Couples Fit Planning</div>
+                            <p style="font-size: 14px; color: #666; font-weight: 600;">Coordinate outfits with your partner</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; gap: 16px; align-items: start;">
+                        <div style="font-size: 36px;">✈️</div>
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 6px; font-size: 16px;">Trip Packing Assistant</div>
+                            <p style="font-size: 14px; color: #666; font-weight: 600;">Smart packing lists for any trip</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary btn-large">Start Premium</button>
+                <p style="text-align: center; font-size: 12px; color: #666; margin-top: 12px; font-weight: 600;">Cancel anytime. No commitments.</p>
+            </div>
+        </div>
+
+        <!-- 37: Friend Circles -->
+        <div class="screen" id="friend-circles">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('profile')">←</button>
+                <h2>Friend Circles</h2>
+                <button onclick="showScreen('create-circle')" style="background: none; border: none; font-size: 28px; cursor: pointer;">+</button>
+            </div>
+            <div class="content">
+                <div class="card" style="background: #fff3cd; border-color: #ffc107;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 28px;">👑</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; margin-bottom: 4px; font-size: 15px;">Premium Feature</div>
+                            <p style="font-size: 13px; color: #666; font-weight: 600;">Upgrade to create private circles</p>
+                        </div>
+                        <button class="btn btn-primary" style="padding: 10px 20px; font-size: 14px; margin: 0;" onclick="showScreen('premium')">Upgrade</button>
+                    </div>
+                </div>
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Current Feed</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 16px; font-weight: 600;">See fits from friends you follow</p>
+                <button class="btn" onclick="showScreen('feed')">Browse Feed</button>
+            </div>
+        </div>
+
+        <!-- 38: Trip List -->
+        <div class="screen" id="trip-list">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('profile')">←</button>
+                <h2>My Trips</h2>
+                <button onclick="showScreen('trip-create')" style="background: none; border: none; font-size: 28px; cursor: pointer;">+</button>
+            </div>
+            <div class="content">
+                <div class="card" style="background: #fff3cd; border-color: #ffc107;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 28px;">👑</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; margin-bottom: 4px; font-size: 15px;">Premium Feature</div>
+                            <p style="font-size: 13px; color: #666; font-weight: 600;">Upgrade to use trip packing</p>
+                        </div>
+                        <button class="btn btn-primary" style="padding: 10px 20px; font-size: 14px; margin: 0;" onclick="showScreen('premium')">Upgrade</button>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Upcoming Trips</h3>
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 16px;">✈️</div>
+                    <p style="color: #666; font-weight: 600;">No upcoming trips</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 39: Trip Create -->
+        <div class="screen" id="trip-create">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('trip-list')">←</button>
+                <h2>New Trip</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Destination</h3>
+                <input type="text" class="input" placeholder="Where are you going?">
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Dates</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <input type="date" class="input" placeholder="Start date">
+                    <input type="date" class="input" placeholder="End date">
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Trip Type</h3>
+                <div class="chips">
+                    <div class="chip selected">Vacation</div>
+                    <div class="chip">Business</div>
+                    <div class="chip">Formal Event</div>
+                    <div class="chip">Weekend</div>
+                </div>
+                
+                <button class="btn btn-primary" style="margin-top: 32px;" onclick="showScreen('trip-packing')">Generate Packing List</button>
+            </div>
+        </div>
+
+        <!-- 40: Trip Packing List -->
+        <div class="screen" id="trip-packing">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('trip-list')">←</button>
+                <h2>Packing List</h2>
+                <button style="background: none; border: none; font-size: 28px; cursor: pointer;">📊</button>
+            </div>
+            <div class="content">
+                <div class="card" style="background: #f0f7ff; border-color: #667eea;">
+                    <h3 style="margin-bottom: 6px; font-size: 18px;">Miami, FL</h3>
+                    <p style="font-size: 14px; color: #666; font-weight: 600;">Dec 15-20 • Vacation</p>
+                    <p style="font-size: 15px; margin-top: 12px; font-weight: 600;">☀️ High 78°F • Low 68°F</p>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Clothing (7 items)</h3>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">White T-shirt (3)</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">Casual</div>
+                    </div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox checked">✓</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">Shorts (2)</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">Beach, Casual</div>
+                    </div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">Swimsuit</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">Beach</div>
+                    </div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">Sandals</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">Beach</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Essentials (6 items)</h3>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="font-weight: 600;">Toiletries</div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox checked">✓</div>
+                    <div style="font-weight: 600;">Phone Charger</div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="font-weight: 600;">Sunscreen</div>
+                </div>
+                <div class="list-item">
+                    <div class="checkbox"></div>
+                    <div style="font-weight: 600;">Sunglasses</div>
+                </div>
+                
+                <button class="btn btn-primary">All Packed!</button>
+            </div>
+        </div>
+
+        <!-- 41: Settings -->
+        <div class="screen" id="settings">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('profile')">←</button>
+                <h2>Settings</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="content">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Account</h3>
+                <div class="card">
+                    <div class="list-item" style="border: none; padding: 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Edit Profile</div>
+                    </div>
+                    <div class="list-item" style="padding: 16px 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Change Password</div>
+                    </div>
+                    <div class="list-item" style="border: none; padding: 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Connected Calendars</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">Notifications</h3>
+                <div class="card">
+                    <div class="list-item" style="border: none; padding: 0;">
+                        <div style="font-weight: 600;">Daily Fit Reminders</div>
+                        <div style="width: 48px; height: 28px; background: #4CAF50; border-radius: 14px;"></div>
+                    </div>
+                    <div class="list-item" style="padding: 16px 0;">
+                        <div style="font-weight: 600;">Laundry Reminders</div>
+                        <div style="width: 48px; height: 28px; background: #4CAF50; border-radius: 14px;"></div>
+                    </div>
+                    <div class="list-item" style="border: none; padding: 0;">
+                        <div style="font-weight: 600;">Shopping Suggestions</div>
+                        <div style="width: 48px; height: 28px; background: #e0e0e0; border-radius: 14px;"></div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 24px 0 12px 0; font-weight: 700;">About</h3>
+                <div class="card">
+                    <div class="list-item" style="border: none; padding: 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Privacy Policy</div>
+                    </div>
+                    <div class="list-item" style="padding: 16px 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Terms of Service</div>
+                    </div>
+                    <div class="list-item" style="border: none; padding: 0; cursor: pointer;">
+                        <div style="font-weight: 600;">Help & Support</div>
+                    </div>
+                </div>
+                
+                <button class="btn" style="color: #d32f2f; border-color: #d32f2f; margin-top: 24px;">Log Out</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show the selected screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Scroll to top
+            document.getElementById(screenId).scrollTop = 0;
+        }
+        
+        // Auto-advance from loading screen
+        setTimeout(() => {
+            showScreen('welcome');
+        }, 2000);
+    </script>
+</body>
+</html>
