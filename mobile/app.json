@@ -4,38 +4,51 @@
     "slug": "dressedup",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "dressedup",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#667eea"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dressedup.app"
+      "bundleIdentifier": "com.dressedup.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#667eea"
-      },
-      "package": "com.dressedup.app"
+      "package": "com.dressedup.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-asset",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DressedUp uses your photos to add clothing items to your closet.",
+          "cameraPermission": "DressedUp uses your camera to photograph clothing items for your closet."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#667eea"
+        }
+      ]
     ],
+    "extra": {
+      "eas": {
+        "projectId": "75cc4570-db86-4eb6-b9db-e3c3586862da"
+      },
+      "router": {}
+    },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "praiseogwuche"
   }
 }

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from datetime import UTC, datetime, timedelta
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin
 from app.utils.security import verify_password, get_password_hash, create_access_token
@@ -21,7 +22,8 @@ class AuthService:
         new_user = User(
             email=user_data.email,
             full_name=user_data.full_name,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            premium_trial_ends_at=datetime.now(UTC) + timedelta(days=45),
         )
 
         db.add(new_user)
@@ -56,6 +58,6 @@ class AuthService:
             )
 
         # Create access token
-        access_token = create_access_token(data={"sub": user.id})
+        access_token = create_access_token(data={"sub": str(user.id)})
 
         return access_token

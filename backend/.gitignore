@@ -29,6 +29,7 @@ venv/
 ENV/
 env/
 .venv/
+.venv*/
 
 # Environment variables
 .env
@@ -43,3 +44,6 @@ env/
 
 # Logs
 *.log
+
+# Uploaded media (local storage)
+media/

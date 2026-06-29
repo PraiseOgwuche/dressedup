@@ -1,130 +1,61 @@
 # DressedUp
 
-**Your intelligent wardrobe assistant**
+Digital closet + outfit assistant. **FastAPI / PostgreSQL** backend, **Expo** mobile app.
 
-## Overview
+## What's built
 
-DressedUp is an intelligent wardrobe assistant mobile app that helps users organize their closet, get daily outfit suggestions based on weather and occasion, track clean/dirty clothes, discover shopping recommendations, share fits with friends via streaks, and pack smartly for trips. Built with React Native for seamless iOS and Android experiences.
+- Auth, rich closet CRUD, AI ingestion (single / batch / flat-lay scan)
+- Outfit engine (color, formality, season, variety + rationale)
+- Plan my day, saved routines, wear & laundry tracking
+- Morning push infra (needs dev build; works in-app via “Send me my plan” in Expo Go)
+- Social, shop, trips (stubs / premium hooks)
 
-## Core Features
+Roadmap: [`PLAN.md`](./PLAN.md)
 
-### Digital Closet
-- Photo-based item cataloging with AI tagging
-- Organization by category, brand, occasion, and color
-- Clean/dirty status tracking
-- 47 items capacity with extensibility
+## Local dev
 
-### Smart Outfit Suggestions
-- Weather-aware recommendations
-- Occasion-based filtering (Work, Casual, Gym, Date, Formal, Night Out)
-- Multi-context planning for multiple daily events
-- Item swapping and alternative outfit options
-- 138+ outfit combinations from user's closet
+**Backend** — Python 3.11 or 3.12:
 
-### Social Feed
-- Share daily outfit videos (10-second max)
-- Tag items in posts with visual overlays
-- Clone outfits from friends
-- React and comment on posts
-- Track posting streaks
+```bash
+cd backend && python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env          # DATABASE_URL, SECRET_KEY
+alembic upgrade head
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### Shopping Integration
-- Identify missing items from cloned outfits
-- Direct purchase links for suggested items
-- Match items from user's closet to complete looks
+**Mobile** — Expo Go:
 
-### Trip Planning (Premium)
-- Destination-based packing lists
-- Weather-aware clothing recommendations
-- Checklist functionality with progress tracking
+```bash
+cd mobile && npm install
+cp .env.example .env          # EXPO_PUBLIC_API_BASE_URL=http://<your-mac-ip>:8000
+npx expo start --clear
+```
 
-### Additional Features
-- Laundry reminders and clean item tracking
-- Daily outfit suggestions for established routines
-- Closet statistics and insights
-- Calendar integration for scheduled events
-- Friend circles for private sharing (Premium)
-- Couples outfit coordination (Premium)
+Phone and Mac on the same Wi‑Fi. IP: `ipconfig getifaddr en0`.
 
-## User Flow
+**AI scans** — free with `VISION_PROVIDER=stub` in `backend/.env`. Real Claude vision: set `VISION_PROVIDER=anthropic` + `ANTHROPIC_API_KEY` (~$0.002/scan).
 
-1. **Onboarding**: Sign up → Learn features → Build digital closet (min 10 items)
-2. **Daily Use**: Check suggestions → Select or swap items → Confirm outfit → Mark as worn
-3. **Social**: Browse feed → Post outfit video → Tag items → Engage with friends
-4. **Management**: Track clean/dirty items → Review stats → Plan trips → Shop missing pieces
+**Tests:** `cd backend && pytest` · `cd mobile && npm test`
 
-## Subscription Model
+## Deploy (Render + Neon)
 
-### Free Trial
-- 45-day premium trial
-- Limited daily suggestions
-- Public feed access only
+1. Push this repo to GitHub.
+2. [Neon](https://neon.tech) → new project → copy Postgres connection string.
+3. [Render](https://render.com) → Blueprint or Web Service → repo root `backend`, Docker, free tier.
+4. Env vars: `DATABASE_URL`, `SECRET_KEY` (`openssl rand -hex 32`), `ENV=production`, `DEBUG=False`, `RUN_MIGRATIONS_ON_STARTUP=true`, `ALLOWED_ORIGINS=*`, `VISION_PROVIDER=stub`.
+5. `curl https://<your-app>.onrender.com/health`
+6. `mobile/.env` → `EXPO_PUBLIC_API_BASE_URL=https://<your-app>.onrender.com` → `npx expo start --clear`
 
-### Premium ($5.99/mo)
-- Unlimited daily outfit suggestions
-- Private friend circles
-- Couples fit planning
-- Trip packing assistant
-- Cancel anytime
+Free Render sleeps when idle (~30s cold start). Closet **images** on server disk are ephemeral until we add object storage.
 
-## Navigation Structure
+`railway.json` is an alternative host with the same env vars.
 
-**Bottom Nav (5 tabs)**
-- 🏠 Home: Daily suggestions and quick stats
-- 👔 Closet: Item management and browsing
-- 📱 Feed: Social posts and cloning
-- 🛍️ Shop: Purchase recommendations
-- 👤 Profile: Settings, stats, trips, circles
+## Troubleshooting
 
-## Key Screens
-
-### Home Screen
-**New User**: Manual "Get Dressed" flow with occasion selection
-**Established User**: Automatic multi-context suggestions based on learned routine
-
-### Closet Views
-- Grid view with filter tabs (All, By Type, By Brand, By Occasion)
-- Clean/Dirty toggle
-- Available fits counter
-- Item detail pages with edit/delete options
-
-### Daily Outfit Flow
-1. Occasion selection
-2. AI-generated suggestion
-3. Item swap options
-4. Alternative complete outfits
-5. Confirmation with worn status update
-
-### Feed
-- Vertical scroll of video posts
-- Post detail view with tagged items
-- Clone feature with item matching
-- Recording interface with 10s limit
-- Item tagging overlay
-
-## Technical Notes
-
-- Mobile-first design (390x844px)
-- Emoji-based item representation in wireframe
-- Real-time weather integration
-- Calendar sync for routine learning
-- Photo capture and AI categorization
-- Clean/dirty state management
-
-## Settings
-
-- Profile editing
-- Password management
-- Calendar connections
-- Notification preferences (Daily fit, Laundry, Shopping)
-- Privacy policy and terms
-- Help & support
-
-## Statistics Tracked
-
-- Total items in closet
-- Clean vs dirty item count
-- Available outfit combinations
-- Posting streak (days)
-- Total fits created
-- Items by category breakdown
+| Issue | Fix |
+|-------|-----|
+| Postgres `role "postgres" does not exist` | Use your macOS user in `DATABASE_URL`, `createdb dressedup` |
+| Alembic revision error | `python scripts/repair_alembic_version.py` then `alembic upgrade head` |
+| Expo can't reach API | Same Wi‑Fi, `--host 0.0.0.0`, correct IP in `mobile/.env` |
+| Push notifications | Need EAS dev build (`eas-cli`); Expo Go uses in-app plan only |

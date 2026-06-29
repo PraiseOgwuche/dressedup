@@ -1,0 +1,66 @@
+from typing import List, Optional
+
+from pydantic import BaseModel
+
+from app.schemas.closet import ClothingItemResponse
+
+
+class OutfitSuggestionRequest(BaseModel):
+    occasion: Optional[str] = None
+    weather_tag: Optional[str] = None
+    include_alternative: bool = True
+
+
+class OutfitSuggestion(BaseModel):
+    title: str
+    weather_tag: Optional[str] = None
+    occasion: Optional[str] = None
+    rationale: Optional[str] = None
+    top: Optional[ClothingItemResponse] = None
+    bottom: Optional[ClothingItemResponse] = None
+    shoes: Optional[ClothingItemResponse] = None
+    outerwear: Optional[ClothingItemResponse] = None
+    alternatives: List[ClothingItemResponse] = []
+
+
+class PlanActivity(BaseModel):
+    activity: str
+    occasion: str
+    mode: str  # "wear" (now) or "pack" (bring along)
+    title: str
+    rationale: Optional[str] = None
+    top: Optional[ClothingItemResponse] = None
+    bottom: Optional[ClothingItemResponse] = None
+    shoes: Optional[ClothingItemResponse] = None
+    outerwear: Optional[ClothingItemResponse] = None
+    packing_list: List[ClothingItemResponse] = []
+
+
+class DailyPlan(BaseModel):
+    weather_tag: Optional[str] = None
+    activities: List[PlanActivity] = []
+    routine_enabled: Optional[bool] = None
+    source: Optional[str] = None
+
+
+class DailyRoutineResponse(BaseModel):
+    enabled: bool = True
+    wake_time: str = "07:00"
+    weekday_activities: List[str] = []
+    weekend_activities: List[str] = []
+    gym_days: List[str] = []
+    default_weather_tag: Optional[str] = None
+    notifications_enabled: bool = False
+    timezone: str = "UTC"
+
+
+class DailyRoutineUpdate(BaseModel):
+    enabled: Optional[bool] = None
+    wake_time: Optional[str] = None
+    weekday_activities: Optional[List[str]] = None
+    weekend_activities: Optional[List[str]] = None
+    gym_days: Optional[List[str]] = None
+    default_weather_tag: Optional[str] = None
+    notifications_enabled: Optional[bool] = None
+    timezone: Optional[str] = None
+

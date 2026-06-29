@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: dressedup-backend
+    runtime: docker
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: RUN_MIGRATIONS_ON_STARTUP
+        value: "true"
+

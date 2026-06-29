@@ -1,11 +1,32 @@
-from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pathlib import Path
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Resolve `.env` next to the backend package so Alembic/uvicorn work from any working directory.
+_BACKEND_ROOT = Path(__file__).resolve().parent.parent
+
 
 class Settings(BaseSettings):
+    # Load `.env.example` first, then `.env` (so a real `.env` overrides). Missing files are skipped.
+    model_config = SettingsConfigDict(
+        env_file=(
+            str(_BACKEND_ROOT / ".env.example"),
+            str(_BACKEND_ROOT / ".env"),
+        ),
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
+
+    ENV: str = "development"
+
     # App Settings
     APP_NAME: str = "DressedUp API"
-    DEBUG: bool = True
+    DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
+    RUN_MIGRATIONS_ON_STARTUP: bool = False
 
     # Database
     DATABASE_URL: str
@@ -15,12 +36,40 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
-    # CORS
-    ALLOWED_ORIGINS: list = ["http://localhost:8081", "exp://192.168.*.*:8081"]
+    # AI closet ingestion. "stub" returns canned data (no tokens). Set to "anthropic"
+    # (and provide ANTHROPIC_API_KEY) to use a real model; falls back to stub if no key.
+    VISION_PROVIDER: str = "stub"
+    ANTHROPIC_API_KEY: str = ""
+    # Cheapest vision-capable Claude model; downscale + small output keep cost ~$0.002/scan.
+    VISION_MODEL: str = "claude-haiku-4-5"
+    VISION_MAX_IMAGE_PX: int = 768
+    VISION_MAX_OUTPUT_TOKENS: int = 600
+    # Bulk scan: cap items per batch (bounds token spend) and parallelism for speed.
+    MAX_BATCH_ITEMS: int = 15
+    INGEST_CONCURRENCY: int = 4
+    # Flat-lay scan: max distinct items detected in one photo.
+    MAX_MULTI_ITEMS_PER_PHOTO: int = 8
+    VISION_MAX_MULTI_OUTPUT_TOKENS: int = 1200
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    # Image storage. "local" writes under MEDIA_DIR and serves at MEDIA_URL_PREFIX;
+    # swap for object storage (S3/Supabase) at deploy without touching callers.
+    STORAGE_PROVIDER: str = "local"
+    MEDIA_DIR: str = str(_BACKEND_ROOT / "media")
+    MEDIA_URL_PREFIX: str = "/media"
+    MAX_UPLOAD_MB: int = 10
+
+    # Morning push notifications (Expo Push API — free). Scheduler ticks every minute.
+    NOTIFICATION_SCHEDULER_ENABLED: bool = False
+    EXPO_ACCESS_TOKEN: str = ""
+
+    # CORS — comma-separated in env files (List[str] would require JSON in .env)
+    ALLOWED_ORIGINS: str = Field(
+        default="http://localhost:8081,http://localhost:19006",
+    )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
 
 @lru_cache()
 def get_settings():

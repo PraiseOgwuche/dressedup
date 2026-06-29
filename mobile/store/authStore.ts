@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { authAPI } from '../services/api';
+import { getApiErrorMessage } from '../services/errors';
 import { User, LoginCredentials, RegisterData } from '../types';
 
 interface AuthState {
@@ -32,7 +33,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const user = await authAPI.getCurrentUser();
       set({ user, isAuthenticated: true, isLoading: false });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Login failed';
+      const errorMessage = getApiErrorMessage(error, 'Login failed');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -48,7 +49,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         password: data.password,
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Registration failed';
+      const errorMessage = getApiErrorMessage(error, 'Registration failed');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }

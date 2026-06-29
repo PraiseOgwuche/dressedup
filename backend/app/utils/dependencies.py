@@ -36,3 +36,12 @@ async def get_current_user(
         )
 
     return user
+
+
+async def require_premium_user(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_premium:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This feature requires premium access",
+        )
+    return current_user

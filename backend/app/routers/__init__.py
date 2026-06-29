@@ -1,1 +1,3 @@
-# Empty file to make routers a package
+from app.routers import auth, closet, notifications, outfit, social, shop, trips
+
+__all__ = ["auth", "closet", "notifications", "outfit", "social", "shop", "trips"]
