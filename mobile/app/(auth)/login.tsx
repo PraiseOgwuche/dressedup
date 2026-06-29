@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
+import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { COLORS } from '../../constants/config';
@@ -47,8 +48,8 @@ export default function LoginScreen() {
     try {
       await login({ email, password });
       router.replace('/(tabs)/home');
-    } catch (error) {
-      Alert.alert('Login Failed', 'Please check your credentials and try again.');
+    } catch (error: any) {
+      Alert.alert('Login Failed', getApiErrorMessage(error, 'Please check your credentials and try again.'));
     }
   };
 

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -39,7 +41,14 @@ async def get_current_user(
 
 
 async def require_premium_user(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_premium:
+    trial_ends = current_user.premium_trial_ends_at
+    trial_active = False
+    if trial_ends is not None:
+        if trial_ends.tzinfo is None:
+            trial_ends = trial_ends.replace(tzinfo=UTC)
+        trial_active = trial_ends > datetime.now(UTC)
+
+    if not current_user.is_premium and not trial_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This feature requires premium access",

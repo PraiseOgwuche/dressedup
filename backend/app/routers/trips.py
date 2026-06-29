@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.trips import TripPlanCreate, TripPlanResponse, TripPlanUpdate
+from app.schemas.trips import TripPackingPlan, TripPlanCreate, TripPlanResponse, TripPlanUpdate
 from app.services.trip_service import TripService
 from app.utils.dependencies import require_premium_user
 
@@ -37,4 +37,14 @@ def update_trip_plan(
     current_user: User = Depends(require_premium_user),
 ):
     return TripService.update_plan(db, current_user.id, plan_id, payload)
+
+
+@router.get("/plans/{plan_id}/packing", response_model=TripPackingPlan)
+def get_trip_packing_plan(
+    plan_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_premium_user),
+):
+    """One outfit per trip day plus a deduplicated packing list from the closet."""
+    return TripService.packing_plan(db, current_user.id, plan_id)
 

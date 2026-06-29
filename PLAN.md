@@ -21,7 +21,8 @@
 | Wear & laundry | ✅ | Category limits, hamper, wash-all |
 | I Daily plan + push | ✅ | Routines, scheduler; push needs dev build |
 | **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |
-| **J Voice agent** | — | “Dress me for…” → outfit |
+| **J Voice / text agent** | ✅ | `POST /outfits/ask` — natural language → outfit |
+| **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list |
 | Deploy + durable media | — | Render/Neon done; S3 for images next |
 
 ## Parked

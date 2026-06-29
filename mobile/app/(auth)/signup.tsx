@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
+import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { COLORS } from '../../constants/config';
@@ -75,8 +76,8 @@ export default function SignupScreen() {
         password,
       });
       router.replace('/(tabs)/home');
-    } catch (error) {
-      Alert.alert('Registration Failed', 'Please try again.');
+    } catch (error: any) {
+      Alert.alert('Registration Failed', getApiErrorMessage(error, 'Please try again.'));
     }
   };
 

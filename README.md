@@ -7,6 +7,7 @@ Digital closet + outfit assistant. **FastAPI / PostgreSQL** backend, **Expo** mo
 - Auth, rich closet CRUD, AI ingestion (single / batch / flat-lay / receipt / care-label / **email** scan)
 - Outfit engine v3: fashion knowledge (`backend/app/fashion/knowledge.yaml`) + learns from likes/wears
 - Trend vibes (quiet-luxury, streetwear, …) and occasion color palettes in outfit scoring
+- Ask DressedUp (natural language outfit requests) and trip packing lists
 - Plan my day, saved routines, wear & laundry tracking
 - Morning push infra (needs dev build; works in-app via “Send me my plan” in Expo Go)
 - Social, shop, trips (stubs / premium hooks)

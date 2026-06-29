@@ -5,7 +5,8 @@ export const API_CONFIG = {
       ? 'http://localhost:8000' // Use your local IP for physical device: 'http://192.168.x.x:8000'
       : 'https://your-production-api.com'),
   API_VERSION: '/api/v1',
-  TIMEOUT: 10000,
+  // Render free tier cold starts can take 30–60s.
+  TIMEOUT: 60000,
 };
 
 /** Resolve a server media path (e.g. "/media/items/x.jpg") to a full URL. */

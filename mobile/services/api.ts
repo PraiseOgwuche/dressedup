@@ -14,9 +14,11 @@ import {
   ReceiptIngestResult,
   LaundrySummary,
   OutfitSuggestion,
+  OutfitAskResponse,
   SocialPost,
   ShopRecommendation,
   TripPlan,
+  TripPackingPlan,
   DailyPlan,
   DailyRoutine,
   NotificationTestResult,
@@ -35,6 +37,36 @@ const toFilePart = (image: ImageUpload, fallbackName: string) => ({
   name: image.name || fallbackName,
   type: image.mimeType || 'image/jpeg',
 });
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isRetryableError = (error: unknown): boolean => {
+  const err = error as { response?: { status?: number }; code?: string; message?: string };
+  if (!err?.response) return true;
+  if (err.code === 'ECONNABORTED') return true;
+  const status = err.response.status;
+  return status === 502 || status === 503 || status === 504;
+};
+
+/** Retry auth calls — Render free tier sleeps and the first request often times out. */
+async function withAuthRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (attempt > 0) {
+        await axios.get(`${API_CONFIG.BASE_URL}/health`, { timeout: API_CONFIG.TIMEOUT });
+        await sleep(2000 * attempt);
+      }
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableError(error) || attempt === 2) {
+        throw error;
+      }
+    }
+  }
+  throw lastError;
+}
 
 const api = axios.create({
   baseURL: `${API_CONFIG.BASE_URL}${API_CONFIG.API_VERSION}`,
@@ -73,12 +105,12 @@ api.interceptors.response.use(
 
 export const authAPI = {
   register: async (data: RegisterData): Promise<User> => {
-    const response = await api.post<User>('/auth/register', data);
+    const response = await withAuthRetry(() => api.post<User>('/auth/register', data));
     return response.data;
   },
 
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
+    const response = await withAuthRetry(() => api.post<AuthResponse>('/auth/login', credentials));
     return response.data;
   },
 
@@ -231,6 +263,12 @@ export const outfitAPI = {
     const response = await api.get<{ id: string; label: string }[]>('/outfits/trends');
     return response.data;
   },
+  ask: async (query: string): Promise<OutfitAskResponse> => {
+    const response = await withAuthRetry(() =>
+      api.post<OutfitAskResponse>('/outfits/ask', { query }),
+    );
+    return response.data;
+  },
   plan: async (activities: string[], weatherTag?: string): Promise<DailyPlan> => {
     const response = await api.get<DailyPlan>('/outfits/plan', {
       params: {
@@ -301,6 +339,10 @@ export const tripsAPI = {
     notes?: string;
   }): Promise<TripPlan> => {
     const response = await api.post<TripPlan>('/trips/plans', payload);
+    return response.data;
+  },
+  getPacking: async (planId: number): Promise<TripPackingPlan> => {
+    const response = await api.get<TripPackingPlan>(`/trips/plans/${planId}/packing`);
     return response.data;
   },
 };

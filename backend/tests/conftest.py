@@ -54,6 +54,15 @@ def client():
 
 
 @pytest.fixture
+def db_session():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def auth_header(client):
     email = f"user-{uuid.uuid4().hex[:8]}@example.com"
     register_payload = {

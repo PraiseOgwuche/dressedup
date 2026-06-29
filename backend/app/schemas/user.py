@@ -17,6 +17,7 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_premium: bool
+    premium_trial_ends_at: Optional[datetime] = None
     created_at: datetime
 
     class Config:

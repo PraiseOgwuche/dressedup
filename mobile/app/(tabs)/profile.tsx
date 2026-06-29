@@ -21,7 +21,7 @@ import { useRoutineStore } from '../../store/routineStore';
 import { tripsAPI, notificationsAPI, emailIngestAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushNotifications';
-import { EmailIngestLog, EmailIngestSettings, TripPlan } from '../../types';
+import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess } from '../../types';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -30,6 +30,8 @@ export default function ProfileScreen() {
   const { routine, fetchRoutine, saveRoutine, sendMyPlan, saving, loading } = useRoutineStore();
 
   const [tripPlans, setTripPlans] = useState<TripPlan[]>([]);
+  const [packingPlan, setPackingPlan] = useState<TripPackingPlan | null>(null);
+  const [packingLoading, setPackingLoading] = useState<number | null>(null);
   const [destination, setDestination] = useState('');
   const [days, setDays] = useState('3');
   const [loadingTrips, setLoadingTrips] = useState(false);
@@ -62,7 +64,7 @@ export default function ProfileScreen() {
   }, []);
 
   const loadTrips = useCallback(async () => {
-    if (!user?.is_premium) {
+    if (!hasPremiumAccess(user)) {
       setTripPlans([]);
       return;
     }
@@ -75,7 +77,19 @@ export default function ProfileScreen() {
     } finally {
       setLoadingTrips(false);
     }
-  }, [user?.is_premium]);
+  }, [user]);
+
+  const loadPacking = async (planId: number) => {
+    setPackingLoading(planId);
+    try {
+      const plan = await tripsAPI.getPacking(planId);
+      setPackingPlan(plan);
+    } catch (error: any) {
+      Alert.alert('Packing failed', getApiErrorMessage(error, 'Could not build a packing list.'));
+    } finally {
+      setPackingLoading(null);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -238,8 +252,8 @@ export default function ProfileScreen() {
 
         <Text style={styles.name}>{user?.full_name}</Text>
         <Text style={styles.email}>{user?.email}</Text>
-        <Text style={[styles.premiumBadge, user?.is_premium ? styles.premiumOn : styles.premiumOff]}>
-          {user?.is_premium ? 'Premium Active' : 'Free Plan'}
+        <Text style={[styles.premiumBadge, hasPremiumAccess(user) ? styles.premiumOn : styles.premiumOff]}>
+          {hasPremiumAccess(user) ? 'Premium trial active' : 'Free Plan'}
         </Text>
 
         <View style={styles.stats}>
@@ -369,7 +383,7 @@ export default function ProfileScreen() {
 
         <View style={styles.tripCard}>
           <Text style={styles.cardTitle}>Trip Planner</Text>
-          {user?.is_premium ? (
+          {hasPremiumAccess(user) ? (
             <>
               <Input label="Destination" value={destination} onChangeText={setDestination} placeholder="Lagos" />
               <Input
@@ -389,11 +403,36 @@ export default function ProfileScreen() {
                 scrollEnabled={false}
                 ListEmptyComponent={<Text style={styles.tripEmpty}>No trips yet</Text>}
                 renderItem={({ item }) => (
-                  <Text style={styles.tripItem}>
-                    {item.destination} • {item.days} days
-                  </Text>
+                  <View style={styles.tripRow}>
+                    <Text style={styles.tripItem}>
+                      {item.destination} • {item.days} days
+                    </Text>
+                    <Button
+                      title="What to pack"
+                      onPress={() => loadPacking(item.id)}
+                      loading={packingLoading === item.id}
+                      style={styles.tripPackBtn}
+                    />
+                  </View>
                 )}
               />
+              {packingPlan ? (
+                <View style={styles.packingBox}>
+                  <Text style={styles.packingSummary}>{packingPlan.summary}</Text>
+                  {packingPlan.days.map((day) => (
+                    <Text key={day.day} style={styles.packingDay}>
+                      {day.title}
+                      {day.rationale ? ` — ${day.rationale}` : ''}
+                    </Text>
+                  ))}
+                  <Text style={styles.packingListTitle}>Suitcase ({packingPlan.packing_list.length})</Text>
+                  {packingPlan.packing_list.map((item) => (
+                    <Text key={item.id} style={styles.packingItem}>
+                      • {item.name || item.category}
+                    </Text>
+                  ))}
+                </View>
+              ) : null}
             </>
           ) : (
             <Text style={styles.tripLocked}>Upgrade to premium to unlock trip planning.</Text>
@@ -493,7 +532,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   tripLocked: { fontSize: 13, color: COLORS.textLight },
-  tripList: { maxHeight: 140, marginTop: 10 },
-  tripItem: { fontSize: 13, color: COLORS.text, paddingVertical: 6 },
+  tripList: { maxHeight: 220, marginTop: 10 },
+  tripRow: { marginBottom: 8 },
+  tripItem: { fontSize: 13, color: COLORS.text, paddingVertical: 4 },
+  tripPackBtn: { marginTop: 4 },
+  packingBox: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  packingSummary: { fontSize: 14, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
+  packingDay: { fontSize: 12, color: COLORS.textLight, marginBottom: 4, lineHeight: 17 },
+  packingListTitle: { fontSize: 13, fontWeight: '700', color: COLORS.text, marginTop: 10, marginBottom: 4 },
+  packingItem: { fontSize: 12, color: COLORS.text, paddingVertical: 2 },
   tripEmpty: { fontSize: 13, color: COLORS.textLight, marginTop: 6 },
 });

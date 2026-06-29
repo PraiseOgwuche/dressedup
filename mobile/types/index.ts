@@ -4,8 +4,18 @@ export interface User {
   full_name: string;
   is_active: boolean;
   is_premium: boolean;
+  premium_trial_ends_at?: string | null;
   created_at: string;
 }
+
+export const hasPremiumAccess = (user?: User | null): boolean => {
+  if (!user) return false;
+  if (user.is_premium) return true;
+  if (user.premium_trial_ends_at) {
+    return new Date(user.premium_trial_ends_at) > new Date();
+  }
+  return false;
+};
 
 export interface LoginCredentials {
   email: string;
@@ -164,6 +174,19 @@ export interface OutfitSuggestion {
   alternatives: ClosetItem[];
 }
 
+export interface ParsedOutfitIntent {
+  occasion?: string | null;
+  weather_tag?: string | null;
+  trend?: string | null;
+  interpretation: string;
+}
+
+export interface OutfitAskResponse {
+  query: string;
+  parsed: ParsedOutfitIntent;
+  suggestion: OutfitSuggestion;
+}
+
 export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear';
 
 export interface OutfitSwapOptions {
@@ -265,6 +288,23 @@ export interface TripPlan {
   notes?: string | null;
   is_completed: boolean;
   created_at: string;
+}
+
+export interface TripDayOutfit {
+  day: number;
+  title: string;
+  rationale?: string | null;
+  top?: ClosetItem | null;
+  bottom?: ClosetItem | null;
+  shoes?: ClosetItem | null;
+  outerwear?: ClosetItem | null;
+}
+
+export interface TripPackingPlan {
+  trip: TripPlan;
+  days: TripDayOutfit[];
+  packing_list: ClosetItem[];
+  summary: string;
 }
 
 export interface ShopRecommendation {

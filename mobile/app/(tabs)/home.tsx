@@ -11,6 +11,7 @@ import { getApiErrorMessage } from '../../services/errors';
 import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { ChipSelect } from '../../components/ui/ChipSelect';
+import { Input } from '../../components/ui/Input';
 import { OutfitCard, OutfitSlotKey } from '../../components/OutfitCard';
 
 export default function HomeScreen() {
@@ -30,6 +31,9 @@ export default function HomeScreen() {
   const [wearingActivity, setWearingActivity] = useState<string | null>(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [swappingSlot, setSwappingSlot] = useState<OutfitSlotKey | null>(null);
+  const [askQuery, setAskQuery] = useState('');
+  const [askLoading, setAskLoading] = useState(false);
+  const [askInterpretation, setAskInterpretation] = useState<string | null>(null);
   const { sendMyPlan, consumePendingPlan, loading: routineLoading } = useRoutineStore();
 
   const outfitFeedbackPayload = (outfit: {
@@ -85,6 +89,27 @@ export default function HomeScreen() {
       setIsLoading(false);
     }
   }, [occasion, weatherTag, trend]);
+
+  const handleAsk = async () => {
+    const query = askQuery.trim();
+    if (query.length < 3) {
+      Alert.alert('Say more', 'Try something like “Dress me for a cold work day, quiet luxury”.');
+      return;
+    }
+    setAskLoading(true);
+    try {
+      const response = await outfitAPI.ask(query);
+      setAskInterpretation(response.parsed.interpretation);
+      setOccasion(response.parsed.occasion || '');
+      setWeatherTag(response.parsed.weather_tag || '');
+      setTrend(response.parsed.trend || '');
+      setSuggestion(response.suggestion);
+    } catch (error: any) {
+      Alert.alert('Unable to dress you', getApiErrorMessage(error, 'Could not parse that request.'));
+    } finally {
+      setAskLoading(false);
+    }
+  };
 
   const loadPlan = useCallback(async () => {
     setPlanLoading(true);
@@ -238,6 +263,24 @@ export default function HomeScreen() {
               <Text style={styles.laundryHintText}>🧺 {laundry.message}</Text>
             </View>
           ) : null}
+
+          <View style={styles.routineHero}>
+            <Text style={styles.sectionTitle}>Ask DressedUp</Text>
+            <Text style={styles.sectionHint}>
+              Type what you need — we&apos;ll pick occasion, weather, and vibe for you.
+            </Text>
+            <Input
+              placeholder="Dress me for a cold work day, quiet luxury…"
+              value={askQuery}
+              onChangeText={setAskQuery}
+              onSubmitEditing={handleAsk}
+              returnKeyType="go"
+            />
+            <Button title="Dress me" loading={askLoading} onPress={handleAsk} />
+            {askInterpretation ? (
+              <Text style={styles.askInterpretation}>{askInterpretation}</Text>
+            ) : null}
+          </View>
 
           <View style={styles.routineHero}>
             <Text style={styles.sectionTitle}>My routine</Text>
@@ -413,5 +456,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 12,
     marginBottom: 16,
+  },
+  askInterpretation: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '600',
+    marginTop: 10,
+    textAlign: 'center',
   },
 });

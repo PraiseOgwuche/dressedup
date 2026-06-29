@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.schemas.closet import ClothingItemResponse
 
@@ -89,4 +89,21 @@ class OutfitFeedbackResponse(BaseModel):
 class TrendOption(BaseModel):
     id: str
     label: str
+
+
+class ParsedOutfitIntent(BaseModel):
+    occasion: Optional[str] = None
+    weather_tag: Optional[str] = None
+    trend: Optional[str] = None
+    interpretation: str
+
+
+class OutfitAskRequest(BaseModel):
+    query: str = Field(min_length=3, max_length=500)
+
+
+class OutfitAskResponse(BaseModel):
+    query: str
+    parsed: ParsedOutfitIntent
+    suggestion: OutfitSuggestion
 

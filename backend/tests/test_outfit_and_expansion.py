@@ -159,8 +159,3 @@ def test_social_and_shop_endpoints(client, auth_header):
     assert shop_response.status_code == 200
     assert "recommendations" in shop_response.json()
 
-
-def test_trip_requires_premium(client, auth_header):
-    response = client.get("/api/v1/trips/plans", headers=auth_header)
-    assert response.status_code == 403
-

@@ -7,12 +7,16 @@ from app.schemas.outfit import (
     DailyPlan,
     DailyRoutineResponse,
     DailyRoutineUpdate,
+    OutfitAskRequest,
+    OutfitAskResponse,
     OutfitFeedbackCreate,
     OutfitFeedbackResponse,
     OutfitSuggestion,
+    ParsedOutfitIntent,
     TrendOption,
 )
 from app.services.outfit_service import OutfitService
+from app.services.outfit_ask_service import parse_outfit_query
 from app.services.plan_service import PlanService
 from app.services.preference_service import PreferenceService
 from app.services.routine_service import RoutineService
@@ -64,6 +68,32 @@ def get_outfit_suggestion(
 def list_outfit_trends():
     """Aesthetic vibes from the fashion rulebook (quiet-luxury, streetwear, etc.)."""
     return available_trends()
+
+
+@router.post("/ask", response_model=OutfitAskResponse)
+def ask_for_outfit(
+    payload: OutfitAskRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Natural language → parsed context → outfit suggestion.
+
+    Examples: "Dress me for a cold work day, quiet luxury vibe"
+    """
+    parsed = parse_outfit_query(payload.query)
+    suggestion = OutfitService.get_suggestion(
+        db=db,
+        user_id=current_user.id,
+        weather_tag=parsed.weather_tag,
+        occasion=parsed.occasion,
+        trend=parsed.trend,
+        include_alternative=True,
+    )
+    return {
+        "query": payload.query.strip(),
+        "parsed": ParsedOutfitIntent(**parsed.to_dict()),
+        "suggestion": suggestion,
+    }
 
 
 @router.get("/plan", response_model=DailyPlan)
