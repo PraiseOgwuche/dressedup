@@ -2,6 +2,7 @@ services:
   - type: web
     name: dressedup-backend
     runtime: docker
+    plan: free
     rootDir: backend
     envVars:
       - key: DATABASE_URL
