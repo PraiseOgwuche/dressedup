@@ -155,6 +155,7 @@ export interface OutfitSuggestion {
   title: string;
   weather_tag?: string | null;
   occasion?: string | null;
+  trend?: string | null;
   rationale?: string | null;
   top?: ClosetItem | null;
   bottom?: ClosetItem | null;

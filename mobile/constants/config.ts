@@ -37,6 +37,7 @@ export const TAXONOMY = {
   seasons: ['spring', 'summer', 'fall', 'winter', 'all-season'],
   weather: ['hot', 'warm', 'mild', 'cold', 'rainy', 'snow'],
   occasions: ['everyday', 'work', 'date', 'party', 'formal-event', 'workout', 'travel', 'loungewear', 'outdoor'],
+  trends: ['quiet-luxury', 'streetwear', 'minimalist', 'preppy', 'classic'],
   activities: ['work', 'gym', 'everyday', 'date', 'party', 'travel', 'outdoor'],
   weekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
 };

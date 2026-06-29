@@ -10,4 +10,5 @@ class MatchContext:
 
     weather_tag: Optional[str] = None
     occasion: Optional[str] = None
+    trend: Optional[str] = None
     target_seasons: set[str] = field(default_factory=set)

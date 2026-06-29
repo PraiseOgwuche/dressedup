@@ -16,7 +16,8 @@
 | H Flat-lay multi-item | ✅ | `POST /closet/ingest/multi` |
 | Outfit engine v2 | ✅ | Scoring, variety, rationale |
 | **Outfit engine v3** | ✅ | Fashion knowledge base + preference learning |
-| **Fashion rulebook (YAML)** | ✅ | `app/fashion/knowledge.yaml` — colors, textures, occasions |
+| **Fashion rulebook (YAML)** | ✅ | `app/fashion/knowledge.yaml` — colors, textures, occasions, trends |
+| **Trend tags + occasion palettes** | ✅ | quiet-luxury, streetwear, etc.; per-occasion color palettes |
 | Wear & laundry | ✅ | Category limits, hamper, wash-all |
 | I Daily plan + push | ✅ | Routines, scheduler; push needs dev build |
 | **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |

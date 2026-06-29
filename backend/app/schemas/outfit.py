@@ -16,6 +16,7 @@ class OutfitSuggestion(BaseModel):
     title: str
     weather_tag: Optional[str] = None
     occasion: Optional[str] = None
+    trend: Optional[str] = None
     rationale: Optional[str] = None
     top: Optional[ClothingItemResponse] = None
     bottom: Optional[ClothingItemResponse] = None
@@ -83,4 +84,9 @@ class OutfitFeedbackResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class TrendOption(BaseModel):
+    id: str
+    label: str
 

@@ -17,18 +17,21 @@ from app.fashion.style_rules import (
     score_season,
     score_textures,
 )
+from app.fashion.trend_rules import score_occasion_palette, score_trend_fit
 
 if TYPE_CHECKING:
     from app.models.clothing_item import ClothingItem
 
 # Layer 1 weights (fashion standards). Sum of absolute weights ~= 1.0 scale target.
-_W_COLOR = 0.30
-_W_FORMALITY = 0.20
-_W_PATTERN = 0.12
-_W_TEXTURE = 0.08
-_W_FOOTWEAR = 0.12
-_W_SEASON = 0.10
-_W_OCCASION = 0.06
+_W_COLOR = 0.26
+_W_FORMALITY = 0.18
+_W_PATTERN = 0.10
+_W_TEXTURE = 0.07
+_W_FOOTWEAR = 0.10
+_W_SEASON = 0.08
+_W_OCCASION = 0.05
+_W_PALETTE = 0.08
+_W_TREND = 0.08
 _W_FRESH = 0.02
 
 # Layer 2 — learned preferences can move the needle but not override hard clashes.
@@ -45,6 +48,8 @@ class ScoreBreakdown:
     footwear: float = 0.0
     season: float = 0.0
     occasion: float = 0.0
+    occasion_palette: float = 0.0
+    trend: float = 0.0
     freshness: float = 0.0
     personalization: float = 0.0
     highlights: list[str] = field(default_factory=list)
@@ -121,6 +126,16 @@ class FashionMatcher:
         breakdown.highlights.extend(occ_hi)
         breakdown.warnings.extend(occ_warn)
 
+        pal_raw, pal_hi, pal_warn = score_occasion_palette(garments, context.occasion)
+        breakdown.occasion_palette = pal_raw
+        breakdown.highlights.extend(pal_hi)
+        breakdown.warnings.extend(pal_warn)
+
+        trend_raw, trend_hi, trend_warn = score_trend_fit(garments, context.trend)
+        breakdown.trend = trend_raw
+        breakdown.highlights.extend(trend_hi)
+        breakdown.warnings.extend(trend_warn)
+
         wears = sum((g.times_worn or 0) for g in garments)
         breakdown.freshness = -min(wears * 0.02, 0.25)
 
@@ -135,6 +150,8 @@ class FashionMatcher:
             + _W_FOOTWEAR * breakdown.footwear
             + _W_SEASON * breakdown.season
             + _W_OCCASION * breakdown.occasion
+            + _W_PALETTE * breakdown.occasion_palette
+            + _W_TREND * breakdown.trend
             + _W_FRESH * breakdown.freshness
             + _W_PERSONAL * personalization
         )

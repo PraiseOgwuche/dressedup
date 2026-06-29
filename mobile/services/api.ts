@@ -207,11 +207,13 @@ export const outfitAPI = {
     occasion?: string,
     weatherTag?: string,
     swap?: OutfitSwapOptions,
+    trend?: string,
   ): Promise<OutfitSuggestion> => {
     const response = await api.get<OutfitSuggestion>('/outfits/suggestion', {
       params: {
         occasion,
         weather_tag: weatherTag,
+        trend,
         ...(swap
           ? {
               swap_slot: swap.swapSlot,
@@ -223,6 +225,10 @@ export const outfitAPI = {
           : {}),
       },
     });
+    return response.data;
+  },
+  getTrends: async (): Promise<{ id: string; label: string }[]> => {
+    const response = await api.get<{ id: string; label: string }[]>('/outfits/trends');
     return response.data;
   },
   plan: async (activities: string[], weatherTag?: string): Promise<DailyPlan> => {

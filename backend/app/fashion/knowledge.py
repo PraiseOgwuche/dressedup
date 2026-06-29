@@ -96,5 +96,21 @@ def category_rules() -> list[dict[str, Any]]:
     return list(load_knowledge().get("category_rules", []))
 
 
+@lru_cache
+def occasion_color_palettes() -> dict[str, set[str]]:
+    rules = occasion_rules()
+    return {
+        name: set(config.get("color_palette", []))
+        for name, config in rules.items()
+        if config.get("color_palette")
+    }
+
+
+@lru_cache
+def trend_profiles() -> dict[str, dict[str, Any]]:
+    raw = load_knowledge().get("trends", {})
+    return {name: dict(profile) for name, profile in (raw or {}).items()}
+
+
 def knowledge_version() -> int:
     return int(load_knowledge().get("meta", {}).get("version", 1))

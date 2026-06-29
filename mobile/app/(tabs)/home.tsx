@@ -19,6 +19,7 @@ export default function HomeScreen() {
   const { items, laundry, fetchItems, fetchLaundry } = useClosetStore();
   const [suggestion, setSuggestion] = useState<OutfitSuggestion | null>(null);
   const [occasion, setOccasion] = useState('');
+  const [trend, setTrend] = useState('');
   const [weatherTag, setWeatherTag] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [wearing, setWearing] = useState(false);
@@ -71,14 +72,19 @@ export default function HomeScreen() {
   const loadSuggestion = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await outfitAPI.getSuggestion(occasion || undefined, weatherTag || undefined);
+      const response = await outfitAPI.getSuggestion(
+        occasion || undefined,
+        weatherTag || undefined,
+        undefined,
+        trend || undefined,
+      );
       setSuggestion(response);
     } catch {
       Alert.alert('Unable to load', 'Could not fetch outfit suggestions yet.');
     } finally {
       setIsLoading(false);
     }
-  }, [occasion, weatherTag]);
+  }, [occasion, weatherTag, trend]);
 
   const loadPlan = useCallback(async () => {
     setPlanLoading(true);
@@ -181,13 +187,18 @@ export default function HomeScreen() {
     if (!suggestion) return;
     setSwappingSlot(slot);
     try {
-      const response = await outfitAPI.getSuggestion(occasion || undefined, weatherTag || undefined, {
-        swapSlot: slot,
-        topId: suggestion.top?.id,
-        bottomId: suggestion.bottom?.id,
-        shoesId: suggestion.shoes?.id,
-        outerwearId: suggestion.outerwear?.id,
-      });
+      const response = await outfitAPI.getSuggestion(
+        occasion || undefined,
+        weatherTag || undefined,
+        {
+          swapSlot: slot,
+          topId: suggestion.top?.id,
+          bottomId: suggestion.bottom?.id,
+          shoesId: suggestion.shoes?.id,
+          outerwearId: suggestion.outerwear?.id,
+        },
+        trend || undefined,
+      );
       setSuggestion(response);
     } catch {
       Alert.alert('Unable to swap', 'No better alternative found in your closet for that piece.');
@@ -291,6 +302,12 @@ export default function HomeScreen() {
               options={TAXONOMY.occasions}
               selected={occasion}
               onSelect={(v) => setOccasion((prev) => (prev === v ? '' : v))}
+            />
+            <ChipSelect
+              label="Vibe"
+              options={TAXONOMY.trends}
+              selected={trend}
+              onSelect={(v) => setTrend((prev) => (prev === v ? '' : v))}
             />
             <Button title="Generate Outfit" loading={isLoading} onPress={loadSuggestion} />
           </View>

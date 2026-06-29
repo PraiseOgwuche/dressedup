@@ -32,10 +32,16 @@ class OutfitService:
     BOTTOM_SUBCATEGORIES = {"athletic-shorts"}
 
     @classmethod
-    def _context(cls, weather_tag: Optional[str], occasion: Optional[str]) -> MatchContext:
+    def _context(
+        cls,
+        weather_tag: Optional[str],
+        occasion: Optional[str],
+        trend: Optional[str] = None,
+    ) -> MatchContext:
         return MatchContext(
             weather_tag=weather_tag,
             occasion=occasion,
+            trend=trend,
             target_seasons=weather_seasons(weather_tag),
         )
 
@@ -126,6 +132,7 @@ class OutfitService:
         bottom_id: Optional[int] = None,
         shoes_id: Optional[int] = None,
         outerwear_id: Optional[int] = None,
+        trend: Optional[str] = None,
     ):
         if swap_slot:
             return cls._swap_piece(
@@ -133,6 +140,7 @@ class OutfitService:
                 user_id=user_id,
                 weather_tag=weather_tag,
                 occasion=occasion,
+                trend=trend,
                 include_alternative=include_alternative,
                 swap_slot=swap_slot,
                 top_id=top_id,
@@ -142,7 +150,7 @@ class OutfitService:
             )
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
-        context = cls._context(weather_tag, occasion)
+        context = cls._context(weather_tag, occasion, trend)
 
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
@@ -186,6 +194,7 @@ class OutfitService:
             "title": "Today's outfit suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
+            "trend": trend,
             "rationale": rationale,
             "top": chosen_top,
             "bottom": chosen_bottom,
@@ -207,6 +216,7 @@ class OutfitService:
         bottom_id: Optional[int],
         shoes_id: Optional[int],
         outerwear_id: Optional[int],
+        trend: Optional[str] = None,
     ):
         valid_slots = {"top", "bottom", "shoes", "outerwear"}
         if swap_slot not in valid_slots:
@@ -218,7 +228,7 @@ class OutfitService:
         locked_outerwear = cls._get_owned(db, user_id, outerwear_id)
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
-        context = cls._context(weather_tag, occasion)
+        context = cls._context(weather_tag, occasion, trend)
 
         exclude_ids: set[int] = set()
         if swap_slot == "top" and locked_top:
@@ -312,6 +322,7 @@ class OutfitService:
             "title": f"New {swapped} suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
+            "trend": trend,
             "rationale": rationale,
             "top": chosen_top,
             "bottom": chosen_bottom,

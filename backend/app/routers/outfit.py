@@ -10,11 +10,13 @@ from app.schemas.outfit import (
     OutfitFeedbackCreate,
     OutfitFeedbackResponse,
     OutfitSuggestion,
+    TrendOption,
 )
 from app.services.outfit_service import OutfitService
 from app.services.plan_service import PlanService
 from app.services.preference_service import PreferenceService
 from app.services.routine_service import RoutineService
+from app.fashion.trend_rules import available_trends
 from app.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/outfits", tags=["Outfits"])
@@ -24,6 +26,7 @@ router = APIRouter(prefix="/outfits", tags=["Outfits"])
 def get_outfit_suggestion(
     occasion: str | None = None,
     weather_tag: str | None = None,
+    trend: str | None = None,
     include_alternative: bool = True,
     swap_slot: str | None = None,
     top_id: int | None = None,
@@ -51,9 +54,16 @@ def get_outfit_suggestion(
             bottom_id=bottom_id,
             shoes_id=shoes_id,
             outerwear_id=outerwear_id,
+            trend=trend,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/trends", response_model=list[TrendOption])
+def list_outfit_trends():
+    """Aesthetic vibes from the fashion rulebook (quiet-luxury, streetwear, etc.)."""
+    return available_trends()
 
 
 @router.get("/plan", response_model=DailyPlan)

@@ -4,7 +4,7 @@
 # conventions; dress-code references (business casual, black-tie adjacent).
 
 meta:
-  version: 2
+  version: 3
   description: Universal outfit-matching rules before user personalization.
 
 colors:
@@ -134,32 +134,41 @@ occasions:
     min_formality: business
     banned_footwear: [sneakers, sandals, slides, trainers, flip-flops]
     required_polish: true
+    color_palette: [black, charcoal, navy, white, ivory, burgundy, silver, gray, grey]
   work:
     formality_gap_max: 1
     min_formality: smart-casual
     banned_footwear: [flip-flops, slides]
+    color_palette: [navy, charcoal, gray, grey, white, blue, beige, camel, brown, black]
   date:
     formality_gap_max: 2
     min_formality: casual
+    color_palette: [black, red, burgundy, blush, pink, navy, cream, white, emerald, wine]
   party:
     formality_gap_max: 2
     min_formality: casual
+    color_palette: [black, gold, silver, red, cobalt, emerald, purple, hot-pink, white, sequin]
   everyday:
     formality_gap_max: 2
     min_formality: loungewear
+    color_palette: [denim, white, gray, grey, navy, black, beige, olive, tan, cream]
   travel:
     formality_gap_max: 2
     min_formality: casual
+    color_palette: [navy, black, gray, grey, beige, olive, denim, white, tan, charcoal]
   outdoor:
     formality_gap_max: 2
     min_formality: casual
+    color_palette: [olive, khaki, tan, brown, forest, navy, orange, rust, cream, denim]
   workout:
     formality_gap_max: 3
     min_formality: loungewear
     requires_activewear: true
+    color_palette: [black, gray, grey, navy, neon, white, red, blue, purple]
   loungewear:
     formality_gap_max: 3
     min_formality: loungewear
+    color_palette: [gray, grey, black, cream, oatmeal, beige, soft-pink, lavender, white]
 
 patterns:
   statement:
@@ -260,3 +269,46 @@ cold_weather_tags:
   - cold
   - snow
   - rainy
+
+# Aesthetic trend profiles — used when user picks a vibe (quiet-luxury, streetwear, etc.).
+trends:
+  quiet-luxury:
+    label: Quiet luxury
+    formality: [smart-casual, business, formal]
+    colors: [black, white, gray, grey, navy, camel, cream, taupe, beige, charcoal, ivory, espresso, sand]
+    patterns: [solid]
+    avoid_patterns: [graphic, camo, animal-print, polka-dot]
+    materials: [wool, cashmere, silk, leather, linen, cotton, suede]
+    footwear: [loafers, heels, boots, oxfords, brogues, derbies]
+  streetwear:
+    label: Streetwear
+    formality: [loungewear, casual, smart-casual]
+    colors: [black, white, gray, grey, red, orange, neon, navy, olive, cream]
+    patterns: [graphic, camo, solid]
+    avoid_patterns: []
+    materials: [cotton, denim, nylon, polyester, leather, fleece]
+    footwear: [sneakers, boots, sandals, trainers]
+  minimalist:
+    label: Minimalist
+    formality: [casual, smart-casual, business]
+    colors: [black, white, gray, grey, navy, beige, cream, charcoal, tan]
+    patterns: [solid]
+    avoid_patterns: [graphic, floral, animal-print, camo, plaid]
+    materials: [cotton, wool, linen, leather, denim]
+    footwear: [sneakers, loafers, boots, flats]
+  preppy:
+    label: Preppy
+    formality: [casual, smart-casual, business]
+    colors: [navy, white, cream, khaki, burgundy, forest, pink, yellow, light-blue]
+    patterns: [striped, plaid, checked, solid]
+    avoid_patterns: [graphic, camo]
+    materials: [cotton, wool, linen, cashmere, leather]
+    footwear: [loafers, boat-shoes, sneakers, boots, oxfords]
+  classic:
+    label: Classic
+    formality: [smart-casual, business, formal]
+    colors: [navy, white, gray, grey, charcoal, brown, beige, cream, burgundy, black]
+    patterns: [solid, striped, checked]
+    avoid_patterns: [graphic, camo]
+    materials: [wool, cotton, leather, silk, cashmere, linen]
+    footwear: [loafers, oxfords, heels, boots, brogues]
