@@ -15,9 +15,11 @@
 | G Bulk scan | ✅ | Many photos, review queue |
 | H Flat-lay multi-item | ✅ | `POST /closet/ingest/multi` |
 | Outfit engine v2 | ✅ | Scoring, variety, rationale |
+| **Outfit engine v3** | ✅ | Fashion knowledge base + preference learning |
+| **Fashion rulebook (YAML)** | ✅ | `app/fashion/knowledge.yaml` — colors, textures, occasions |
 | Wear & laundry | ✅ | Category limits, hamper, wash-all |
 | I Daily plan + push | ✅ | Routines, scheduler; push needs dev build |
-| **F Email/receipt import** | — | Zero-effort brand + SKU |
+| **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |
 | **J Voice agent** | — | “Dress me for…” → outfit |
 | Deploy + durable media | — | Render/Neon done; S3 for images next |
 

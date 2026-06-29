@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -63,4 +64,23 @@ class DailyRoutineUpdate(BaseModel):
     default_weather_tag: Optional[str] = None
     notifications_enabled: Optional[bool] = None
     timezone: Optional[str] = None
+
+
+class OutfitFeedbackCreate(BaseModel):
+    top_id: Optional[int] = None
+    bottom_id: Optional[int] = None
+    shoes_id: Optional[int] = None
+    outerwear_id: Optional[int] = None
+    signal: str  # like | dislike | wore
+    occasion: Optional[str] = None
+    weather_tag: Optional[str] = None
+
+
+class OutfitFeedbackResponse(BaseModel):
+    id: int
+    signal: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 

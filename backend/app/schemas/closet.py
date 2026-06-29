@@ -29,6 +29,7 @@ class ClothingItemCreate(ClothingItemBase):
     source: str = Field(default="manual", max_length=20)
     confidence: Optional[dict[str, float]] = None
     needs_review: bool = False
+    ai_metadata: Optional[dict] = None
 
 
 class ClothingItemUpdate(BaseModel):

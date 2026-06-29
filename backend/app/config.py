@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     # Flat-lay scan: max distinct items detected in one photo.
     MAX_MULTI_ITEMS_PER_PHOTO: int = 8
     VISION_MAX_MULTI_OUTPUT_TOKENS: int = 1200
+    # Receipt scan: max clothing line items parsed from one receipt photo.
+    MAX_RECEIPT_ITEMS: int = 15
+    VISION_MAX_RECEIPT_OUTPUT_TOKENS: int = 1500
+
+    # Email import (Mailgun inbound). Each user gets u-{ingest_token}@EMAIL_INGEST_DOMAIN.
+    EMAIL_INGEST_ENABLED: bool = False
+    EMAIL_INGEST_DOMAIN: str = ""
+    MAILGUN_WEBHOOK_SIGNING_KEY: str = ""
+    # Allow POST /closet/email-ingest/simulate in production (off by default).
+    EMAIL_INGEST_ALLOW_SIMULATE: bool = False
 
     # Image storage. "local" writes under MEDIA_DIR and serves at MEDIA_URL_PREFIX;
     # swap for object storage (S3/Supabase) at deploy without touching callers.

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.schemas.ingestion import DraftItem
+from app.schemas.ingestion import DraftItem, ReceiptExtract
 from app.services.vision.base import VisionProvider
 
 
@@ -98,3 +98,54 @@ class StubVisionProvider(VisionProvider):
             needs_review=True,
         )
         return [top, bottom, belt]
+
+    def extract_from_receipt(self, receipt_image: bytes) -> ReceiptExtract:
+        items = [
+            DraftItem(
+                name="Airism crew neck T-shirt",
+                category="top",
+                subcategory="t-shirt",
+                brand="Uniqlo",
+                product_name="AIRism Cotton Crew Neck T-Shirt",
+                size="M",
+                color="white",
+                sku="475356",
+                price=19.90,
+                source="receipt",
+                confidence={"brand": 0.96, "product_name": 0.94, "size": 0.92, "price": 0.98, "sku": 0.9},
+                needs_review=False,
+            ),
+            DraftItem(
+                name="Slim-fit chinos",
+                category="bottom",
+                subcategory="trousers",
+                brand="Uniqlo",
+                product_name="Slim Fit Chino Pants",
+                size="32",
+                color="navy",
+                sku="455221",
+                price=49.90,
+                source="receipt",
+                confidence={"brand": 0.96, "product_name": 0.93, "size": 0.91, "price": 0.98, "sku": 0.88},
+                needs_review=False,
+            ),
+        ]
+        return ReceiptExtract(
+            merchant="Uniqlo",
+            purchase_date="2025-03-14",
+            items=items,
+        )
+
+    def extract_from_care_label(self, label_image: bytes) -> DraftItem:
+        return DraftItem(
+            name="Cotton crew neck tee",
+            category="top",
+            subcategory="t-shirt",
+            brand="Uniqlo",
+            product_name="AIRism Cotton Crew Neck T-Shirt",
+            size="M",
+            material="100% cotton",
+            source="label_ocr",
+            confidence={"brand": 0.95, "material": 0.96, "size": 0.93, "product_name": 0.9},
+            needs_review=False,
+        )

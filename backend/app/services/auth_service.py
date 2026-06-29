@@ -1,3 +1,5 @@
+import secrets
+
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from datetime import UTC, datetime, timedelta
@@ -24,6 +26,7 @@ class AuthService:
             full_name=user_data.full_name,
             hashed_password=hashed_password,
             premium_trial_ends_at=datetime.now(UTC) + timedelta(days=45),
+            ingest_token=secrets.token_hex(8),
         )
 
         db.add(new_user)

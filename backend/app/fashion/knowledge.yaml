@@ -1,0 +1,262 @@
+# DressedUp fashion knowledge base (Layer 1 — universal styling rules).
+# Edit this file to expand rules without touching Python scoring code.
+# References: Itten color theory; capsule wardrobe guides (GQ, Esquire); pattern-mixing
+# conventions; dress-code references (business casual, black-tie adjacent).
+
+meta:
+  version: 2
+  description: Universal outfit-matching rules before user personalization.
+
+colors:
+  warm:
+    - red
+    - burgundy
+    - maroon
+    - wine
+    - crimson
+    - rust
+    - terracotta
+    - coral
+    - orange
+    - peach
+    - apricot
+    - gold
+    - yellow
+    - mustard
+    - amber
+    - copper
+    - brick
+    - salmon
+    - paprika
+    - rust-orange
+  cool:
+    - blue
+    - navy
+    - cobalt
+    - royal
+    - teal
+    - turquoise
+    - aqua
+    - cyan
+    - green
+    - emerald
+    - mint
+    - sage
+    - olive
+    - forest
+    - purple
+    - lavender
+    - violet
+    - indigo
+    - lilac
+    - periwinkle
+    - powder-blue
+  neutral:
+    - black
+    - white
+    - gray
+    - grey
+    - charcoal
+    - silver
+    - beige
+    - tan
+    - khaki
+    - cream
+    - ivory
+    - ecru
+    - oatmeal
+    - nude
+    - taupe
+    - brown
+    - chocolate
+    - camel
+    - sand
+    - stone
+    - denim
+    - off-white
+    - espresso
+  classic_pairings:
+    - [navy, white]
+    - [navy, khaki]
+    - [navy, cream]
+    - [navy, beige]
+    - [navy, camel]
+    - [black, white]
+    - [charcoal, white]
+    - [gray, navy]
+    - [grey, navy]
+    - [gray, blush]
+    - [grey, blush]
+    - [brown, cream]
+    - [brown, beige]
+    - [brown, white]
+    - [camel, black]
+    - [camel, white]
+    - [olive, tan]
+    - [olive, cream]
+    - [olive, white]
+    - [burgundy, navy]
+    - [burgundy, gray]
+    - [burgundy, grey]
+    - [burgundy, cream]
+    - [denim, white]
+    - [denim, cream]
+    - [denim, brown]
+    - [denim, tan]
+    - [teal, camel]
+    - [teal, cream]
+    - [white, tan]
+    - [white, sand]
+    - [pink, gray]
+    - [pink, grey]
+    - [blush, gray]
+    - [blush, grey]
+    - [sage, cream]
+    - [sage, white]
+    - [forest, tan]
+    - [mustard, navy]
+    - [rust, cream]
+    - [rust, denim]
+  clashing_pairings:
+    - [red, green]
+    - [orange, pink]
+    - [orange, red]
+    - [brown, black]
+    - [navy, black]
+    - [purple, red]
+    - [yellow, green]
+    - [lime, hot-pink]
+    - [orange, purple]
+
+occasions:
+  formal-event:
+    formality_gap_max: 0
+    min_formality: business
+    banned_footwear: [sneakers, sandals, slides, trainers, flip-flops]
+    required_polish: true
+  work:
+    formality_gap_max: 1
+    min_formality: smart-casual
+    banned_footwear: [flip-flops, slides]
+  date:
+    formality_gap_max: 2
+    min_formality: casual
+  party:
+    formality_gap_max: 2
+    min_formality: casual
+  everyday:
+    formality_gap_max: 2
+    min_formality: loungewear
+  travel:
+    formality_gap_max: 2
+    min_formality: casual
+  outdoor:
+    formality_gap_max: 2
+    min_formality: casual
+  workout:
+    formality_gap_max: 3
+    min_formality: loungewear
+    requires_activewear: true
+  loungewear:
+    formality_gap_max: 3
+    min_formality: loungewear
+
+patterns:
+  statement:
+    - striped
+    - plaid
+    - checked
+    - floral
+    - polka-dot
+    - graphic
+    - animal-print
+    - camo
+  clashes:
+    - [striped, plaid]
+    - [striped, checked]
+    - [plaid, checked]
+    - [floral, animal-print]
+    - [floral, striped]
+    - [floral, plaid]
+    - [graphic, striped]
+    - [graphic, plaid]
+    - [graphic, floral]
+    - [graphic, animal-print]
+    - [graphic, checked]
+    - [polka-dot, striped]
+    - [polka-dot, plaid]
+    - [camo, floral]
+    - [camo, plaid]
+    - [animal-print, striped]
+
+footwear:
+  casual_only:
+    - sneakers
+    - sandals
+    - slides
+    - flip-flops
+    - trainers
+    - running-shoes
+  formal_types:
+    - heels
+    - oxfords
+    - loafers
+    - dress-shoes
+    - pumps
+    - brogues
+    - derbies
+
+textures:
+  # Material pairs that harmonize (natural texture mixing).
+  harmonious:
+    - [cotton, denim]
+    - [cotton, linen]
+    - [wool, leather]
+    - [wool, cotton]
+    - [cashmere, wool]
+    - [silk, wool]
+    - [silk, cotton]
+    - [leather, denim]
+    - [linen, cotton]
+    - [suede, denim]
+    - [suede, cotton]
+    - [denim, leather]
+  # Pairs that read unintentional in everyday outfits.
+  clashing:
+    - [nylon, silk]
+    - [polyester, silk]
+    - [nylon, wool]
+    - [elastane, silk]
+    - [acrylic, silk]
+    - [down, silk]
+  # Default formality association when item formality is unknown.
+  material_formality:
+    silk: business
+    cashmere: business
+    wool: smart-casual
+    linen: casual
+    denim: casual
+    leather: smart-casual
+    suede: casual
+    polyester: casual
+    nylon: casual
+    elastane: loungewear
+
+category_rules:
+  - categories: [activewear, swimwear]
+    incompatible_formality: [business, formal]
+  - categories: [swimwear]
+    incompatible_occasions: [work, formal-event]
+
+weather_seasons:
+  hot: [summer]
+  warm: [summer, spring]
+  mild: [spring, fall]
+  cold: [winter, fall]
+  rainy: [fall, spring]
+  snow: [winter]
+
+cold_weather_tags:
+  - cold
+  - snow
+  - rainy

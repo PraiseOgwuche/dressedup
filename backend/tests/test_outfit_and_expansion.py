@@ -88,6 +88,61 @@ def test_daily_plan_work_then_gym(client, auth_header):
     assert work_ids.isdisjoint(gym_ids)
 
 
+def test_swap_top_keeps_bottom_and_shoes(client, auth_header):
+    top_a = _add(
+        client,
+        auth_header,
+        name="White tee",
+        category="top",
+        formality="casual",
+        color="white",
+        color_hex="#ffffff",
+    )
+    top_b = _add(
+        client,
+        auth_header,
+        name="Blue oxford",
+        category="top",
+        formality="casual",
+        color="blue",
+        color_hex="#2244aa",
+    )
+    bottom = _add(
+        client,
+        auth_header,
+        name="Jeans",
+        category="bottom",
+        formality="casual",
+        color="navy",
+        color_hex="#1a2a4a",
+    )
+    shoes = _add(
+        client,
+        auth_header,
+        name="Sneakers",
+        category="footwear",
+        formality="casual",
+        color="white",
+    )
+
+    response = client.get(
+        "/api/v1/outfits/suggestion",
+        params={
+            "swap_slot": "top",
+            "top_id": top_a["id"],
+            "bottom_id": bottom["id"],
+            "shoes_id": shoes["id"],
+        },
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["top"]["id"] == top_b["id"]
+    assert payload["bottom"]["id"] == bottom["id"]
+    assert payload["shoes"]["id"] == shoes["id"]
+    assert "Swapped" in (payload["rationale"] or "")
+
+
 def test_social_and_shop_endpoints(client, auth_header):
     post_response = client.post(
         "/api/v1/social/posts",

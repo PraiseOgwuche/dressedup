@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from app.schemas.ingestion import DraftItem
+from app.schemas.ingestion import DraftItem, ReceiptExtract
 
 
 class VisionProvider(ABC):
@@ -27,3 +27,13 @@ class VisionProvider(ABC):
     ) -> List[DraftItem]:
         """Return one draft per distinct garment in the photo (flat-lay, outfit pile)."""
         return [self.extract_attributes(garment_image, label_image)]
+
+    @abstractmethod
+    def extract_from_receipt(self, receipt_image: bytes) -> ReceiptExtract:
+        """Parse a retail receipt photo into clothing line items with brand/SKU/price."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def extract_from_care_label(self, label_image: bytes) -> DraftItem:
+        """Parse a care-label / hang-tag photo (no garment photo). Identity fields only."""
+        raise NotImplementedError

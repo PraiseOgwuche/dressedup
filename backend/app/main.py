@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import SessionLocal
-from app.routers import auth, closet, notifications, outfit, social, shop, trips
+from app.routers import auth, closet, email_ingest, notifications, outfit, social, shop, trips
 from app.utils.exceptions import register_exception_handlers
 from app.utils.migrations import run_migrations
 from app.utils.responses import success_response
@@ -71,6 +71,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(closet.router, prefix=settings.API_V1_PREFIX)
+app.include_router(email_ingest.router, prefix=settings.API_V1_PREFIX)
 app.include_router(outfit.router, prefix=settings.API_V1_PREFIX)
 app.include_router(notifications.router, prefix=settings.API_V1_PREFIX)
 app.include_router(social.router, prefix=settings.API_V1_PREFIX)

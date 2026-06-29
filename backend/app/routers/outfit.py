@@ -1,11 +1,19 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.outfit import DailyPlan, DailyRoutineResponse, DailyRoutineUpdate, OutfitSuggestion
+from app.schemas.outfit import (
+    DailyPlan,
+    DailyRoutineResponse,
+    DailyRoutineUpdate,
+    OutfitFeedbackCreate,
+    OutfitFeedbackResponse,
+    OutfitSuggestion,
+)
 from app.services.outfit_service import OutfitService
 from app.services.plan_service import PlanService
+from app.services.preference_service import PreferenceService
 from app.services.routine_service import RoutineService
 from app.utils.dependencies import get_current_user
 
@@ -17,16 +25,35 @@ def get_outfit_suggestion(
     occasion: str | None = None,
     weather_tag: str | None = None,
     include_alternative: bool = True,
+    swap_slot: str | None = None,
+    top_id: int | None = None,
+    bottom_id: int | None = None,
+    shoes_id: int | None = None,
+    outerwear_id: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return OutfitService.get_suggestion(
-        db=db,
-        user_id=current_user.id,
-        weather_tag=weather_tag,
-        occasion=occasion,
-        include_alternative=include_alternative,
-    )
+    """Swap one piece: pass current outfit ids + swap_slot (top|bottom|shoes|outerwear)."""
+    if swap_slot is not None and swap_slot not in {"top", "bottom", "shoes", "outerwear"}:
+        raise HTTPException(
+            status_code=400,
+            detail="swap_slot must be top, bottom, shoes, or outerwear",
+        )
+    try:
+        return OutfitService.get_suggestion(
+            db=db,
+            user_id=current_user.id,
+            weather_tag=weather_tag,
+            occasion=occasion,
+            include_alternative=include_alternative,
+            swap_slot=swap_slot,
+            top_id=top_id,
+            bottom_id=bottom_id,
+            shoes_id=shoes_id,
+            outerwear_id=outerwear_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/plan", response_model=DailyPlan)
@@ -70,4 +97,26 @@ def get_today_plan_from_routine(
 ):
     """Build today's outfit plan from saved routine preferences (manual trigger)."""
     return RoutineService.today_plan(db, current_user.id)
+
+
+@router.post("/feedback", response_model=OutfitFeedbackResponse, status_code=201)
+def record_outfit_feedback(
+    payload: OutfitFeedbackCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Record like / dislike / wore — powers personalization layer."""
+    if payload.signal not in {"like", "dislike", "wore"}:
+        raise HTTPException(status_code=400, detail="signal must be like, dislike, or wore")
+    return PreferenceService.record(
+        db,
+        current_user.id,
+        top_id=payload.top_id,
+        bottom_id=payload.bottom_id,
+        shoes_id=payload.shoes_id,
+        outerwear_id=payload.outerwear_id,
+        signal=payload.signal,
+        occasion=payload.occasion,
+        weather_tag=payload.weather_tag,
+    )
 

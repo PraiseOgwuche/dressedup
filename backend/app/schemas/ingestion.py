@@ -29,6 +29,11 @@ class DraftItem(BaseModel):
     confidence: dict[str, float] = Field(default_factory=dict)
     needs_review: bool = False
 
+    # Receipt / purchase metadata (Phase F). Persisted in ClothingItem.ai_metadata on save.
+    sku: Optional[str] = None
+    price: Optional[float] = Field(default=None, description="Unit price in USD when known.")
+    purchase_date: Optional[str] = Field(default=None, description="ISO date from receipt when known.")
+
 
 class IngestResult(BaseModel):
     """Returned by the ingest endpoint: the AI draft plus the stored image URLs.
@@ -64,3 +69,20 @@ class MultiIngestResult(BaseModel):
 
     source_image_url: str
     entries: list[MultiIngestEntry]
+
+
+class ReceiptIngestResult(BaseModel):
+    """Retail receipt photo → merchant context plus one draft per clothing line item."""
+
+    source_image_url: str
+    merchant: Optional[str] = None
+    purchase_date: Optional[str] = None
+    entries: list[MultiIngestEntry]
+
+
+class ReceiptExtract(BaseModel):
+    """Raw vision output for a receipt (before storage URLs are attached)."""
+
+    merchant: Optional[str] = None
+    purchase_date: Optional[str] = None
+    items: list[DraftItem]

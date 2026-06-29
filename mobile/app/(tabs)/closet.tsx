@@ -45,6 +45,7 @@ type FormState = {
   category: string;
   subcategory: string;
   brand: string;
+  productName: string;
   color: string;
   material: string;
   size: string;
@@ -61,6 +62,7 @@ const EMPTY_FORM: FormState = {
   category: '',
   subcategory: '',
   brand: '',
+  productName: '',
   color: '',
   material: '',
   size: '',
@@ -105,8 +107,15 @@ export default function ClosetScreen() {
   // Bulk-scan review queue: confirm/skip drafts one at a time.
   const [queue, setQueue] = useState<QueueEntry[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
-  const [queueSource, setQueueSource] = useState<'batch' | 'multi' | null>(null);
+  const [queueSource, setQueueSource] = useState<'batch' | 'multi' | 'receipt' | null>(null);
   const inQueue = queue.length > 0;
+  const [receiptContext, setReceiptContext] = useState<{ merchant?: string; purchase_date?: string }>({});
+  const [receiptMeta, setReceiptMeta] = useState<{
+    sku?: string;
+    price?: number;
+    purchase_date?: string;
+    merchant?: string;
+  }>({});
 
   const [categoryFilter, setCategoryFilter] = useState('');
   const [cleanFilter, setCleanFilter] = useState<'all' | 'clean' | 'dirty'>('all');
@@ -197,14 +206,24 @@ export default function ClosetScreen() {
     setSource('manual');
     setConfidence({});
     setColorHex(undefined);
+    setReceiptContext({});
+    setReceiptMeta({});
   };
 
-  const applyDraft = (draft: DraftItem, serverImage: string, serverThumb: string) => {
+  const applyDraft = (
+    draft: DraftItem,
+    serverImage: string,
+    serverThumb: string,
+    context?: { merchant?: string; purchase_date?: string },
+  ) => {
+    const merchant = context?.merchant ?? receiptContext.merchant;
+    const purchaseDate = draft.purchase_date ?? context?.purchase_date ?? receiptContext.purchase_date;
     setForm({
       name: draft.name ?? '',
       category: draft.category ?? '',
       subcategory: draft.subcategory ?? '',
       brand: draft.brand ?? '',
+      productName: draft.product_name ?? '',
       color: draft.color ?? '',
       material: draft.material ?? '',
       size: draft.size ?? '',
@@ -220,6 +239,12 @@ export default function ClosetScreen() {
     setThumbnailUrl(serverThumb);
     setSource(draft.source ?? 'photo');
     setConfidence(draft.confidence ?? {});
+    setReceiptMeta({
+      sku: draft.sku ?? undefined,
+      price: draft.price ?? undefined,
+      purchase_date: purchaseDate,
+      merchant,
+    });
   };
 
   const pickImage = async (fromCamera: boolean): Promise<ImagePicker.ImagePickerAsset | null> => {
@@ -274,14 +299,19 @@ export default function ClosetScreen() {
     }
   };
 
-  const loadQueueItem = (entries: QueueEntry[], index: number, source: 'batch' | 'multi') => {
+  const loadQueueItem = (
+    entries: QueueEntry[],
+    index: number,
+    source: 'batch' | 'multi' | 'receipt',
+    context?: { merchant?: string; purchase_date?: string },
+  ) => {
     const entry = entries[index];
     resetForm();
     setQueue(entries);
     setQueueIndex(index);
     setQueueSource(source);
     setImagePreview(entry.previewUri);
-    applyDraft(entry.draft, entry.imageUrl, entry.thumbnailUrl);
+    applyDraft(entry.draft, entry.imageUrl, entry.thumbnailUrl, context);
     setIsFormOpen(true);
   };
 
@@ -295,7 +325,7 @@ export default function ClosetScreen() {
 
   const advanceQueue = () => {
     if (queueIndex < queue.length - 1 && queueSource) {
-      loadQueueItem(queue, queueIndex + 1, queueSource);
+      loadQueueItem(queue, queueIndex + 1, queueSource, receiptContext);
     } else {
       finishQueue();
     }
@@ -381,10 +411,72 @@ export default function ClosetScreen() {
     }
   };
 
+  const runReceiptIngestion = async (fromCamera: boolean) => {
+    const receipt = await pickImage(fromCamera);
+    if (!receipt) return;
+
+    setIsIngesting(true);
+    try {
+      const result = await closetAPI.ingestReceipt({
+        uri: receipt.uri,
+        name: receipt.fileName,
+        mimeType: receipt.mimeType,
+      });
+      const entries: QueueEntry[] = result.entries.map((entry) => ({
+        previewUri: receipt.uri,
+        imageUrl: entry.image_url,
+        thumbnailUrl: entry.thumbnail_url,
+        draft: entry.draft,
+      }));
+      if (!entries.length) {
+        Alert.alert('No apparel found', 'We could not find clothing lines on that receipt.');
+        return;
+      }
+      const ctx = {
+        merchant: result.merchant ?? undefined,
+        purchase_date: result.purchase_date ?? undefined,
+      };
+      setReceiptContext(ctx);
+      Alert.alert(
+        'Receipt scanned',
+        `${entries.length} item${entries.length === 1 ? '' : 's'} from ${result.merchant ?? 'the receipt'} — review each one.`,
+      );
+      loadQueueItem(entries, 0, 'receipt', ctx);
+    } catch (error: any) {
+      Alert.alert('Scan failed', getApiErrorMessage(error, 'Could not read that receipt.'));
+    } finally {
+      setIsIngesting(false);
+    }
+  };
+
+  const runLabelIngestion = async (fromCamera: boolean) => {
+    const label = await pickImage(fromCamera);
+    if (!label) return;
+
+    setIsIngesting(true);
+    try {
+      const result = await closetAPI.ingestLabel({
+        uri: label.uri,
+        name: label.fileName,
+        mimeType: label.mimeType,
+      });
+      resetForm();
+      setImagePreview(label.uri);
+      applyDraft(result.draft, result.image_url, result.thumbnail_url);
+      setIsFormOpen(true);
+    } catch (error: any) {
+      Alert.alert('Scan failed', getApiErrorMessage(error, 'Could not read that label.'));
+    } finally {
+      setIsIngesting(false);
+    }
+  };
+
   const openAddMenu = () => {
     Alert.alert('Add to closet', 'How would you like to add items?', [
       { text: 'Take photo (1 item)', onPress: () => runIngestion(true) },
       { text: 'Choose photo (1 item)', onPress: () => runIngestion(false) },
+      { text: 'Scan receipt', onPress: () => runReceiptIngestion(false) },
+      { text: 'Scan care label only', onPress: () => runLabelIngestion(false) },
       { text: 'Flat-lay scan (many in 1 photo)', onPress: () => runMultiIngestion(false) },
       { text: 'Scan many photos', onPress: () => runBatchIngestion() },
       { text: 'Add manually', onPress: () => { resetForm(); setIsFormOpen(true); } },
@@ -400,6 +492,7 @@ export default function ClosetScreen() {
       category: item.category,
       subcategory: item.subcategory ?? '',
       brand: item.brand ?? '',
+      productName: item.product_name ?? '',
       color: item.color ?? '',
       material: item.material ?? '',
       size: item.size ?? '',
@@ -422,11 +515,21 @@ export default function ClosetScreen() {
       Alert.alert('Missing fields', 'Name and category are required.');
       return;
     }
+    const aiMetadata =
+      receiptMeta.sku || receiptMeta.price != null || receiptMeta.merchant || receiptMeta.purchase_date
+        ? {
+            ...(receiptMeta.sku ? { sku: receiptMeta.sku } : {}),
+            ...(receiptMeta.price != null ? { price: receiptMeta.price } : {}),
+            ...(receiptMeta.merchant ? { merchant: receiptMeta.merchant } : {}),
+            ...(receiptMeta.purchase_date ? { purchase_date: receiptMeta.purchase_date } : {}),
+          }
+        : undefined;
     const payload = {
       name: form.name.trim(),
       category: form.category.trim().toLowerCase(),
       subcategory: form.subcategory || undefined,
       brand: form.brand.trim() || undefined,
+      product_name: form.productName.trim() || undefined,
       color: form.color.trim() || undefined,
       color_hex: colorHex,
       material: form.material.trim() || undefined,
@@ -441,6 +544,7 @@ export default function ClosetScreen() {
       thumbnail_url: thumbnailUrl,
       source,
       needs_review: false,
+      ai_metadata: aiMetadata,
     };
     try {
       if (editingId) {
@@ -601,7 +705,12 @@ export default function ClosetScreen() {
             </Text>
             {inQueue ? (
               <Text style={styles.queueProgress}>
-                {queueSource === 'multi' ? 'Flat-lay' : 'Batch'} — item {queueIndex + 1} of {queue.length}
+                {queueSource === 'multi'
+                  ? 'Flat-lay'
+                  : queueSource === 'receipt'
+                    ? 'Receipt'
+                    : 'Batch'}{' '}
+                — item {queueIndex + 1} of {queue.length}
               </Text>
             ) : null}
 
@@ -655,6 +764,19 @@ export default function ClosetScreen() {
               />
             ) : null}
             <Input label={label('Brand', 'brand')} value={form.brand} onChangeText={(v) => setField('brand', v)} placeholder="Uniqlo" />
+            <Input
+              label={label('Product name', 'product_name')}
+              value={form.productName}
+              onChangeText={(v) => setField('productName', v)}
+              placeholder="Slim Fit Chino Pants"
+            />
+            {receiptMeta.price != null || receiptMeta.sku ? (
+              <Text style={styles.receiptHint}>
+                {receiptMeta.price != null ? `$${receiptMeta.price.toFixed(2)}` : ''}
+                {receiptMeta.price != null && receiptMeta.sku ? ' · ' : ''}
+                {receiptMeta.sku ? `SKU ${receiptMeta.sku}` : ''}
+              </Text>
+            ) : null}
             <Input label={label('Color', 'color')} value={form.color} onChangeText={(v) => setField('color', v)} placeholder="black" />
             <Input label={label('Material', 'material')} value={form.material} onChangeText={(v) => setField('material', v)} placeholder="100% cotton" />
             <Input label={label('Size', 'size')} value={form.size} onChangeText={(v) => setField('size', v)} placeholder="M" />
@@ -789,6 +911,7 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text, marginBottom: 16 },
   preview: { width: '100%', height: 220, borderRadius: 16, marginBottom: 12, backgroundColor: '#ECECEC' },
   aiNote: { fontSize: 13, color: COLORS.textLight, marginBottom: 12 },
+  receiptHint: { fontSize: 13, color: COLORS.textLight, marginBottom: 12, marginTop: -4 },
   queueProgress: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginBottom: 12 },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, marginBottom: 20 },
   switchLabel: { fontSize: 16, color: COLORS.text, fontWeight: '600' },

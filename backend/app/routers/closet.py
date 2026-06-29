@@ -14,7 +14,7 @@ from app.schemas.closet import (
     LaundrySummary,
     WashAllRequest,
 )
-from app.schemas.ingestion import BatchIngestResult, IngestResult, MultiIngestResult
+from app.schemas.ingestion import BatchIngestResult, IngestResult, MultiIngestResult, ReceiptIngestResult
 from app.services.closet_service import ClosetService
 from app.services.ingestion_service import IngestionService
 from app.utils.dependencies import get_current_user
@@ -102,6 +102,26 @@ async def ingest_multi_item_photo(
     garment_bytes, garment_ext = await _read_image(garment)
     label_bytes = (await _read_image(label))[0] if label is not None else None
     return IngestionService.ingest_multi(garment_bytes, garment_ext, label_bytes)
+
+
+@router.post("/ingest/receipt", response_model=ReceiptIngestResult)
+async def ingest_receipt(
+    receipt: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Receipt photo → one confirmable draft per apparel line item (brand, SKU, price)."""
+    receipt_bytes, receipt_ext = await _read_image(receipt)
+    return IngestionService.ingest_receipt(receipt_bytes, receipt_ext)
+
+
+@router.post("/ingest/label", response_model=IngestResult)
+async def ingest_care_label(
+    label: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Care-label / hang-tag photo only — brand, material, size without a garment photo."""
+    label_bytes, label_ext = await _read_image(label)
+    return IngestionService.ingest_label(label_bytes, label_ext)
 
 
 @router.put("/items/{item_id}", response_model=ClothingItemResponse)

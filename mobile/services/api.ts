@@ -11,6 +11,7 @@ import {
   IngestResult,
   BatchIngestResult,
   MultiIngestResult,
+  ReceiptIngestResult,
   LaundrySummary,
   OutfitSuggestion,
   SocialPost,
@@ -19,6 +20,12 @@ import {
   DailyPlan,
   DailyRoutine,
   NotificationTestResult,
+  EmailIngestSettings,
+  EmailIngestLog,
+  EmailIngestResult,
+  OutfitFeedbackPayload,
+  OutfitSwapOptions,
+  OutfitSlotKey,
 } from '../types';
 
 type ImageUpload = { uri: string; name?: string | null; mimeType?: string | null };
@@ -131,6 +138,23 @@ export const closetAPI = {
     });
     return response.data;
   },
+  ingestReceipt: async (receipt: ImageUpload): Promise<ReceiptIngestResult> => {
+    const form = new FormData();
+    form.append('receipt', toFilePart(receipt, 'receipt.jpg') as any);
+    const response = await api.post<ReceiptIngestResult>('/closet/ingest/receipt', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 90000,
+    });
+    return response.data;
+  },
+  ingestLabel: async (label: ImageUpload): Promise<IngestResult> => {
+    const form = new FormData();
+    form.append('label', toFilePart(label, 'label.jpg') as any);
+    const response = await api.post<IngestResult>('/closet/ingest/label', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
   wear: async (itemId: number): Promise<ClosetItem> => {
     const response = await api.post<ClosetItem>(`/closet/items/${itemId}/wear`);
     return response.data;
@@ -155,12 +179,48 @@ export const closetAPI = {
   },
 };
 
+export const emailIngestAPI = {
+  getSettings: async (): Promise<EmailIngestSettings> => {
+    const response = await api.get<EmailIngestSettings>('/closet/email-ingest');
+    return response.data;
+  },
+  getLogs: async (): Promise<EmailIngestLog[]> => {
+    const response = await api.get<EmailIngestLog[]>('/closet/email-ingest/logs');
+    return response.data;
+  },
+  simulate: async (attachment: ImageUpload, subject?: string): Promise<EmailIngestResult> => {
+    const form = new FormData();
+    form.append('attachment', toFilePart(attachment, 'receipt.jpg') as any);
+    if (subject) {
+      form.append('subject', subject);
+    }
+    const response = await api.post<EmailIngestResult>('/closet/email-ingest/simulate', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 90000,
+    });
+    return response.data;
+  },
+};
+
 export const outfitAPI = {
-  getSuggestion: async (occasion?: string, weatherTag?: string): Promise<OutfitSuggestion> => {
+  getSuggestion: async (
+    occasion?: string,
+    weatherTag?: string,
+    swap?: OutfitSwapOptions,
+  ): Promise<OutfitSuggestion> => {
     const response = await api.get<OutfitSuggestion>('/outfits/suggestion', {
       params: {
         occasion,
         weather_tag: weatherTag,
+        ...(swap
+          ? {
+              swap_slot: swap.swapSlot,
+              top_id: swap.topId ?? undefined,
+              bottom_id: swap.bottomId ?? undefined,
+              shoes_id: swap.shoesId ?? undefined,
+              outerwear_id: swap.outerwearId ?? undefined,
+            }
+          : {}),
       },
     });
     return response.data;
@@ -184,6 +244,10 @@ export const outfitAPI = {
   },
   planToday: async (): Promise<DailyPlan> => {
     const response = await api.get<DailyPlan>('/outfits/plan/today');
+    return response.data;
+  },
+  feedback: async (payload: OutfitFeedbackPayload) => {
+    const response = await api.post('/outfits/feedback', payload);
     return response.data;
   },
 };

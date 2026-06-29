@@ -1,7 +1,13 @@
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+import secrets
+
 from app.database import Base
+
+
+def _new_ingest_token() -> str:
+    return secrets.token_hex(8)
 
 
 class User(Base):
@@ -14,6 +20,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_premium = Column(Boolean, default=False)
     premium_trial_ends_at = Column(DateTime(timezone=True), nullable=True)
+    ingest_token = Column(String(32), unique=True, index=True, nullable=False, default=_new_ingest_token)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     closet_items = relationship("ClothingItem", back_populates="user", cascade="all, delete-orphan")
@@ -23,6 +30,12 @@ class User(Base):
         "DailyRoutine", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     push_tokens = relationship("PushToken", back_populates="user", cascade="all, delete-orphan")
+    email_ingest_logs = relationship(
+        "EmailIngestLog", back_populates="user", cascade="all, delete-orphan"
+    )
+    outfit_feedback = relationship(
+        "OutfitFeedback", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"

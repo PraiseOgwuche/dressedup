@@ -6,7 +6,7 @@ import anthropic
 from PIL import Image
 
 from app.config import settings
-from app.schemas.ingestion import DraftItem
+from app.schemas.ingestion import DraftItem, ReceiptExtract
 from app.services.vision.base import VisionProvider
 from app.taxonomy import (
     CATEGORIES,
@@ -97,6 +97,78 @@ _MULTI_TOOL = {
     },
 }
 
+_RECEIPT_LINE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string", "description": "Short label for the line item."},
+        "category": {"type": "string", "enum": CATEGORIES},
+        "subcategory": {"type": "string"},
+        "brand": {"type": ["string", "null"]},
+        "product_name": {"type": ["string", "null"]},
+        "size": {"type": ["string", "null"]},
+        "color": {"type": ["string", "null"]},
+        "sku": {"type": ["string", "null"], "description": "Style/SKU/product code when printed."},
+        "price": {"type": ["number", "null"], "description": "Line-item price in USD."},
+        "uncertain_fields": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["name", "category"],
+}
+
+_RECEIPT_SYSTEM_PROMPT = (
+    "You are a wardrobe cataloging assistant. Parse the retail receipt photo and extract "
+    "only clothing, footwear, and fashion accessories (bags, belts, hats, jewelry). "
+    "Skip non-apparel lines (tax, gift cards, food, electronics). Use the merchant name "
+    "from the receipt header when brand is not printed per line. Never invent SKUs or prices — "
+    "only include them when clearly visible."
+)
+
+_RECEIPT_TOOL = {
+    "name": "save_receipt_items",
+    "description": "Record apparel line items from the receipt.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "merchant": {"type": ["string", "null"]},
+            "purchase_date": {
+                "type": ["string", "null"],
+                "description": "ISO date YYYY-MM-DD when visible on the receipt.",
+            },
+            "items": {
+                "type": "array",
+                "items": _RECEIPT_LINE_SCHEMA,
+                "description": "One entry per apparel line on the receipt.",
+            },
+        },
+        "required": ["items"],
+    },
+}
+
+_LABEL_SYSTEM_PROMPT = (
+    "You are a wardrobe cataloging assistant. Read the care label, hang tag, or sewn-in tag "
+    "photo. Extract brand, product name, size, and material composition when printed. "
+    "Infer category/subcategory only when obvious from the label (e.g. 'MEN'S TEE'). "
+    "Do not guess color or pattern — leave visual attributes empty."
+)
+
+_LABEL_TOOL = {
+    "name": "save_label_item",
+    "description": "Record identity fields visible on the care label or tag.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string", "description": "Short human label from the tag."},
+            "category": {"type": "string", "enum": CATEGORIES},
+            "subcategory": {"type": "string"},
+            "brand": {"type": ["string", "null"]},
+            "product_name": {"type": ["string", "null"]},
+            "size": {"type": ["string", "null"]},
+            "material": {"type": ["string", "null"]},
+            "uncertain_fields": {"type": "array", "items": {"type": "string"}},
+        },
+        "required": ["name", "category"],
+    },
+}
+
 
 class AnthropicVisionProvider(VisionProvider):
     """Real extraction via Claude. Images are downscaled before upload and output is
@@ -182,6 +254,59 @@ class AnthropicVisionProvider(VisionProvider):
         drafts = [self._to_draft(item, has_label=has_label) for item in data["items"]]
         return drafts[: settings.MAX_MULTI_ITEMS_PER_PHOTO]
 
+    def extract_from_receipt(self, receipt_image: bytes) -> ReceiptExtract:
+        content: list[dict] = [
+            {"type": "text", "text": "Retail receipt photo — extract apparel line items:"},
+            self._image_block(self._to_jpeg_b64(receipt_image)),
+            {"type": "text", "text": "Parse using the save_receipt_items tool."},
+        ]
+
+        message = self._client.messages.create(
+            model=settings.VISION_MODEL,
+            max_tokens=settings.VISION_MAX_RECEIPT_OUTPUT_TOKENS,
+            system=_RECEIPT_SYSTEM_PROMPT,
+            tools=[_RECEIPT_TOOL],
+            tool_choice={"type": "tool", "name": "save_receipt_items"},
+            messages=[{"role": "user", "content": content}],
+        )
+
+        data = next((b.input for b in message.content if b.type == "tool_use"), None)
+        if not data or not data.get("items"):
+            raise RuntimeError("Vision model returned no receipt line items.")
+
+        purchase_date = data.get("purchase_date")
+        drafts = [
+            self._to_receipt_draft(item, purchase_date=purchase_date)
+            for item in data["items"][: settings.MAX_RECEIPT_ITEMS]
+        ]
+        return ReceiptExtract(
+            merchant=data.get("merchant"),
+            purchase_date=purchase_date,
+            items=drafts,
+        )
+
+    def extract_from_care_label(self, label_image: bytes) -> DraftItem:
+        content: list[dict] = [
+            {"type": "text", "text": "Care label / hang tag photo:"},
+            self._image_block(self._to_jpeg_b64(label_image)),
+            {"type": "text", "text": "Catalog identity fields using save_label_item."},
+        ]
+
+        message = self._client.messages.create(
+            model=settings.VISION_MODEL,
+            max_tokens=settings.VISION_MAX_OUTPUT_TOKENS,
+            system=_LABEL_SYSTEM_PROMPT,
+            tools=[_LABEL_TOOL],
+            tool_choice={"type": "tool", "name": "save_label_item"},
+            messages=[{"role": "user", "content": content}],
+        )
+
+        data = next((b.input for b in message.content if b.type == "tool_use"), None)
+        if not data:
+            raise RuntimeError("Vision model returned no label data.")
+
+        return self._to_label_draft(data)
+
     @staticmethod
     def _to_draft(data: dict, has_label: bool) -> DraftItem:
         uncertain = set(data.get("uncertain_fields") or [])
@@ -205,6 +330,53 @@ class AnthropicVisionProvider(VisionProvider):
             weather_tag=data.get("weather_tag") or [],
             seasons=data.get("seasons") or [],
             source="label_ocr" if has_label else "photo",
+            confidence=confidence,
+            needs_review=bool(uncertain) or not data.get("brand"),
+        )
+
+    @staticmethod
+    def _to_receipt_draft(data: dict, purchase_date: Optional[str]) -> DraftItem:
+        uncertain = set(data.get("uncertain_fields") or [])
+        identity_fields = ["brand", "product_name", "size", "sku", "price", "category", "name"]
+        confidence = {
+            field: (0.5 if field in uncertain else 0.93)
+            for field in identity_fields
+            if data.get(field) is not None
+        }
+        return DraftItem(
+            name=data.get("name") or "Receipt item",
+            category=data.get("category") or "accessory",
+            subcategory=data.get("subcategory"),
+            brand=data.get("brand"),
+            product_name=data.get("product_name"),
+            size=data.get("size"),
+            color=data.get("color"),
+            sku=data.get("sku"),
+            price=data.get("price"),
+            purchase_date=purchase_date,
+            source="receipt",
+            confidence=confidence,
+            needs_review=bool(uncertain) or not data.get("brand"),
+        )
+
+    @staticmethod
+    def _to_label_draft(data: dict) -> DraftItem:
+        uncertain = set(data.get("uncertain_fields") or [])
+        identity_fields = ["brand", "product_name", "size", "material", "category", "name"]
+        confidence = {
+            field: (0.5 if field in uncertain else 0.94)
+            for field in identity_fields
+            if data.get(field)
+        }
+        return DraftItem(
+            name=data.get("name") or "Tagged item",
+            category=data.get("category") or "top",
+            subcategory=data.get("subcategory"),
+            brand=data.get("brand"),
+            product_name=data.get("product_name"),
+            size=data.get("size"),
+            material=data.get("material"),
+            source="label_ocr",
             confidence=confidence,
             needs_review=bool(uncertain) or not data.get("brand"),
         )

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, ActivityIndicator } from 'react-native';
 import { COLORS, mediaUrl } from '../constants/config';
 import { ClosetItem } from '../types';
 import { Button } from './ui/Button';
@@ -9,6 +9,15 @@ const SLOT_EMOJI: Record<string, string> = {
   Bottom: '👖',
   Shoes: '👟',
   Outerwear: '🧥',
+};
+
+export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear';
+
+const SLOT_KEY: Record<string, OutfitSlotKey> = {
+  Top: 'top',
+  Bottom: 'bottom',
+  Shoes: 'shoes',
+  Outerwear: 'outerwear',
 };
 
 interface OutfitCardProps {
@@ -23,6 +32,11 @@ interface OutfitCardProps {
   packingList?: ClosetItem[];
   onWore?: () => void;
   woreLoading?: boolean;
+  onLike?: () => void;
+  onDislike?: () => void;
+  feedbackLoading?: boolean;
+  onSwapSlot?: (slot: OutfitSlotKey) => void;
+  swappingSlot?: OutfitSlotKey | null;
 }
 
 export function OutfitCard({
@@ -37,6 +51,11 @@ export function OutfitCard({
   packingList,
   onWore,
   woreLoading,
+  onLike,
+  onDislike,
+  feedbackLoading,
+  onSwapSlot,
+  swappingSlot,
 }: OutfitCardProps) {
   const slots: { label: string; item?: ClosetItem | null }[] = [
     { label: 'Top', item: top },
@@ -66,6 +85,9 @@ export function OutfitCard({
       {slots.map((slot) => {
         const thumb = slot.item ? mediaUrl(slot.item.thumbnail_url ?? slot.item.image_url) : undefined;
         const fallbackName = slot.label === 'Outerwear' ? 'Optional' : `No ${slot.label.toLowerCase()} yet`;
+        const slotKey = SLOT_KEY[slot.label];
+        const showSwap = !!slot.item && !!onSwapSlot;
+        const isSwapping = swappingSlot === slotKey;
         return (
           <View key={slot.label} style={[styles.slotRow, !slot.item && styles.slotRowEmpty]}>
             <View style={styles.slotThumb}>
@@ -82,6 +104,19 @@ export function OutfitCard({
               </Text>
               {slot.item?.brand ? <Text style={styles.slotMeta}>{slot.item.brand}</Text> : null}
             </View>
+            {showSwap ? (
+              <Pressable
+                style={styles.swapBtn}
+                onPress={() => onSwapSlot(slotKey)}
+                disabled={!!swappingSlot}
+              >
+                {isSwapping ? (
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                ) : (
+                  <Text style={styles.swapBtnText}>Swap</Text>
+                )}
+              </Pressable>
+            ) : null}
           </View>
         );
       })}
@@ -110,6 +145,29 @@ export function OutfitCard({
               </View>
             ))}
           </View>
+        </View>
+      )}
+
+      {hasOutfit && (onLike || onDislike) && (
+        <View style={styles.feedbackRow}>
+          {onLike ? (
+            <Button
+              title="👍 Like"
+              variant="outline"
+              loading={feedbackLoading}
+              onPress={onLike}
+              style={styles.feedbackBtn}
+            />
+          ) : null}
+          {onDislike ? (
+            <Button
+              title="👎 Not for me"
+              variant="secondary"
+              loading={feedbackLoading}
+              onPress={onDislike}
+              style={styles.feedbackBtn}
+            />
+          ) : null}
         </View>
       )}
 
@@ -180,6 +238,16 @@ const styles = StyleSheet.create({
   slotName: { fontSize: 17, fontWeight: '700', color: COLORS.text, marginTop: 2 },
   slotNameEmpty: { fontWeight: '500', color: COLORS.textLight },
   slotMeta: { fontSize: 13, color: COLORS.textLight, marginTop: 1 },
+  swapBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: COLORS.backgroundLight,
+    minWidth: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  swapBtnText: { fontSize: 12, fontWeight: '700', color: COLORS.primary },
   packSection: {
     marginTop: 14,
     backgroundColor: '#FFF8EE',
@@ -199,5 +267,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   altChipText: { fontSize: 13, color: COLORS.text, fontWeight: '600' },
-  woreBtn: { marginTop: 18 },
+  feedbackRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  feedbackBtn: { flex: 1 },
+  woreBtn: { marginTop: 12 },
 });

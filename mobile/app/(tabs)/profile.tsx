@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -17,14 +18,15 @@ import { ChipSelect } from '../../components/ui/ChipSelect';
 import { COLORS, TAXONOMY } from '../../constants/config';
 import { useClosetStore } from '../../store/closetStore';
 import { useRoutineStore } from '../../store/routineStore';
-import { tripsAPI, notificationsAPI } from '../../services/api';
+import { tripsAPI, notificationsAPI, emailIngestAPI } from '../../services/api';
+import { getApiErrorMessage } from '../../services/errors';
 import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushNotifications';
-import { TripPlan } from '../../types';
+import { EmailIngestLog, EmailIngestSettings, TripPlan } from '../../types';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { items } = useClosetStore();
+  const { items, fetchItems } = useClosetStore();
   const { routine, fetchRoutine, saveRoutine, sendMyPlan, saving, loading } = useRoutineStore();
 
   const [tripPlans, setTripPlans] = useState<TripPlan[]>([]);
@@ -40,7 +42,24 @@ export default function ProfileScreen() {
   const [routineEnabled, setRoutineEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [testingPush, setTestingPush] = useState(false);
+  const [emailIngest, setEmailIngest] = useState<EmailIngestSettings | null>(null);
+  const [emailLogs, setEmailLogs] = useState<EmailIngestLog[]>([]);
+  const [simulatingEmail, setSimulatingEmail] = useState(false);
   const deviceTimezone = getDeviceTimezone();
+
+  const loadEmailIngest = useCallback(async () => {
+    try {
+      const [settings, logs] = await Promise.all([
+        emailIngestAPI.getSettings(),
+        emailIngestAPI.getLogs(),
+      ]);
+      setEmailIngest(settings);
+      setEmailLogs(logs);
+    } catch {
+      setEmailIngest(null);
+      setEmailLogs([]);
+    }
+  }, []);
 
   const loadTrips = useCallback(async () => {
     if (!user?.is_premium) {
@@ -62,7 +81,8 @@ export default function ProfileScreen() {
     useCallback(() => {
       loadTrips();
       fetchRoutine();
-    }, [loadTrips, fetchRoutine]),
+      loadEmailIngest();
+    }, [loadTrips, fetchRoutine, loadEmailIngest]),
   );
 
   useEffect(() => {
@@ -173,6 +193,38 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleSimulateEmailImport = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Enable photo access to test email import.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets?.length) return;
+
+    const asset = result.assets[0];
+    setSimulatingEmail(true);
+    try {
+      const importResult = await emailIngestAPI.simulate({
+        uri: asset.uri,
+        name: asset.fileName,
+        mimeType: asset.mimeType,
+      });
+      await Promise.all([fetchItems(), loadEmailIngest()]);
+      Alert.alert(
+        'Import complete',
+        `Added ${importResult.items_created} item(s) to your closet for review.`,
+      );
+    } catch (error: any) {
+      Alert.alert('Import failed', getApiErrorMessage(error, 'Could not process that image.'));
+    } finally {
+      setSimulatingEmail(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -205,6 +257,41 @@ export default function ProfileScreen() {
             </Text>
             <Text style={styles.statLabel}>Streak</Text>
           </View>
+        </View>
+
+        <View style={styles.emailCard}>
+          <Text style={styles.cardTitle}>Email import</Text>
+          <Text style={styles.cardHint}>{emailIngest?.instructions ?? 'Loading…'}</Text>
+          {emailIngest?.enabled && emailIngest.address ? (
+            <>
+              <Text style={styles.emailLabel}>Your forwarding address</Text>
+              <Text selectable style={styles.emailAddress}>
+                {emailIngest.address}
+              </Text>
+              <Text style={styles.emailTip}>
+                Forward order confirmations or receipt emails here. New items land in Closet with a
+                Review badge.
+              </Text>
+            </>
+          ) : null}
+          {emailLogs.length > 0 ? (
+            <View style={styles.emailLogs}>
+              <Text style={styles.emailLabel}>Recent imports</Text>
+              {emailLogs.slice(0, 3).map((log) => (
+                <Text key={log.id} style={styles.emailLogItem}>
+                  {log.items_created} item{log.items_created === 1 ? '' : 's'}
+                  {log.subject ? ` · ${log.subject}` : ''}
+                </Text>
+              ))}
+            </View>
+          ) : null}
+          <Button
+            title="Test with receipt photo"
+            variant="outline"
+            loading={simulatingEmail}
+            onPress={handleSimulateEmailImport}
+            style={styles.sendPlanBtn}
+          />
         </View>
 
         <View style={styles.routineCard}>
@@ -357,6 +444,25 @@ const styles = StyleSheet.create({
   },
   statNumber: { fontSize: 28, fontWeight: '800', color: COLORS.primary, marginBottom: 4 },
   statLabel: { fontSize: 12, color: COLORS.textLight },
+  emailCard: {
+    width: '100%',
+    backgroundColor: '#F4FBF6',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#D4EDDA',
+  },
+  emailLabel: { fontSize: 12, fontWeight: '700', color: COLORS.text, marginTop: 8, marginBottom: 4 },
+  emailAddress: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  emailTip: { fontSize: 13, color: COLORS.textLight, marginBottom: 4 },
+  emailLogs: { marginTop: 8, marginBottom: 8 },
+  emailLogItem: { fontSize: 13, color: COLORS.text, paddingVertical: 4 },
   routineCard: {
     width: '100%',
     backgroundColor: '#EEF0FF',

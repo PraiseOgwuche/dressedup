@@ -1,55 +1,25 @@
-"""Outfit suggestion engine.
+"""Outfit suggestion engine (v3).
 
-Picks a cohesive top / bottom / shoes (+ optional outerwear) by scoring candidate
-combinations on color harmony, formality coherence, season fit, and pattern balance,
-with a freshness nudge toward less-worn items. Every signal degrades gracefully: when
-items lack an attribute, that signal contributes 0, so a closet of attribute-less items
-falls back to the old "least-worn per slot" behavior.
+Two-layer matching:
+  1. Fashion knowledge — color theory, formality, patterns, footwear rules (`app.fashion`).
+  2. Personalization — learns from likes, dislikes, and wears (`PreferenceService`).
+
+Picks a cohesive top / bottom / shoes (+ optional outerwear) by scoring combinations,
+with variety among near-ties so "Generate" does not repeat the same outfit.
 """
 
-import colorsys
 import random
-from itertools import combinations
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
+from app.fashion import FashionMatcher, MatchContext
+from app.fashion.style_rules import needs_outerwear, weather_seasons
 from app.models.clothing_item import ClothingItem
-from app.taxonomy import FORMALITY_LEVELS
+from app.services.preference_service import PreferenceService
 
-# Ordinal position of each formality level (loungewear=0 ... formal=4).
-_FORMALITY_INDEX = {level: i for i, level in enumerate(FORMALITY_LEVELS)}
-
-# Color names treated as neutral (pair with anything) when no hex is available.
-_NEUTRAL_NAMES = {
-    "black", "white", "gray", "grey", "beige", "tan", "khaki", "cream",
-    "navy", "charcoal", "ivory", "nude", "brown", "denim",
-}
-
-# Coarse weather bucket -> seasons it implies, used to reward season-appropriate items.
-_WEATHER_SEASONS = {
-    "hot": {"summer"},
-    "warm": {"summer", "spring"},
-    "mild": {"spring", "fall"},
-    "cold": {"winter", "fall"},
-    "rainy": {"fall", "spring"},
-    "snow": {"winter"},
-}
-_COLD_WEATHER = {"cold", "snow", "rainy"}
-
-# Scoring weights. Color cohesion dominates; freshness only breaks near-ties.
-_W_COLOR = 1.0
-_W_FORMALITY = 0.4
-_W_SEASON = 0.5
-_W_PATTERN = 0.6
-_W_FRESH = 0.03
-
-# Bound combinatorial search; a personal closet rarely needs more per slot.
 _SLOT_CAP = 10
-
-# Combinations within this score of the best are treated as equally good, so a fresh
-# "Generate" picks among them at random for variety instead of always the same outfit.
-_VARIETY_MARGIN = 0.75
+_VARIETY_MARGIN = 0.12
 
 
 class OutfitService:
@@ -58,96 +28,42 @@ class OutfitService:
     SHOE_CATEGORIES = {"shoes", "sneakers", "heels", "boots", "sandals", "footwear"}
     OUTERWEAR_CATEGORIES = {"jacket", "coat", "hoodie", "outerwear"}
 
-    # Activewear is its own category; route its pieces to top/bottom slots by subcategory
-    # so workout outfits can be assembled.
     TOP_SUBCATEGORIES = {"sports-bra", "athletic-top", "tracksuit"}
     BOTTOM_SUBCATEGORIES = {"athletic-shorts"}
 
-    # ----- attribute helpers -------------------------------------------------
-
-    @staticmethod
-    def _hsv(hex_color: Optional[str]) -> Optional[tuple]:
-        if not hex_color:
-            return None
-        value = hex_color.strip().lstrip("#")
-        if len(value) != 6:
-            return None
-        try:
-            r, g, b = (int(value[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
-        except ValueError:
-            return None
-        h, s, v = colorsys.rgb_to_hsv(r, g, b)
-        return h * 360.0, s, v
-
-    @staticmethod
-    def _is_neutral(hsv: tuple) -> bool:
-        _, s, v = hsv
-        return s < 0.20 or v < 0.18
-
-    @staticmethod
-    def _hue_distance(h1: float, h2: float) -> float:
-        d = abs(h1 - h2) % 360.0
-        return min(d, 360.0 - d)
+    @classmethod
+    def _context(cls, weather_tag: Optional[str], occasion: Optional[str]) -> MatchContext:
+        return MatchContext(
+            weather_tag=weather_tag,
+            occasion=occasion,
+            target_seasons=weather_seasons(weather_tag),
+        )
 
     @classmethod
-    def _pair_color_score(cls, a: ClothingItem, b: ClothingItem) -> float:
-        hsv_a, hsv_b = cls._hsv(a.color_hex), cls._hsv(b.color_hex)
-        if hsv_a and hsv_b:
-            if cls._is_neutral(hsv_a) or cls._is_neutral(hsv_b):
-                return 0.6
-            dh = cls._hue_distance(hsv_a[0], hsv_b[0])
-            if dh <= 25:
-                return 0.8  # monochrome / analogous
-            if dh >= 150:
-                return 0.7  # complementary
-            if dh < 60:
-                return 0.3  # loosely analogous
-            return -0.4  # clashing mid-distance hues
-        # Fallback to color names.
-        name_a = (a.color or "").lower()
-        name_b = (b.color or "").lower()
-        if not name_a or not name_b:
-            return 0.0
-        if name_a in _NEUTRAL_NAMES or name_b in _NEUTRAL_NAMES:
-            return 0.3
-        if name_a == name_b:
-            return 0.4
-        return 0.0
-
-    @classmethod
-    def _score_outfit(cls, garments: List[ClothingItem], target_seasons: set) -> float:
+    def _score(
+        cls,
+        db: Session,
+        user_id: int,
+        garments: List[ClothingItem],
+        context: MatchContext,
+    ) -> float:
         garments = [g for g in garments if g is not None]
-        if not garments:
-            return 0.0
-        score = 0.0
+        personal, notes = PreferenceService.personalization_bonus(db, user_id, garments)
+        breakdown = FashionMatcher.score_outfit(garments, context, personalization=personal, personal_notes=notes)
+        return breakdown.total
 
-        for a, b in combinations(garments, 2):
-            score += _W_COLOR * cls._pair_color_score(a, b)
-
-        formality_idxs = [
-            _FORMALITY_INDEX[g.formality] for g in garments if g.formality in _FORMALITY_INDEX
-        ]
-        if len(formality_idxs) >= 2:
-            score -= _W_FORMALITY * (max(formality_idxs) - min(formality_idxs))
-
-        if target_seasons:
-            for g in garments:
-                seasons = set(g.seasons or [])
-                if not seasons:
-                    continue
-                if seasons & target_seasons or "all-season" in seasons:
-                    score += _W_SEASON
-                else:
-                    score -= _W_SEASON
-
-        statement = [g for g in garments if g.pattern and g.pattern != "solid"]
-        if len(statement) >= 2:
-            score -= _W_PATTERN * (len(statement) - 1)
-
-        score -= _W_FRESH * sum((g.times_worn or 0) for g in garments)
-        return score
-
-    # ----- candidate selection ----------------------------------------------
+    @classmethod
+    def _rationale_for(
+        cls,
+        db: Session,
+        user_id: int,
+        garments: List[ClothingItem],
+        context: MatchContext,
+    ) -> Optional[str]:
+        garments = [g for g in garments if g is not None]
+        personal, notes = PreferenceService.personalization_bonus(db, user_id, garments)
+        breakdown = FashionMatcher.score_outfit(garments, context, personalization=personal, personal_notes=notes)
+        return breakdown.rationale()
 
     @staticmethod
     def _candidates(
@@ -181,7 +97,20 @@ class OutfitService:
         pool.sort(key=lambda x: x.times_worn or 0)
         return pool[:_SLOT_CAP]
 
-    # ----- main entry point --------------------------------------------------
+    @classmethod
+    def _get_owned(
+        cls,
+        db: Session,
+        user_id: int,
+        item_id: Optional[int],
+    ) -> Optional[ClothingItem]:
+        if item_id is None:
+            return None
+        return (
+            db.query(ClothingItem)
+            .filter(ClothingItem.id == item_id, ClothingItem.user_id == user_id)
+            .first()
+        )
 
     @classmethod
     def get_suggestion(
@@ -192,9 +121,28 @@ class OutfitService:
         occasion: Optional[str],
         include_alternative: bool,
         exclude_ids: Optional[set] = None,
+        swap_slot: Optional[str] = None,
+        top_id: Optional[int] = None,
+        bottom_id: Optional[int] = None,
+        shoes_id: Optional[int] = None,
+        outerwear_id: Optional[int] = None,
     ):
+        if swap_slot:
+            return cls._swap_piece(
+                db=db,
+                user_id=user_id,
+                weather_tag=weather_tag,
+                occasion=occasion,
+                include_alternative=include_alternative,
+                swap_slot=swap_slot,
+                top_id=top_id,
+                bottom_id=bottom_id,
+                shoes_id=shoes_id,
+                outerwear_id=outerwear_id,
+            )
+
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
-        target_seasons = _WEATHER_SEASONS.get(weather_tag or "", set())
+        context = cls._context(weather_tag, occasion)
 
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
@@ -205,32 +153,33 @@ class OutfitService:
         shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
         outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
 
-        best = cls._best_combo(tops, bottoms, shoes, target_seasons)
+        best = cls._best_combo(db, user_id, tops, bottoms, shoes, context)
 
         chosen_top = best["top"]
         chosen_bottom = best["bottom"]
         chosen_shoes = best["shoes"]
         anchor = chosen_top or chosen_bottom or chosen_shoes
 
-        chosen_outerwear = cls._best_outerwear(
-            outerwear, anchor, target_seasons, weather_tag
-        )
+        chosen_outerwear = cls._best_outerwear(db, user_id, outerwear, anchor, context, weather_tag)
 
         alternatives: List[ClothingItem] = []
         if include_alternative and anchor is not None:
             alternatives = cls._alternatives(
+                db,
+                user_id,
                 anchor,
-                target_seasons,
+                context,
                 tops=tops,
                 bottoms=bottoms,
                 shoes=shoes,
                 chosen={chosen_top, chosen_bottom, chosen_shoes},
             )
 
-        rationale = cls._rationale(
+        rationale = cls._rationale_for(
+            db,
+            user_id,
             [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
-            target_seasons,
-            weather_tag,
+            context,
         )
 
         return {
@@ -246,69 +195,153 @@ class OutfitService:
         }
 
     @classmethod
-    def _rationale(
+    def _swap_piece(
         cls,
-        garments: List[ClothingItem],
-        target_seasons: set,
+        db: Session,
+        user_id: int,
         weather_tag: Optional[str],
-    ) -> Optional[str]:
-        garments = [g for g in garments if g is not None]
-        if not garments:
-            return None
-        reasons: List[str] = []
+        occasion: Optional[str],
+        include_alternative: bool,
+        swap_slot: str,
+        top_id: Optional[int],
+        bottom_id: Optional[int],
+        shoes_id: Optional[int],
+        outerwear_id: Optional[int],
+    ):
+        valid_slots = {"top", "bottom", "shoes", "outerwear"}
+        if swap_slot not in valid_slots:
+            raise ValueError(f"Invalid swap_slot: {swap_slot}")
 
-        color_pairs = [
-            cls._pair_color_score(a, b)
-            for a, b in combinations(garments, 2)
-            if (a.color_hex or a.color) and (b.color_hex or b.color)
-        ]
-        if color_pairs and sum(color_pairs) / len(color_pairs) >= 0.45:
-            reasons.append("the colors work together")
+        locked_top = cls._get_owned(db, user_id, top_id)
+        locked_bottom = cls._get_owned(db, user_id, bottom_id)
+        locked_shoes = cls._get_owned(db, user_id, shoes_id)
+        locked_outerwear = cls._get_owned(db, user_id, outerwear_id)
 
-        formality_idxs = [
-            _FORMALITY_INDEX[g.formality] for g in garments if g.formality in _FORMALITY_INDEX
-        ]
-        if len(formality_idxs) >= 2 and max(formality_idxs) - min(formality_idxs) <= 1:
-            level = FORMALITY_LEVELS[round(sum(formality_idxs) / len(formality_idxs))]
-            reasons.append(f"a consistent {level} feel")
+        items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
+        context = cls._context(weather_tag, occasion)
 
-        if target_seasons and weather_tag:
-            if any(
-                set(g.seasons or []) & target_seasons or "all-season" in (g.seasons or [])
-                for g in garments
-            ):
-                reasons.append(f"pieces suited to {weather_tag} weather")
+        exclude_ids: set[int] = set()
+        if swap_slot == "top" and locked_top:
+            exclude_ids.add(locked_top.id)
+        elif swap_slot == "bottom" and locked_bottom:
+            exclude_ids.add(locked_bottom.id)
+        elif swap_slot == "shoes" and locked_shoes:
+            exclude_ids.add(locked_shoes.id)
+        elif swap_slot == "outerwear" and locked_outerwear:
+            exclude_ids.add(locked_outerwear.id)
 
-        if not reasons:
-            return "Built from your freshest clean pieces."
-        return "Picked because " + cls._join(reasons) + "."
+        tops = cls._candidates(
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
+        )
+        bottoms = cls._candidates(
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES
+        )
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
 
-    @staticmethod
-    def _join(parts: List[str]) -> str:
-        if len(parts) == 1:
-            return parts[0]
-        return ", ".join(parts[:-1]) + " and " + parts[-1]
+        if swap_slot == "top":
+            top_opts = tops
+            bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+            shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
+        elif swap_slot == "bottom":
+            top_opts = [locked_top] if locked_top else (tops or [None])
+            bottom_opts = bottoms
+            shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
+        elif swap_slot == "shoes":
+            top_opts = [locked_top] if locked_top else (tops or [None])
+            bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+            shoe_opts = shoes
+        else:
+            top_opts = [locked_top] if locked_top else (tops or [None])
+            bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+            shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
+
+        if swap_slot == "outerwear":
+            chosen_top = locked_top
+            chosen_bottom = locked_bottom
+            chosen_shoes = locked_shoes
+            anchor = chosen_top or chosen_bottom or chosen_shoes
+            pool = [o for o in outerwear if not locked_outerwear or o.id != locked_outerwear.id]
+            chosen_outerwear = (
+                max(pool, key=lambda ow: cls._score(db, user_id, [anchor, ow], context))
+                if pool and anchor
+                else (pool[0] if pool else locked_outerwear)
+            )
+        else:
+            best = cls._best_combo(db, user_id, top_opts, bottom_opts, shoe_opts, context)
+            chosen_top = best["top"] if swap_slot == "top" else (locked_top or best["top"])
+            chosen_bottom = best["bottom"] if swap_slot == "bottom" else (locked_bottom or best["bottom"])
+            chosen_shoes = best["shoes"] if swap_slot == "shoes" else (locked_shoes or best["shoes"])
+            anchor = chosen_top or chosen_bottom or chosen_shoes
+            if locked_outerwear and swap_slot != "outerwear":
+                chosen_outerwear = locked_outerwear
+            else:
+                chosen_outerwear = cls._best_outerwear(db, user_id, outerwear, anchor, context, weather_tag)
+
+        slot_labels = {
+            "top": "top",
+            "bottom": "bottom",
+            "shoes": "shoes",
+            "outerwear": "layer",
+        }
+        swapped = slot_labels[swap_slot]
+
+        alternatives: List[ClothingItem] = []
+        if include_alternative and anchor is not None:
+            alternatives = cls._alternatives(
+                db,
+                user_id,
+                anchor,
+                context,
+                tops=tops,
+                bottoms=bottoms,
+                shoes=shoes,
+                chosen={chosen_top, chosen_bottom, chosen_shoes},
+            )
+
+        rationale = cls._rationale_for(
+            db,
+            user_id,
+            [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+            context,
+        )
+        if rationale:
+            rationale = f"Swapped the {swapped} — kept the rest. {rationale}"
+
+        return {
+            "title": f"New {swapped} suggestion",
+            "weather_tag": weather_tag,
+            "occasion": occasion,
+            "rationale": rationale,
+            "top": chosen_top,
+            "bottom": chosen_bottom,
+            "shoes": chosen_shoes,
+            "outerwear": chosen_outerwear,
+            "alternatives": alternatives,
+        }
 
     @classmethod
     def _best_combo(
         cls,
+        db: Session,
+        user_id: int,
         tops: List[ClothingItem],
         bottoms: List[ClothingItem],
         shoes: List[ClothingItem],
-        target_seasons: set,
+        context: MatchContext,
     ) -> dict:
         top_opts = tops or [None]
         bottom_opts = bottoms or [None]
         shoe_opts = shoes or [None]
 
         scored = []
-        for t in top_opts:
-            for b in bottom_opts:
-                if t is None and b is None:
+        for top in top_opts:
+            for bottom in bottom_opts:
+                if top is None and bottom is None:
                     continue
-                for sh in shoe_opts:
-                    score = cls._score_outfit([t, b, sh], target_seasons)
-                    scored.append((score, {"top": t, "bottom": b, "shoes": sh}))
+                for shoe in shoe_opts:
+                    score = cls._score(db, user_id, [top, bottom, shoe], context)
+                    scored.append((score, {"top": top, "bottom": bottom, "shoes": shoe}))
 
         if not scored:
             return {"top": None, "bottom": None, "shoes": None}
@@ -320,26 +353,28 @@ class OutfitService:
     @classmethod
     def _best_outerwear(
         cls,
+        db: Session,
+        user_id: int,
         outerwear: List[ClothingItem],
         anchor: Optional[ClothingItem],
-        target_seasons: set,
+        context: MatchContext,
         weather_tag: Optional[str],
     ) -> Optional[ClothingItem]:
         if not outerwear:
             return None
-        # Only force outerwear in cold/wet weather; otherwise include it only when
-        # the weather is unknown (so a suggestion still feels complete).
-        if weather_tag and weather_tag not in _COLD_WEATHER:
+        if weather_tag and not needs_outerwear(weather_tag):
             return None
         if anchor is None:
             return outerwear[0]
-        return max(outerwear, key=lambda ow: cls._score_outfit([anchor, ow], target_seasons))
+        return max(outerwear, key=lambda ow: cls._score(db, user_id, [anchor, ow], context))
 
     @classmethod
     def _alternatives(
         cls,
+        db: Session,
+        user_id: int,
         anchor: ClothingItem,
-        target_seasons: set,
+        context: MatchContext,
         tops: List[ClothingItem],
         bottoms: List[ClothingItem],
         shoes: List[ClothingItem],
@@ -348,7 +383,8 @@ class OutfitService:
         def ranked(pool: List[ClothingItem], limit: int) -> List[ClothingItem]:
             remaining = [i for i in pool if i not in chosen]
             remaining.sort(
-                key=lambda i: cls._score_outfit([anchor, i], target_seasons), reverse=True
+                key=lambda i: cls._score(db, user_id, [anchor, i], context),
+                reverse=True,
             )
             return remaining[:limit]
 

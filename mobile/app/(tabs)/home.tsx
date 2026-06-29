@@ -11,7 +11,7 @@ import { getApiErrorMessage } from '../../services/errors';
 import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { ChipSelect } from '../../components/ui/ChipSelect';
-import { OutfitCard } from '../../components/OutfitCard';
+import { OutfitCard, OutfitSlotKey } from '../../components/OutfitCard';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -27,7 +27,46 @@ export default function HomeScreen() {
   const [plan, setPlan] = useState<DailyPlan | null>(null);
   const [planLoading, setPlanLoading] = useState(false);
   const [wearingActivity, setWearingActivity] = useState<string | null>(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [swappingSlot, setSwappingSlot] = useState<OutfitSlotKey | null>(null);
   const { sendMyPlan, consumePendingPlan, loading: routineLoading } = useRoutineStore();
+
+  const outfitFeedbackPayload = (outfit: {
+    top?: ClosetItem | null;
+    bottom?: ClosetItem | null;
+    shoes?: ClosetItem | null;
+    outerwear?: ClosetItem | null;
+  }) => ({
+    top_id: outfit.top?.id ?? null,
+    bottom_id: outfit.bottom?.id ?? null,
+    shoes_id: outfit.shoes?.id ?? null,
+    outerwear_id: outfit.outerwear?.id ?? null,
+    occasion: occasion || null,
+    weather_tag: weatherTag || null,
+  });
+
+  const sendOutfitFeedback = async (
+    outfit: {
+      top?: ClosetItem | null;
+      bottom?: ClosetItem | null;
+      shoes?: ClosetItem | null;
+      outerwear?: ClosetItem | null;
+    },
+    signal: 'like' | 'dislike' | 'wore',
+  ) => {
+    if (!outfit.top && !outfit.bottom && !outfit.shoes) return;
+    setFeedbackLoading(true);
+    try {
+      await outfitAPI.feedback({ ...outfitFeedbackPayload(outfit), signal });
+      if (signal === 'dislike') {
+        await loadSuggestion();
+      }
+    } catch {
+      // Non-blocking — wear logging still succeeds if feedback fails.
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
 
   const loadSuggestion = useCallback(async () => {
     setIsLoading(true);
@@ -96,6 +135,15 @@ export default function HomeScreen() {
     setWearing(true);
     try {
       await wearItems(ids);
+      await sendOutfitFeedback(
+        {
+          top: suggestion?.top,
+          bottom: suggestion?.bottom,
+          shoes: suggestion?.shoes,
+          outerwear: suggestion?.outerwear,
+        },
+        'wore',
+      );
       Alert.alert('Logged', 'Marked as worn — anything past its wash limit is now in the hamper.');
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
@@ -112,11 +160,39 @@ export default function HomeScreen() {
     setWearingActivity(activity.activity);
     try {
       await wearItems(ids);
+      await sendOutfitFeedback(
+        {
+          top: activity.top,
+          bottom: activity.bottom,
+          shoes: activity.shoes,
+          outerwear: activity.outerwear,
+        },
+        'wore',
+      );
       Alert.alert('Logged', `Marked your ${activity.title.toLowerCase()} outfit as worn.`);
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
     } finally {
       setWearingActivity(null);
+    }
+  };
+
+  const handleSwapSlot = async (slot: OutfitSlotKey) => {
+    if (!suggestion) return;
+    setSwappingSlot(slot);
+    try {
+      const response = await outfitAPI.getSuggestion(occasion || undefined, weatherTag || undefined, {
+        swapSlot: slot,
+        topId: suggestion.top?.id,
+        bottomId: suggestion.bottom?.id,
+        shoesId: suggestion.shoes?.id,
+        outerwearId: suggestion.outerwear?.id,
+      });
+      setSuggestion(response);
+    } catch {
+      Alert.alert('Unable to swap', 'No better alternative found in your closet for that piece.');
+    } finally {
+      setSwappingSlot(null);
     }
   };
 
@@ -227,6 +303,37 @@ export default function HomeScreen() {
             shoes={suggestion?.shoes}
             outerwear={suggestion?.outerwear}
             alternatives={suggestion?.alternatives}
+            onLike={
+              suggestion
+                ? () =>
+                    sendOutfitFeedback(
+                      {
+                        top: suggestion.top,
+                        bottom: suggestion.bottom,
+                        shoes: suggestion.shoes,
+                        outerwear: suggestion.outerwear,
+                      },
+                      'like',
+                    )
+                : undefined
+            }
+            onDislike={
+              suggestion
+                ? () =>
+                    sendOutfitFeedback(
+                      {
+                        top: suggestion.top,
+                        bottom: suggestion.bottom,
+                        shoes: suggestion.shoes,
+                        outerwear: suggestion.outerwear,
+                      },
+                      'dislike',
+                    )
+                : undefined
+            }
+            feedbackLoading={feedbackLoading}
+            onSwapSlot={suggestion ? handleSwapSlot : undefined}
+            swappingSlot={swappingSlot}
             onWore={handleWoreSuggestion}
             woreLoading={wearing}
           />

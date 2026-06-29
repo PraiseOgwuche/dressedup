@@ -89,6 +89,8 @@ export interface ClosetItemCreate {
   source?: string;
   needs_review?: boolean;
   confidence?: Record<string, number>;
+  product_name?: string;
+  ai_metadata?: Record<string, unknown>;
 }
 
 export interface DraftItem {
@@ -109,6 +111,9 @@ export interface DraftItem {
   source: string;
   confidence: Record<string, number>;
   needs_review: boolean;
+  sku?: string | null;
+  price?: number | null;
+  purchase_date?: string | null;
 }
 
 export interface IngestResult {
@@ -139,6 +144,13 @@ export interface MultiIngestResult {
   entries: MultiIngestEntry[];
 }
 
+export interface ReceiptIngestResult {
+  source_image_url: string;
+  merchant?: string | null;
+  purchase_date?: string | null;
+  entries: MultiIngestEntry[];
+}
+
 export interface OutfitSuggestion {
   title: string;
   weather_tag?: string | null;
@@ -149,6 +161,26 @@ export interface OutfitSuggestion {
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
   alternatives: ClosetItem[];
+}
+
+export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear';
+
+export interface OutfitSwapOptions {
+  swapSlot: OutfitSlotKey;
+  topId?: number | null;
+  bottomId?: number | null;
+  shoesId?: number | null;
+  outerwearId?: number | null;
+}
+
+export interface OutfitFeedbackPayload {
+  top_id?: number | null;
+  bottom_id?: number | null;
+  shoes_id?: number | null;
+  outerwear_id?: number | null;
+  signal: 'like' | 'dislike' | 'wore';
+  occasion?: string | null;
+  weather_tag?: string | null;
 }
 
 export interface PlanActivity {
@@ -187,6 +219,29 @@ export interface NotificationTestResult {
   body: string;
   tokens_sent: number;
   push_result: Record<string, unknown>;
+}
+
+export interface EmailIngestSettings {
+  enabled: boolean;
+  address?: string | null;
+  instructions: string;
+}
+
+export interface EmailIngestLog {
+  id: number;
+  sender?: string | null;
+  subject?: string | null;
+  items_created: number;
+  attachments_processed: number;
+  errors?: string[] | null;
+  created_at: string;
+}
+
+export interface EmailIngestResult {
+  items_created: number;
+  attachments_processed: number;
+  errors: string[];
+  log_id?: number | null;
 }
 
 export interface SocialPost {

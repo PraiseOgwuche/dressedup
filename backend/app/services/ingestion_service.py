@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional, Tuple
 
 from app.config import settings
-from app.schemas.ingestion import BatchIngestEntry, IngestResult, MultiIngestEntry, MultiIngestResult
+from app.schemas.ingestion import BatchIngestEntry, IngestResult, MultiIngestEntry, MultiIngestResult, ReceiptIngestResult
 from app.services.storage import get_storage_provider
 from app.services.vision import get_vision_provider
 
@@ -85,3 +85,33 @@ class IngestionService:
         with ThreadPoolExecutor(max_workers=workers) as executor:
             # executor.map preserves input order, which keeps results aligned to uploads.
             return list(executor.map(process, payloads))
+
+    @staticmethod
+    def ingest_receipt(receipt_bytes: bytes, receipt_ext: str) -> ReceiptIngestResult:
+        storage = get_storage_provider()
+        image_url = storage.save(receipt_bytes, ext=receipt_ext, subdir="receipts")
+
+        extracted = get_vision_provider().extract_from_receipt(receipt_image=receipt_bytes)
+        entries = [
+            MultiIngestEntry(
+                index=i,
+                draft=draft,
+                image_url=image_url,
+                thumbnail_url=image_url,
+            )
+            for i, draft in enumerate(extracted.items)
+        ]
+        return ReceiptIngestResult(
+            source_image_url=image_url,
+            merchant=extracted.merchant,
+            purchase_date=extracted.purchase_date,
+            entries=entries,
+        )
+
+    @staticmethod
+    def ingest_label(label_bytes: bytes, label_ext: str) -> IngestResult:
+        storage = get_storage_provider()
+        image_url = storage.save(label_bytes, ext=label_ext, subdir="labels")
+
+        draft = get_vision_provider().extract_from_care_label(label_image=label_bytes)
+        return IngestResult(draft=draft, image_url=image_url, thumbnail_url=image_url)
