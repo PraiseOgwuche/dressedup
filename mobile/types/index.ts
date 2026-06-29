@@ -284,6 +284,8 @@ export interface TripPlan {
   user_id: number;
   destination: string;
   weather_tag?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
   days: number;
   notes?: string | null;
   is_completed: boolean;
@@ -293,6 +295,9 @@ export interface TripPlan {
 export interface TripDayOutfit {
   day: number;
   title: string;
+  trip_date?: string | null;
+  weather_tag?: string | null;
+  weather_summary?: string | null;
   rationale?: string | null;
   top?: ClosetItem | null;
   bottom?: ClosetItem | null;
@@ -305,6 +310,8 @@ export interface TripPackingPlan {
   days: TripDayOutfit[];
   packing_list: ClosetItem[];
   summary: string;
+  weather_source?: string | null;
+  weather_note?: string | null;
 }
 
 export interface ShopRecommendation {

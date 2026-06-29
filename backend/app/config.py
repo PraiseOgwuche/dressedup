@@ -72,6 +72,10 @@ class Settings(BaseSettings):
     NOTIFICATION_SCHEDULER_ENABLED: bool = False
     EXPO_ACCESS_TOKEN: str = ""
 
+    # Trip weather (Open-Meteo — free, no API key).
+    WEATHER_API_ENABLED: bool = True
+    WEATHER_API_TIMEOUT_SEC: float = 12.0
+
     # CORS — comma-separated in env files (List[str] would require JSON in .env)
     ALLOWED_ORIGINS: str = Field(
         default="http://localhost:8081,http://localhost:19006",

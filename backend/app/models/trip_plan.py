@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -12,6 +12,8 @@ class TripPlan(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     destination = Column(String, nullable=False)
     weather_tag = Column(String, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
     days = Column(Integer, nullable=False, default=1)
     notes = Column(Text, nullable=True)
     is_completed = Column(Boolean, default=False)

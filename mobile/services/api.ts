@@ -335,7 +335,9 @@ export const tripsAPI = {
   createPlan: async (payload: {
     destination: string;
     weather_tag?: string;
-    days: number;
+    start_date?: string;
+    end_date?: string;
+    days?: number;
     notes?: string;
   }): Promise<TripPlan> => {
     const response = await api.post<TripPlan>('/trips/plans', payload);

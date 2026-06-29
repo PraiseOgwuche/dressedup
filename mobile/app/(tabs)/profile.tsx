@@ -33,6 +33,8 @@ export default function ProfileScreen() {
   const [packingPlan, setPackingPlan] = useState<TripPackingPlan | null>(null);
   const [packingLoading, setPackingLoading] = useState<number | null>(null);
   const [destination, setDestination] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [days, setDays] = useState('3');
   const [loadingTrips, setLoadingTrips] = useState(false);
 
@@ -189,21 +191,34 @@ export default function ProfileScreen() {
   };
 
   const createTripPlan = async () => {
-    const parsedDays = Number(days);
-    if (!destination.trim() || Number.isNaN(parsedDays) || parsedDays < 1) {
-      Alert.alert('Invalid trip', 'Add a destination and valid number of days.');
+    if (!destination.trim()) {
+      Alert.alert('Invalid trip', 'Add a destination.');
       return;
     }
+
+    const hasDates = startDate.trim() && endDate.trim();
+    const parsedDays = Number(days);
+
+    if (!hasDates && (Number.isNaN(parsedDays) || parsedDays < 1)) {
+      Alert.alert('Invalid trip', 'Add start & end dates (YYYY-MM-DD) or a valid number of days.');
+      return;
+    }
+
     try {
       await tripsAPI.createPlan({
         destination: destination.trim(),
-        days: parsedDays,
+        ...(hasDates
+          ? { start_date: startDate.trim(), end_date: endDate.trim() }
+          : { days: parsedDays }),
       });
       setDestination('');
+      setStartDate('');
+      setEndDate('');
       setDays('3');
+      setPackingPlan(null);
       await loadTrips();
-    } catch {
-      Alert.alert('Premium required', 'Trip planning is currently available for premium users.');
+    } catch (error: any) {
+      Alert.alert('Trip failed', getApiErrorMessage(error, 'Could not create that trip.'));
     }
   };
 
@@ -383,11 +398,28 @@ export default function ProfileScreen() {
 
         <View style={styles.tripCard}>
           <Text style={styles.cardTitle}>Trip Planner</Text>
+          <Text style={styles.cardHint}>
+            Add dates for a live weather forecast — we dress you per day (hot, rainy, etc.).
+          </Text>
           {hasPremiumAccess(user) ? (
             <>
-              <Input label="Destination" value={destination} onChangeText={setDestination} placeholder="Lagos" />
+              <Input label="Destination" value={destination} onChangeText={setDestination} placeholder="Honolulu, Hawaii" />
               <Input
-                label="Days"
+                label="Start date"
+                value={startDate}
+                onChangeText={setStartDate}
+                placeholder="2026-07-24"
+                autoCapitalize="none"
+              />
+              <Input
+                label="End date"
+                value={endDate}
+                onChangeText={setEndDate}
+                placeholder="2026-07-26"
+                autoCapitalize="none"
+              />
+              <Input
+                label="Days (if no dates)"
                 value={days}
                 onChangeText={setDays}
                 keyboardType="number-pad"
@@ -405,7 +437,10 @@ export default function ProfileScreen() {
                 renderItem={({ item }) => (
                   <View style={styles.tripRow}>
                     <Text style={styles.tripItem}>
-                      {item.destination} • {item.days} days
+                      {item.destination}
+                      {item.start_date && item.end_date
+                        ? ` • ${item.start_date} → ${item.end_date}`
+                        : ` • ${item.days} days`}
                     </Text>
                     <Button
                       title="What to pack"
@@ -419,10 +454,14 @@ export default function ProfileScreen() {
               {packingPlan ? (
                 <View style={styles.packingBox}>
                   <Text style={styles.packingSummary}>{packingPlan.summary}</Text>
+                  {packingPlan.weather_note ? (
+                    <Text style={styles.weatherNote}>{packingPlan.weather_note}</Text>
+                  ) : null}
                   {packingPlan.days.map((day) => (
                     <Text key={day.day} style={styles.packingDay}>
                       {day.title}
-                      {day.rationale ? ` — ${day.rationale}` : ''}
+                      {day.weather_summary ? `\n${day.weather_summary}` : ''}
+                      {day.rationale ? `\n${day.rationale}` : ''}
                     </Text>
                   ))}
                   <Text style={styles.packingListTitle}>Suitcase ({packingPlan.packing_list.length})</Text>
@@ -545,7 +584,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   packingSummary: { fontSize: 14, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
-  packingDay: { fontSize: 12, color: COLORS.textLight, marginBottom: 4, lineHeight: 17 },
+  weatherNote: { fontSize: 12, color: COLORS.warning, marginBottom: 8, lineHeight: 17 },
+  packingDay: { fontSize: 12, color: COLORS.textLight, marginBottom: 8, lineHeight: 17 },
   packingListTitle: { fontSize: 13, fontWeight: '700', color: COLORS.text, marginTop: 10, marginBottom: 4 },
   packingItem: { fontSize: 12, color: COLORS.text, paddingVertical: 2 },
   tripEmpty: { fontSize: 13, color: COLORS.textLight, marginTop: 6 },

@@ -22,7 +22,7 @@
 | I Daily plan + push | ✅ | Routines, scheduler; push needs dev build |
 | **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |
 | **J Voice / text agent** | ✅ | `POST /outfits/ask` — natural language → outfit |
-| **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list |
+| **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list + **live weather** |
 | Deploy + durable media | — | Render/Neon done; S3 for images next |
 
 ## Parked

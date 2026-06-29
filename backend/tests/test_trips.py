@@ -1,6 +1,8 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
+from unittest.mock import patch
 
 from app.models.user import User
+from app.services.weather_service import DailyWeather
 
 
 def test_trip_packing_plan(client, auth_header):
@@ -19,6 +21,60 @@ def test_trip_packing_plan(client, auth_header):
     assert body["days"][0]["day"] == 1
     assert "packing_list" in body
     assert body["trip"]["destination"] == "Paris"
+
+
+@patch("app.services.trip_service.WeatherService.forecast_for_trip")
+def test_trip_packing_uses_forecast_per_day(mock_forecast, client, auth_header):
+    mock_forecast.return_value = [
+        DailyWeather(
+            date=date(2026, 7, 24),
+            weather_tag="hot",
+            summary="clear, high 88°F / low 74°F",
+            temp_high_c=31.0,
+            temp_low_c=23.0,
+        ),
+        DailyWeather(
+            date=date(2026, 7, 25),
+            weather_tag="rainy",
+            summary="rain showers, high 82°F / low 72°F · 8mm precip",
+            temp_high_c=28.0,
+            temp_low_c=22.0,
+            precipitation_mm=8.0,
+        ),
+        DailyWeather(
+            date=date(2026, 7, 26),
+            weather_tag="hot",
+            summary="mostly clear, high 90°F / low 76°F",
+            temp_high_c=32.0,
+            temp_low_c=24.0,
+        ),
+    ]
+
+    create = client.post(
+        "/api/v1/trips/plans",
+        headers=auth_header,
+        json={
+            "destination": "Honolulu, Hawaii",
+            "start_date": "2026-07-24",
+            "end_date": "2026-07-26",
+        },
+    )
+    assert create.status_code == 201
+    assert create.json()["days"] == 3
+
+    packing = client.get(
+        f"/api/v1/trips/plans/{create.json()['id']}/packing",
+        headers=auth_header,
+    )
+    assert packing.status_code == 200
+    body = packing.json()
+    assert body["weather_source"] == "open-meteo"
+    assert len(body["days"]) == 3
+    assert body["days"][0]["weather_tag"] == "hot"
+    assert body["days"][1]["weather_tag"] == "rainy"
+    assert body["days"][0]["trip_date"] == "2026-07-24"
+    assert "forecast" in body["summary"].lower() or "hot" in body["summary"]
+    mock_forecast.assert_called_once()
 
 
 def test_trip_requires_premium_without_trial(client, db_session):
