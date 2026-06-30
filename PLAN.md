@@ -24,6 +24,7 @@
 | **J Voice / text agent** | ✅ | `POST /outfits/ask` — natural language → outfit |
 | **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list + **live weather** |
 | Deploy + durable media | ✅ S3 provider | Set `STORAGE_PROVIDER=s3` on Render; local disk for dev |
+| **Shop v1** | ✅ | Curated catalog + virtual outfit-count scoring (`app/shop/catalog.yaml`) |
 
 ## Parked
 

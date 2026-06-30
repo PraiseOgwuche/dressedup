@@ -16,7 +16,7 @@ import {
   OutfitSuggestion,
   OutfitAskResponse,
   SocialPost,
-  ShopRecommendation,
+  ShopRecommendationsResponse,
   TripPlan,
   TripPackingPlan,
   DailyPlan,
@@ -321,8 +321,8 @@ export const socialAPI = {
 };
 
 export const shopAPI = {
-  getRecommendations: async (): Promise<{ recommendations: ShopRecommendation[] }> => {
-    const response = await api.get<{ recommendations: ShopRecommendation[] }>('/shop/recommendations');
+  getRecommendations: async (): Promise<ShopRecommendationsResponse> => {
+    const response = await api.get<ShopRecommendationsResponse>('/shop/recommendations');
     return response.data;
   },
 };

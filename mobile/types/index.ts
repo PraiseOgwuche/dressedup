@@ -315,7 +315,20 @@ export interface TripPackingPlan {
 }
 
 export interface ShopRecommendation {
+  product_id: string;
+  brand: string;
+  name: string;
   category: string;
+  color?: string | null;
+  price_usd: number;
+  product_url: string;
+  pitch: string;
+  outfit_count: number;
   reason: string;
   priority: string;
+}
+
+export interface ShopRecommendationsResponse {
+  summary: string;
+  recommendations: ShopRecommendation[];
 }

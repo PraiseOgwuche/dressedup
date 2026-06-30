@@ -1,0 +1,133 @@
+# Curated Shop v1 catalog — hand-picked staples with wardrobe attributes for outfit scoring.
+# product_url is an example link; swap for affiliate URLs when partnerships exist.
+
+products:
+  - id: uniqlo-linen-shirt-white
+    brand: Uniqlo
+    name: Premium Linen Shirt
+    category: top
+    subcategory: shirt
+    color: white
+    color_hex: "#F4F1EA"
+    formality: smart-casual
+    pattern: solid
+    price_usd: 49.90
+    product_url: https://www.uniqlo.com
+    pitch: Crisp white layer that unlocks smart-casual combos.
+
+  - id: uniqlo-crew-tee-navy
+    brand: Uniqlo
+    name: Supima Cotton Crew Neck
+    category: top
+    subcategory: t-shirt
+    color: navy
+    color_hex: "#1E2A44"
+    formality: casual
+    pattern: solid
+    price_usd: 14.90
+    product_url: https://www.uniqlo.com
+    pitch: Everyday navy tee — works with almost any bottom you own.
+
+  - id: everlane-cheeky-jean
+    brand: Everlane
+    name: The Cheeky Jean
+    category: bottom
+    subcategory: jeans
+    color: indigo
+    color_hex: "#2C3E5C"
+    formality: casual
+    pattern: solid
+    price_usd: 98.00
+    product_url: https://www.everlane.com
+    pitch: Medium-wash denim to anchor weekend and casual looks.
+
+  - id: uniqlo-smart-ankle-pants
+    brand: Uniqlo
+    name: Smart Ankle Pants
+    category: bottom
+    subcategory: trousers
+    color: charcoal
+    color_hex: "#3D3D3D"
+    formality: business
+    pattern: solid
+    price_usd: 49.90
+    product_url: https://www.uniqlo.com
+    pitch: Tailored trouser for work days when jeans won't cut it.
+
+  - id: new-balance-574
+    brand: New Balance
+    name: "574 Core"
+    category: footwear
+    subcategory: sneakers
+    color: grey
+    color_hex: "#9A9A9A"
+    formality: casual
+    pattern: solid
+    price_usd: 89.99
+    product_url: https://www.newbalance.com
+    pitch: Neutral sneaker that bridges casual tops and bottoms.
+
+  - id: clarks-desert-boot
+    brand: Clarks
+    name: Desert Boot
+    category: footwear
+    subcategory: boots
+    color: tan
+    color_hex: "#C4A574"
+    formality: smart-casual
+    pattern: solid
+    price_usd: 150.00
+    product_url: https://www.clarks.com
+    pitch: Elevates chinos and denim without feeling formal.
+
+  - id: uniqlo-ultra-light-jacket
+    brand: Uniqlo
+    name: Ultra Light Down Jacket
+    category: outerwear
+    subcategory: jacket
+    color: black
+    color_hex: "#1C1C1C"
+    formality: casual
+    pattern: solid
+    price_usd: 69.90
+    product_url: https://www.uniqlo.com
+    pitch: Packable layer for cool mornings and travel days.
+
+  - id: cos-wool-blazer
+    brand: COS
+    name: Single-Breasted Wool Blazer
+    category: outerwear
+    subcategory: blazer
+    color: navy
+    color_hex: "#1A2744"
+    formality: business
+    pattern: solid
+    price_usd: 225.00
+    product_url: https://www.cos.com
+    pitch: Instant polish over tees and shirts you already own.
+
+  - id: everlane-cashmere-crew
+    brand: Everlane
+    name: Grade-A Cashmere Crew
+    category: top
+    subcategory: sweater
+    color: camel
+    color_hex: "#C9A66B"
+    formality: smart-casual
+    pattern: solid
+    price_usd: 135.00
+    product_url: https://www.everlane.com
+    pitch: Warm neutral knit for quiet-luxury layering.
+
+  - id: aritzia-effortless-pant
+    brand: Aritzia
+    name: The Effortless Pant
+    category: bottom
+    subcategory: trousers
+    color: black
+    color_hex: "#1C1C1C"
+    formality: smart-casual
+    pattern: solid
+    price_usd: 148.00
+    product_url: https://www.aritzia.com
+    pitch: Drapey black trouser for date night and office-casual.
