@@ -6,19 +6,26 @@ import { useFocusEffect } from 'expo-router';
 import { THEME, utilityTitle } from '../../constants/theme';
 import { socialAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
-import { SocialPost } from '../../types';
+import { getDeviceTimezone } from '../../services/pushNotifications';
+import { SocialPost, StreakStats } from '../../types';
 import { FeedPostCard } from '../../components/FeedPostCard';
+import { StreakBadge } from '../../components/StreakBadge';
 
 export default function FeedScreen() {
   const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [streak, setStreak] = useState<StreakStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [likingId, setLikingId] = useState<number | null>(null);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await socialAPI.listPosts();
-      setPosts(response);
+      const [postsResponse, streakResponse] = await Promise.all([
+        socialAPI.listPosts(),
+        socialAPI.getStreak(getDeviceTimezone()),
+      ]);
+      setPosts(postsResponse);
+      setStreak(streakResponse);
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not load the feed.'));
     } finally {
@@ -55,6 +62,7 @@ export default function FeedScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Feed</Text>
         <Text style={styles.subtitle}>Fits shared after you log what you wore.</Text>
+        <StreakBadge streak={streak} compact />
       </View>
       <FlatList
         data={posts}
@@ -88,7 +96,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: THEME.utility.border,
-    gap: 4,
+    gap: 8,
   },
   title: {
     ...utilityTitle(28),

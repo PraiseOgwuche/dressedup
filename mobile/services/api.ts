@@ -18,6 +18,7 @@ import {
   SocialPost,
   SocialPostLikeResult,
   OutfitSharePayload,
+  StreakStats,
   ShopRecommendationsResponse,
   TripPlan,
   TripPackingPlan,
@@ -340,6 +341,12 @@ export const socialAPI = {
   },
   toggleLike: async (postId: number): Promise<SocialPostLikeResult> => {
     const response = await api.post<SocialPostLikeResult>(`/social/posts/${postId}/like`);
+    return response.data;
+  },
+  getStreak: async (timezone?: string): Promise<StreakStats> => {
+    const response = await api.get<StreakStats>('/social/streak', {
+      params: timezone ? { timezone } : undefined,
+    });
     return response.data;
   },
 };

@@ -298,6 +298,15 @@ export type OutfitSharePayload = {
   outerwear?: ClosetItem | null;
 };
 
+export interface StreakStats {
+  current_streak: number;
+  longest_streak: number;
+  total_fit_days: number;
+  active_this_week: number;
+  last_active_date?: string | null;
+  timezone: string;
+}
+
 export interface TripPlan {
   id: number;
   user_id: number;

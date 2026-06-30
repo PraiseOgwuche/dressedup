@@ -19,10 +19,11 @@ import { COLORS, TAXONOMY } from '../../constants/config';
 import { THEME, utilityTitle, SHADOW } from '../../constants/theme';
 import { useClosetStore } from '../../store/closetStore';
 import { useRoutineStore } from '../../store/routineStore';
-import { tripsAPI, notificationsAPI, emailIngestAPI } from '../../services/api';
+import { tripsAPI, notificationsAPI, emailIngestAPI, socialAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushNotifications';
-import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess } from '../../types';
+import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess, StreakStats } from '../../types';
+import { StreakCard } from '../../components/StreakBadge';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function ProfileScreen() {
   const [emailIngest, setEmailIngest] = useState<EmailIngestSettings | null>(null);
   const [emailLogs, setEmailLogs] = useState<EmailIngestLog[]>([]);
   const [simulatingEmail, setSimulatingEmail] = useState(false);
+  const [streak, setStreak] = useState<StreakStats | null>(null);
   const deviceTimezone = getDeviceTimezone();
 
   const loadEmailIngest = useCallback(async () => {
@@ -94,12 +96,22 @@ export default function ProfileScreen() {
     }
   };
 
+  const loadStreak = useCallback(async () => {
+    try {
+      const stats = await socialAPI.getStreak(deviceTimezone);
+      setStreak(stats);
+    } catch {
+      setStreak(null);
+    }
+  }, [deviceTimezone]);
+
   useFocusEffect(
     useCallback(() => {
       loadTrips();
       fetchRoutine();
       loadEmailIngest();
-    }, [loadTrips, fetchRoutine, loadEmailIngest]),
+      loadStreak();
+    }, [loadTrips, fetchRoutine, loadEmailIngest, loadStreak]),
   );
 
   useEffect(() => {
@@ -278,15 +290,17 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>Items</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{tripPlans.length}</Text>
-            <Text style={styles.statLabel}>Fits</Text>
+            <Text style={styles.statNumber}>{streak?.total_fit_days ?? 0}</Text>
+            <Text style={styles.statLabel}>Fit days</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statNumber}>
-              {tripPlans.filter((plan) => !plan.is_completed).length}
-            </Text>
+            <Text style={styles.statNumber}>{streak?.current_streak ?? 0}</Text>
             <Text style={styles.statLabel}>Streak</Text>
           </View>
+        </View>
+
+        <View style={styles.streakSection}>
+          <StreakCard streak={streak} />
         </View>
 
         <View style={styles.emailCard}>
@@ -514,6 +528,7 @@ const styles = StyleSheet.create({
   premiumOn: { backgroundColor: '#FFF5E8', color: '#B66A00' },
   premiumOff: { backgroundColor: THEME.utility.surfaceMuted, color: THEME.utility.textMuted },
   stats: { flexDirection: 'row', gap: 12, marginBottom: 20, width: '100%' },
+  streakSection: { width: '100%', marginBottom: 20 },
   statBox: {
     flex: 1,
     backgroundColor: THEME.utility.surfaceMuted,

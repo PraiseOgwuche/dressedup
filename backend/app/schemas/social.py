@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -38,3 +38,12 @@ class SocialPostResponse(BaseModel):
 class SocialPostLikeResponse(BaseModel):
     liked: bool
     reactions_count: int
+
+
+class StreakResponse(BaseModel):
+    current_streak: int
+    longest_streak: int
+    total_fit_days: int
+    active_this_week: int
+    last_active_date: Optional[date] = None
+    timezone: str

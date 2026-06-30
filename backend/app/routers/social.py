@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.models.user import User
-from app.schemas.social import SocialPostCreate, SocialPostLikeResponse, SocialPostResponse
+from app.schemas.social import SocialPostCreate, SocialPostLikeResponse, SocialPostResponse, StreakResponse
 from app.services.social_service import SocialService
+from app.services.streak_service import StreakService
 from app.utils.dependencies import get_current_user, get_optional_current_user
 
 router = APIRouter(prefix="/social", tags=["Social"])
@@ -76,3 +77,12 @@ def toggle_like(
     current_user: User = Depends(get_current_user),
 ):
     return SocialService.toggle_like(db, current_user.id, post_id)
+
+
+@router.get("/streak", response_model=StreakResponse)
+def get_streak(
+    timezone: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return StreakService.get_streak(db, current_user.id, timezone=timezone)
