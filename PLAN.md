@@ -23,7 +23,7 @@
 | **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |
 | **J Voice / text agent** | ✅ | `POST /outfits/ask` — natural language → outfit |
 | **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list + **live weather** |
-| Deploy + durable media | — | Render/Neon done; S3 for images next |
+| Deploy + durable media | ✅ S3 provider | Set `STORAGE_PROVIDER=s3` on Render; local disk for dev |
 
 ## Parked
 

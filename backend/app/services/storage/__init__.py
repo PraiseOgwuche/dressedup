@@ -1,9 +1,11 @@
 from app.config import settings
 from app.services.storage.base import StorageProvider
 from app.services.storage.local import LocalStorageProvider
+from app.services.storage.s3 import S3StorageProvider
 
-_PROVIDERS = {
+_PROVIDERS: dict[str, type[StorageProvider]] = {
     "local": LocalStorageProvider,
+    "s3": S3StorageProvider,
 }
 
 

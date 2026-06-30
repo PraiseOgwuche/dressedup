@@ -46,10 +46,11 @@ Phone and Mac on the same Wi‑Fi. IP: `ipconfig getifaddr en0`.
 2. [Neon](https://neon.tech) → new project → copy Postgres connection string.
 3. [Render](https://render.com) → Blueprint or Web Service → repo root `backend`, Docker, free tier.
 4. Env vars: `DATABASE_URL`, `SECRET_KEY` (`openssl rand -hex 32`), `ENV=production`, `DEBUG=False`, `RUN_MIGRATIONS_ON_STARTUP=true`, `ALLOWED_ORIGINS=*`, `VISION_PROVIDER=stub`.
-5. `curl https://<your-app>.onrender.com/health`
-6. `mobile/.env` → `EXPO_PUBLIC_API_BASE_URL=https://<your-app>.onrender.com` → `npx expo start --clear`
+5. **Media (production):** create an S3 bucket, allow public `GetObject` on `items/*` (bucket policy), IAM user with `s3:PutObject`, then set `STORAGE_PROVIDER=s3`, `S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`. Optional `S3_PUBLIC_BASE_URL` for CloudFront.
+6. `curl https://<your-app>.onrender.com/health`
+7. `mobile/.env` → `EXPO_PUBLIC_API_BASE_URL=https://<your-app>.onrender.com` → `npx expo start --clear`
 
-Free Render sleeps when idle (~30s cold start). Closet **images** on server disk are ephemeral until we add object storage.
+Without S3, closet **images** on Render disk are ephemeral (lost on redeploy). Local dev uses `STORAGE_PROVIDER=local` (default).
 
 `railway.json` is an alternative host with the same env vars.
 

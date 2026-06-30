@@ -61,12 +61,25 @@ class Settings(BaseSettings):
     # Allow POST /closet/email-ingest/simulate in production (off by default).
     EMAIL_INGEST_ALLOW_SIMULATE: bool = False
 
-    # Image storage. "local" writes under MEDIA_DIR and serves at MEDIA_URL_PREFIX;
-    # swap for object storage (S3/Supabase) at deploy without touching callers.
+    # Image storage. "local" writes under MEDIA_DIR and serves at MEDIA_URL_PREFIX.
+    # "s3" uploads to S3 and returns a public HTTPS URL (see S3_* settings).
     STORAGE_PROVIDER: str = "local"
     MEDIA_DIR: str = str(_BACKEND_ROOT / "media")
     MEDIA_URL_PREFIX: str = "/media"
     MAX_UPLOAD_MB: int = 10
+
+    # S3 object storage (production). Works with AWS S3 or S3-compatible APIs (R2, MinIO).
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_ACCESS_KEY: str = ""
+    AWS_REGION: str = "us-east-1"
+    S3_BUCKET: str = ""
+    # Optional CDN or custom domain, e.g. https://cdn.example.com
+    S3_PUBLIC_BASE_URL: str = ""
+    # Optional custom endpoint for R2/MinIO, e.g. https://<account>.r2.cloudflarestorage.com
+    S3_ENDPOINT_URL: str = ""
+    # Leave empty when bucket uses a public-read bucket policy (recommended).
+    # Set to "public-read" only if your bucket allows ACLs.
+    S3_OBJECT_ACL: str = ""
 
     # Morning push notifications (Expo Push API — free). Scheduler ticks every minute.
     NOTIFICATION_SCHEDULER_ENABLED: bool = False
