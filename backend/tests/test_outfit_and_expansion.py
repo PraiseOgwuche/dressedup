@@ -144,14 +144,20 @@ def test_swap_top_keeps_bottom_and_shoes(client, auth_header):
 
 
 def test_social_and_shop_endpoints(client, auth_header):
+    top = client.post(
+        "/api/v1/closet/items",
+        json={"name": "Feed top", "category": "Top"},
+        headers=auth_header,
+    ).json()
     post_response = client.post(
         "/api/v1/social/posts",
-        json={"caption": "Simple office fit today"},
+        data={"top_id": top["id"], "caption": "Simple office fit today"},
         headers=auth_header,
     )
     assert post_response.status_code == 201
+    assert post_response.json()["top"]["id"] == top["id"]
 
-    feed_response = client.get("/api/v1/social/posts")
+    feed_response = client.get("/api/v1/social/posts", headers=auth_header)
     assert feed_response.status_code == 200
     assert isinstance(feed_response.json(), list)
 

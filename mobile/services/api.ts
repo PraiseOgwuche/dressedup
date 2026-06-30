@@ -16,6 +16,8 @@ import {
   OutfitSuggestion,
   OutfitAskResponse,
   SocialPost,
+  SocialPostLikeResult,
+  OutfitSharePayload,
   ShopRecommendationsResponse,
   TripPlan,
   TripPackingPlan,
@@ -314,8 +316,30 @@ export const socialAPI = {
     const response = await api.get<SocialPost[]>('/social/posts');
     return response.data;
   },
-  createPost: async (payload: { caption: string; look_name?: string; occasion?: string }): Promise<SocialPost> => {
-    const response = await api.post<SocialPost>('/social/posts', payload);
+  createPost: async (payload: {
+    top_id?: number;
+    bottom_id?: number;
+    shoes_id?: number;
+    outerwear_id?: number;
+    caption?: string;
+    photo?: ImageUpload | null;
+  }): Promise<SocialPost> => {
+    const form = new FormData();
+    if (payload.top_id != null) form.append('top_id', String(payload.top_id));
+    if (payload.bottom_id != null) form.append('bottom_id', String(payload.bottom_id));
+    if (payload.shoes_id != null) form.append('shoes_id', String(payload.shoes_id));
+    if (payload.outerwear_id != null) form.append('outerwear_id', String(payload.outerwear_id));
+    if (payload.caption?.trim()) form.append('caption', payload.caption.trim());
+    if (payload.photo) {
+      form.append('photo', toFilePart(payload.photo, 'fit.jpg') as any);
+    }
+    const response = await api.post<SocialPost>('/social/posts', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+  toggleLike: async (postId: number): Promise<SocialPostLikeResult> => {
+    const response = await api.post<SocialPostLikeResult>(`/social/posts/${postId}/like`);
     return response.data;
   },
 };

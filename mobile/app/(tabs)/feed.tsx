@@ -3,24 +3,24 @@ import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
-import { THEME, SHADOW, utilityTitle } from '../../constants/theme';
-import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
+import { THEME, utilityTitle } from '../../constants/theme';
 import { socialAPI } from '../../services/api';
+import { getApiErrorMessage } from '../../services/errors';
 import { SocialPost } from '../../types';
+import { FeedPostCard } from '../../components/FeedPostCard';
 
 export default function FeedScreen() {
   const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [caption, setCaption] = useState('');
   const [loading, setLoading] = useState(false);
+  const [likingId, setLikingId] = useState<number | null>(null);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await socialAPI.listPosts();
       setPosts(response);
-    } catch {
-      Alert.alert('Error', 'Could not load social posts.');
+    } catch (error) {
+      Alert.alert('Error', getApiErrorMessage(error, 'Could not load the feed.'));
     } finally {
       setLoading(false);
     }
@@ -32,17 +32,21 @@ export default function FeedScreen() {
     }, [loadPosts]),
   );
 
-  const createPost = async () => {
-    if (!caption.trim()) {
-      Alert.alert('Add a caption', 'Write a caption before posting.');
-      return;
-    }
+  const toggleLike = async (postId: number) => {
+    setLikingId(postId);
     try {
-      await socialAPI.createPost({ caption: caption.trim() });
-      setCaption('');
-      await loadPosts();
-    } catch {
-      Alert.alert('Error', 'Could not create your post.');
+      const result = await socialAPI.toggleLike(postId);
+      setPosts((current) =>
+        current.map((post) =>
+          post.id === postId
+            ? { ...post, liked_by_me: result.liked, reactions_count: result.reactions_count }
+            : post,
+        ),
+      );
+    } catch (error) {
+      Alert.alert('Error', getApiErrorMessage(error, 'Could not update like.'));
+    } finally {
+      setLikingId(null);
     }
   };
 
@@ -50,10 +54,7 @@ export default function FeedScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Feed</Text>
-      </View>
-      <View style={styles.composer}>
-        <Input label="Post a fit update" placeholder="Today I wore..." value={caption} onChangeText={setCaption} />
-        <Button title="Share" onPress={createPost} />
+        <Text style={styles.subtitle}>Fits shared after you log what you wore.</Text>
       </View>
       <FlatList
         data={posts}
@@ -61,12 +62,15 @@ export default function FeedScreen() {
         onRefresh={loadPosts}
         refreshing={loading}
         contentContainerStyle={posts.length ? styles.list : styles.emptyList}
-        ListEmptyComponent={<Text style={styles.comingSoon}>No posts yet. Be the first to share.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>No fits yet. Log an outfit on Home and share it here.</Text>
+        }
         renderItem={({ item }) => (
-          <View style={styles.postCard}>
-            <Text style={styles.caption}>{item.caption}</Text>
-            <Text style={styles.meta}>Reactions: {item.reactions_count} • Comments: {item.comments_count}</Text>
-          </View>
+          <FeedPostCard
+            post={item}
+            likeLoading={likingId === item.id}
+            onToggleLike={() => toggleLike(item.id)}
+          />
         )}
       />
     </SafeAreaView>
@@ -84,47 +88,32 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: THEME.utility.border,
+    gap: 4,
   },
   title: {
     ...utilityTitle(28),
     textAlign: 'left',
   },
-  content: {
-    flex: 1,
-  },
-  composer: {
-    paddingHorizontal: 22,
-    paddingTop: 16,
-    paddingBottom: 8,
+  subtitle: {
+    fontSize: 14,
+    color: THEME.utility.textMuted,
   },
   list: {
     paddingHorizontal: 22,
+    paddingTop: 16,
     paddingBottom: 40,
-    gap: 14,
+    gap: 16,
   },
   emptyList: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 32,
   },
-  comingSoon: {
+  empty: {
     fontSize: 16,
     color: THEME.utility.textMuted,
-  },
-  postCard: {
-    backgroundColor: THEME.utility.surface,
-    borderRadius: 16,
-    padding: 16,
-    ...SHADOW.soft,
-  },
-  caption: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: THEME.utility.text,
-    marginBottom: 8,
-  },
-  meta: {
-    fontSize: 12,
-    color: THEME.utility.textMuted,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });

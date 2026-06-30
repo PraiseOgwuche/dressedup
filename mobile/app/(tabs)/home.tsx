@@ -15,14 +15,15 @@ import { useRoutineStore } from '../../store/routineStore';
 import { useClosetStore } from '../../store/closetStore';
 import { TAXONOMY } from '../../constants/config';
 import { THEME, FONTS, editorialTitle, sectionLabel } from '../../constants/theme';
-import { closetAPI, outfitAPI } from '../../services/api';
+import { closetAPI, outfitAPI, socialAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
-import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity } from '../../types';
+import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity, OutfitSharePayload } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { ChipSelect } from '../../components/ui/ChipSelect';
 import { CollapsibleSection } from '../../components/ui/CollapsibleSection';
 import { OutfitCard, OutfitSlotKey } from '../../components/OutfitCard';
 import { OutfitHero } from '../../components/OutfitHero';
+import { ShareFitModal } from '../../components/ShareFitModal';
 
 const firstName = (full?: string) => (full?.trim().split(/\s+/)[0] || 'there');
 
@@ -46,6 +47,8 @@ export default function HomeScreen() {
   const [askQuery, setAskQuery] = useState('');
   const [askLoading, setAskLoading] = useState(false);
   const [askInterpretation, setAskInterpretation] = useState<string | null>(null);
+  const [shareOutfit, setShareOutfit] = useState<OutfitSharePayload | null>(null);
+  const [shareVisible, setShareVisible] = useState(false);
   const { sendMyPlan, consumePendingPlan, loading: routineLoading } = useRoutineStore();
 
   const outfitFeedbackPayload = (outfit: {
@@ -170,6 +173,35 @@ export default function HomeScreen() {
     await Promise.all([loadSuggestion(), loadPlan()]);
   };
 
+  const promptShareAfterWear = (outfit: OutfitSharePayload) => {
+    Alert.alert('Logged', 'Marked as worn.', [
+      { text: 'Done', style: 'cancel' },
+      {
+        text: 'Share to feed',
+        onPress: () => {
+          setShareOutfit(outfit);
+          setShareVisible(true);
+        },
+      },
+    ]);
+  };
+
+  const handleShareFit = async (payload: {
+    caption?: string;
+    photo?: { uri: string; name?: string | null; mimeType?: string | null } | null;
+  }) => {
+    if (!shareOutfit) return;
+    await socialAPI.createPost({
+      top_id: shareOutfit.top?.id,
+      bottom_id: shareOutfit.bottom?.id,
+      shoes_id: shareOutfit.shoes?.id,
+      outerwear_id: shareOutfit.outerwear?.id,
+      caption: payload.caption,
+      photo: payload.photo,
+    });
+    Alert.alert('Shared', 'Your fit is on the feed.');
+  };
+
   const handleWoreSuggestion = async () => {
     const ids = [suggestion?.top, suggestion?.bottom, suggestion?.shoes, suggestion?.outerwear]
       .filter((i): i is ClosetItem => !!i)
@@ -187,7 +219,12 @@ export default function HomeScreen() {
         },
         'wore',
       );
-      Alert.alert('Logged', 'Marked as worn.');
+      promptShareAfterWear({
+        top: suggestion?.top,
+        bottom: suggestion?.bottom,
+        shoes: suggestion?.shoes,
+        outerwear: suggestion?.outerwear,
+      });
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
     } finally {
@@ -212,6 +249,12 @@ export default function HomeScreen() {
         },
         'wore',
       );
+      promptShareAfterWear({
+        top: activity.top,
+        bottom: activity.bottom,
+        shoes: activity.shoes,
+        outerwear: activity.outerwear,
+      });
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
     } finally {
@@ -387,6 +430,15 @@ export default function HomeScreen() {
           </CollapsibleSection>
         </View>
       </ScrollView>
+      <ShareFitModal
+        visible={shareVisible}
+        outfit={shareOutfit}
+        onClose={() => {
+          setShareVisible(false);
+          setShareOutfit(null);
+        }}
+        onShare={handleShareFit}
+      />
     </View>
   );
 }

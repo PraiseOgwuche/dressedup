@@ -271,13 +271,32 @@ export interface EmailIngestResult {
 export interface SocialPost {
   id: number;
   user_id: number;
-  caption: string;
+  user_name: string;
+  caption?: string | null;
   look_name?: string | null;
   occasion?: string | null;
+  photo_url?: string | null;
+  top?: ClosetItem | null;
+  bottom?: ClosetItem | null;
+  shoes?: ClosetItem | null;
+  outerwear?: ClosetItem | null;
   reactions_count: number;
   comments_count: number;
+  liked_by_me: boolean;
   created_at: string;
 }
+
+export interface SocialPostLikeResult {
+  liked: boolean;
+  reactions_count: number;
+}
+
+export type OutfitSharePayload = {
+  top?: ClosetItem | null;
+  bottom?: ClosetItem | null;
+  shoes?: ClosetItem | null;
+  outerwear?: ClosetItem | null;
+};
 
 export interface TripPlan {
   id: number;

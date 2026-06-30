@@ -3,20 +3,38 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.schemas.closet import ClothingItemResponse
+
 
 class SocialPostCreate(BaseModel):
-    caption: str = Field(min_length=1, max_length=400)
-    look_name: Optional[str] = Field(default=None, max_length=120)
-    occasion: Optional[str] = Field(default=None, max_length=50)
+    caption: Optional[str] = Field(default=None, max_length=400)
+    top_id: Optional[int] = None
+    bottom_id: Optional[int] = None
+    shoes_id: Optional[int] = None
+    outerwear_id: Optional[int] = None
 
 
-class SocialPostResponse(SocialPostCreate):
+class SocialPostResponse(BaseModel):
     id: int
     user_id: int
+    user_name: str
+    caption: Optional[str] = None
+    look_name: Optional[str] = None
+    occasion: Optional[str] = None
+    photo_url: Optional[str] = None
+    top: Optional[ClothingItemResponse] = None
+    bottom: Optional[ClothingItemResponse] = None
+    shoes: Optional[ClothingItemResponse] = None
+    outerwear: Optional[ClothingItemResponse] = None
     reactions_count: int
     comments_count: int
+    liked_by_me: bool = False
     created_at: datetime
 
     class Config:
         from_attributes = True
 
+
+class SocialPostLikeResponse(BaseModel):
+    liked: bool
+    reactions_count: int
