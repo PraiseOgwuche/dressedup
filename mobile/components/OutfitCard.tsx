@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, ActivityIndicator } from 'react-native';
 import { COLORS, mediaUrl } from '../constants/config';
+import { THEME, SHADOW, utilityTitle } from '../constants/theme';
 import { ClosetItem } from '../types';
 import { Button } from './ui/Button';
 
@@ -23,6 +24,7 @@ const SLOT_KEY: Record<string, OutfitSlotKey> = {
 interface OutfitCardProps {
   title?: string;
   badge?: string;
+  variant?: 'default' | 'utility';
   rationale?: string | null;
   top?: ClosetItem | null;
   bottom?: ClosetItem | null;
@@ -42,6 +44,7 @@ interface OutfitCardProps {
 export function OutfitCard({
   title,
   badge,
+  variant = 'default',
   rationale,
   top,
   bottom,
@@ -66,9 +69,9 @@ export function OutfitCard({
   const hasOutfit = !!(top || bottom || shoes);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, variant === 'utility' && styles.cardUtility]}>
       <View style={styles.titleRow}>
-        <Text style={styles.title}>{title || 'Outfit'}</Text>
+        <Text style={[styles.title, variant === 'utility' && styles.titleUtility]}>{title || 'Outfit'}</Text>
         {!!badge && (
           <View style={[styles.badge, badge === 'PACK' && styles.badgePack]}>
             <Text style={[styles.badgeText, badge === 'PACK' && styles.badgeTextPack]}>{badge}</Text>
@@ -77,8 +80,10 @@ export function OutfitCard({
       </View>
 
       {!!rationale && (
-        <View style={styles.rationalePill}>
-          <Text style={styles.rationalePillText}>{rationale}</Text>
+        <View style={[styles.rationalePill, variant === 'utility' && styles.rationalePillUtility]}>
+          <Text style={[styles.rationalePillText, variant === 'utility' && styles.rationalePillTextUtility]}>
+            {rationale}
+          </Text>
         </View>
       )}
 
@@ -180,40 +185,42 @@ export function OutfitCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: THEME.editorial.surface,
     borderRadius: 20,
     padding: 18,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    ...SHADOW.soft,
     marginBottom: 16,
+    marginTop: 12,
+  },
+  cardUtility: {
+    backgroundColor: THEME.utility.surface,
+    borderWidth: 0,
   },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 22, fontWeight: '800', color: COLORS.text, flex: 1 },
+  title: { fontSize: 20, fontFamily: 'Georgia', fontWeight: '400', color: THEME.editorial.text, flex: 1 },
+  titleUtility: utilityTitle(18),
   badge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: THEME.editorial.text,
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 4,
     marginLeft: 8,
   },
-  badgePack: { backgroundColor: '#FFE7C2' },
-  badgeText: { fontSize: 11, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
-  badgeTextPack: { color: '#9A6400' },
+  badgePack: { backgroundColor: THEME.editorial.pill },
+  badgeText: { fontSize: 10, fontWeight: '800', color: '#fff', letterSpacing: 0.8 },
+  badgeTextPack: { color: THEME.editorial.accentDark },
   rationalePill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#EEF0FF',
+    backgroundColor: THEME.editorial.pill,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginTop: 10,
     marginBottom: 6,
   },
-  rationalePillText: { fontSize: 12, color: COLORS.primary, fontWeight: '700' },
+  rationalePillUtility: { backgroundColor: THEME.editorial.pill },
+  rationalePillText: { fontSize: 12, color: THEME.editorial.accentDark, fontWeight: '600' },
+  rationalePillTextUtility: { color: THEME.editorial.accentDark },
   slotRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -226,7 +233,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 12,
-    backgroundColor: COLORS.backgroundLight,
+    backgroundColor: THEME.editorial.pill,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -242,12 +249,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: COLORS.backgroundLight,
+    backgroundColor: THEME.editorial.pill,
     minWidth: 56,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  swapBtnText: { fontSize: 12, fontWeight: '700', color: COLORS.primary },
+  swapBtnText: { fontSize: 12, fontWeight: '700', color: THEME.brand.ink },
   packSection: {
     marginTop: 14,
     backgroundColor: '#FFF8EE',

@@ -1,3 +1,5 @@
+import { THEME } from './theme';
+
 export const API_CONFIG = {
   BASE_URL:
     process.env.EXPO_PUBLIC_API_BASE_URL ||
@@ -44,14 +46,16 @@ export const TAXONOMY = {
 };
 
 export const COLORS = {
-  primary: '#667eea',
-  secondary: '#764ba2',
-  success: '#4CAF50',
-  error: '#f44336',
-  warning: '#ff9800',
-  text: '#333333',
-  textLight: '#666666',
-  background: '#ffffff',
-  backgroundLight: '#f5f5f5',
-  border: '#e0e0e0',
+  primary: THEME.brand.ink,
+  secondary: THEME.editorial.accentDark,
+  success: THEME.shared.success,
+  error: THEME.shared.error,
+  warning: THEME.shared.warning,
+  text: THEME.utility.text,
+  textLight: THEME.utility.textMuted,
+  background: THEME.utility.background,
+  backgroundLight: THEME.utility.surfaceMuted,
+  border: THEME.utility.border,
+  editorial: THEME.editorial,
+  utility: THEME.utility,
 };

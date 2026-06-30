@@ -3,7 +3,7 @@ import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
-import { COLORS } from '../../constants/config';
+import { THEME, SHADOW, utilityTitle } from '../../constants/theme';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { socialAPI } from '../../services/api';
@@ -76,30 +76,31 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: THEME.utility.background,
   },
   header: {
-    padding: 20,
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: THEME.utility.border,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: COLORS.text,
-    textAlign: 'center',
+    ...utilityTitle(28),
+    textAlign: 'left',
   },
   content: {
     flex: 1,
   },
   composer: {
-    padding: 20,
+    paddingHorizontal: 22,
+    paddingTop: 16,
     paddingBottom: 8,
   },
   list: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     paddingBottom: 40,
-    gap: 12,
+    gap: 14,
   },
   emptyList: {
     flexGrow: 1,
@@ -108,21 +109,22 @@ const styles = StyleSheet.create({
   },
   comingSoon: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: THEME.utility.textMuted,
   },
   postCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: THEME.utility.surface,
+    borderRadius: 16,
+    padding: 16,
+    ...SHADOW.soft,
   },
   caption: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: THEME.utility.text,
     marginBottom: 8,
   },
   meta: {
     fontSize: 12,
-    color: COLORS.textLight,
+    color: THEME.utility.textMuted,
   },
 });

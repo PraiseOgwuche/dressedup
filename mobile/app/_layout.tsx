@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
+
 import { useAuthStore } from '../store/authStore';
 import { useRoutineStore } from '../store/routineStore';
-import { COLORS } from '../constants/config';
+import { BrandSplash } from '../components/BrandSplash';
+
+// Keep native cream splash visible until BrandSplash mounts and hides it.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const router = useRouter();
@@ -12,11 +16,12 @@ export default function RootLayout() {
   const loadUser = useAuthStore((state) => state.loadUser);
   const fetchRoutine = useRoutineStore((state) => state.fetchRoutine);
   const syncPushIfEnabled = useRoutineStore((state) => state.syncPushIfEnabled);
-  const [isReady, setIsReady] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
-    loadUser().finally(() => setIsReady(true));
-  }, []);
+    loadUser().finally(() => setAuthReady(true));
+  }, [loadUser]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -30,12 +35,10 @@ export default function RootLayout() {
     return () => sub.remove();
   }, [router]);
 
-  if (!isReady) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
-    );
+  const finishSplash = useCallback(() => setSplashDone(true), []);
+
+  if (!splashDone) {
+    return <BrandSplash authReady={authReady} onFinish={finishSplash} />;
   }
 
   return (

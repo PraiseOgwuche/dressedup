@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { COLORS } from '../../constants/config';
+import { THEME, sectionLabel } from '../../constants/theme';
 
 type Props = {
   label?: string;
@@ -14,7 +14,7 @@ type Props = {
   hint?: string;
 };
 
-export function ChipSelect({ label, options, selected, onSelect, multiple, hint }: Props) {
+export function ChipSelect({ label, options, selected, onSelect, hint }: Props) {
   const isSelected = (option: string) =>
     Array.isArray(selected) ? selected.includes(option) : selected === option;
 
@@ -42,18 +42,16 @@ export function ChipSelect({ label, options, selected, onSelect, multiple, hint 
 
 const styles = StyleSheet.create({
   wrap: { marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.text, marginBottom: 6 },
-  hint: { fontSize: 12, color: COLORS.textLight, marginBottom: 8 },
+  label: { ...sectionLabel(), marginBottom: 8 },
+  hint: { fontSize: 12, color: THEME.utility.textMuted, marginBottom: 8 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    backgroundColor: THEME.editorial.pill,
   },
-  chipActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  chipText: { fontSize: 14, color: COLORS.text, textTransform: 'capitalize' },
+  chipActive: { backgroundColor: THEME.brand.ink },
+  chipText: { fontSize: 14, color: THEME.utility.text, textTransform: 'capitalize' },
   chipTextActive: { color: '#fff', fontWeight: '700' },
 });

@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { COLORS } from '../../constants/config';
+import { THEME, utilityTitle, editorialTitle } from '../../constants/theme';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -90,7 +90,8 @@ export default function SignupScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <View style={styles.header}>
-              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.logo}>DressedUp</Text>
+              <Text style={styles.title}>Create account</Text>
               <Text style={styles.subtitle}>Join DressedUp today</Text>
             </View>
 
@@ -139,13 +140,14 @@ export default function SignupScreen() {
                 title="Sign Up"
                 onPress={handleSignup}
                 loading={isLoading}
+                variant="editorial"
                 style={styles.signupButton}
               />
 
               <Button
                 title="Already have an account? Log In"
                 onPress={() => router.back()}
-                variant="outline"
+                variant="editorialOutline"
               />
             </View>
           </View>
@@ -158,7 +160,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: THEME.editorial.background,
   },
   keyboardView: {
     flex: 1,
@@ -168,22 +170,25 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
     marginBottom: 48,
   },
+  logo: {
+    ...editorialTitle(36),
+    marginBottom: 16,
+  },
   title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.primary,
-    marginBottom: 8,
+    ...utilityTitle(24),
+    marginTop: 20,
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 15,
-    color: COLORS.textLight,
+    color: THEME.editorial.textMuted,
   },
   form: {
     width: '100%',
@@ -192,7 +197,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   errorText: {
-    color: COLORS.error,
+    color: THEME.shared.error,
     textAlign: 'center',
     marginBottom: 16,
   },

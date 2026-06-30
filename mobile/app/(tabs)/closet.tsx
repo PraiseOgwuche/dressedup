@@ -18,6 +18,7 @@ import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 
 import { COLORS, mediaUrl, TAXONOMY } from '../../constants/config';
+import { THEME, SHADOW, utilityTitle } from '../../constants/theme';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ChipSelect } from '../../components/ui/ChipSelect';
@@ -614,15 +615,15 @@ export default function ClosetScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Closet</Text>
+        <Text style={styles.title}>Closet</Text>
         <Text style={styles.subtitle}>
           {items.length
-            ? `${filteredItems.length} shown • ${cleanCount} clean`
-            : 'Snap a flat-lay or single item to get started'}
+            ? `${filteredItems.length} piece${filteredItems.length === 1 ? '' : 's'} · ${cleanCount} clean`
+            : 'Snap a flat-lay or add items to get started'}
         </Text>
       </View>
       <View style={styles.toolbar}>
-        <Button title="Add Item" onPress={openAddMenu} />
+        <Button title="+ Add" onPress={openAddMenu} />
       </View>
 
       {items.length > 0 ? (
@@ -853,41 +854,61 @@ export default function ClosetScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { padding: 20, paddingBottom: 12 },
-  title: { fontSize: 24, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: COLORS.textLight, marginTop: 6, textAlign: 'center' },
-  toolbar: { paddingHorizontal: 20, paddingBottom: 12 },
-  filters: { paddingHorizontal: 20, paddingBottom: 8 },
+  container: { flex: 1, backgroundColor: THEME.utility.background },
+  header: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 8 },
+  title: { ...utilityTitle(28), textAlign: 'left' },
+  subtitle: { fontSize: 14, color: THEME.utility.textMuted, marginTop: 4 },
+  toolbar: { paddingHorizontal: 22, paddingBottom: 12 },
+  filters: { paddingHorizontal: 22, paddingBottom: 8 },
   emptyBtn: { marginTop: 12, alignSelf: 'stretch' },
   laundryBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginHorizontal: 20, marginBottom: 12, padding: 12, borderRadius: 12,
-    backgroundColor: COLORS.backgroundLight,
+    marginHorizontal: 22, marginBottom: 12, padding: 14, borderRadius: 14,
+    backgroundColor: THEME.utility.surfaceMuted,
   },
-  laundryBannerDue: { backgroundColor: '#FFF3E0' },
-  laundryText: { flex: 1, fontSize: 13, color: COLORS.textLight, fontWeight: '600' },
-  laundryTextDue: { color: COLORS.warning },
+  laundryBannerDue: { backgroundColor: '#FFF8EE' },
+  laundryText: { flex: 1, fontSize: 13, color: THEME.utility.textMuted, fontWeight: '600' },
+  laundryTextDue: { color: THEME.shared.warning },
   laundryActionBtn: {
     marginLeft: 10, paddingHorizontal: 12, paddingVertical: 6,
-    borderRadius: 16, backgroundColor: COLORS.primary,
+    borderRadius: 16, backgroundColor: THEME.utility.accent,
   },
   laundryActionText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   wearCard: {
-    backgroundColor: COLORS.backgroundLight, borderRadius: 12, padding: 12, marginBottom: 16,
+    backgroundColor: THEME.utility.surfaceMuted, borderRadius: 14, padding: 14, marginBottom: 16,
   },
-  wearStatus: { fontSize: 13, color: COLORS.text, fontWeight: '600', marginBottom: 10 },
+  wearStatus: { fontSize: 13, color: THEME.utility.text, fontWeight: '600', marginBottom: 10 },
   wearActions: { flexDirection: 'row', gap: 10 },
   wearBtn: { flex: 1 },
-  listContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  row: { gap: 12, marginBottom: 12 },
-  emptyContainer: { flexGrow: 1, justifyContent: 'center', padding: 20 },
-  emptyState: { alignItems: 'center', backgroundColor: COLORS.backgroundLight, borderRadius: 16, padding: 24 },
-  emptyEmoji: { fontSize: 72, marginBottom: 16 },
-  emptyText: { fontSize: 20, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
-  emptySubtext: { fontSize: 14, color: COLORS.textLight, textAlign: 'center' },
-  gridCard: { flex: 1, backgroundColor: COLORS.backgroundLight, borderRadius: 16, padding: 10 },
-  thumbWrap: { width: '100%', aspectRatio: 1, borderRadius: 12, overflow: 'hidden', backgroundColor: '#ECECEC' },
+  listContent: { paddingHorizontal: 18, paddingBottom: 40 },
+  row: { gap: 14, marginBottom: 14 },
+  emptyContainer: { flexGrow: 1, justifyContent: 'center', padding: 22 },
+  emptyState: {
+    alignItems: 'center',
+    backgroundColor: THEME.utility.surfaceMuted,
+    borderRadius: 20,
+    padding: 28,
+    ...SHADOW.soft,
+  },
+  emptyEmoji: { fontSize: 56, marginBottom: 12 },
+  emptyText: { fontSize: 20, fontWeight: '700', color: THEME.utility.text, marginBottom: 8 },
+  emptySubtext: { fontSize: 14, color: THEME.utility.textMuted, textAlign: 'center', lineHeight: 20 },
+  gridCard: {
+    flex: 1,
+    backgroundColor: THEME.utility.surface,
+    borderRadius: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+    ...SHADOW.soft,
+  },
+  thumbWrap: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: THEME.editorial.pill,
+  },
   thumb: { width: '100%', height: '100%' },
   thumbPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   thumbEmoji: { fontSize: 48 },
@@ -899,22 +920,22 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 8, right: 8, fontSize: 11, fontWeight: '700', color: '#fff',
     backgroundColor: COLORS.error, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, overflow: 'hidden',
   },
-  gridName: { marginTop: 8, fontSize: 14, fontWeight: '700', color: COLORS.text },
-  gridMeta: { marginTop: 2, fontSize: 12, color: COLORS.textLight },
+  gridName: { marginTop: 8, fontSize: 13, fontWeight: '700', color: THEME.utility.text },
+  gridMeta: { marginTop: 2, fontSize: 11, color: THEME.utility.textMuted },
   overlay: {
     ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)',
     alignItems: 'center', justifyContent: 'center', gap: 12,
   },
   overlayText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  modalContainer: { flex: 1, backgroundColor: '#fff' },
-  modalContent: { padding: 20, paddingBottom: 40 },
-  modalTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text, marginBottom: 16 },
-  preview: { width: '100%', height: 220, borderRadius: 16, marginBottom: 12, backgroundColor: '#ECECEC' },
-  aiNote: { fontSize: 13, color: COLORS.textLight, marginBottom: 12 },
-  receiptHint: { fontSize: 13, color: COLORS.textLight, marginBottom: 12, marginTop: -4 },
-  queueProgress: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginBottom: 12 },
+  modalContainer: { flex: 1, backgroundColor: THEME.utility.background },
+  modalContent: { padding: 22, paddingBottom: 40 },
+  modalTitle: { ...utilityTitle(24), marginBottom: 16 },
+  preview: { width: '100%', height: 220, borderRadius: 16, marginBottom: 12, backgroundColor: THEME.editorial.pill },
+  aiNote: { fontSize: 13, color: THEME.utility.textMuted, marginBottom: 12 },
+  receiptHint: { fontSize: 13, color: THEME.utility.textMuted, marginBottom: 12, marginTop: -4 },
+  queueProgress: { fontSize: 13, color: THEME.brand.ink, fontWeight: '700', marginBottom: 12 },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, marginBottom: 20 },
-  switchLabel: { fontSize: 16, color: COLORS.text, fontWeight: '600' },
+  switchLabel: { fontSize: 16, color: THEME.utility.text, fontWeight: '600' },
   modalActions: { flexDirection: 'row', gap: 10, marginBottom: 12 },
   modalAction: { flex: 1 },
 });

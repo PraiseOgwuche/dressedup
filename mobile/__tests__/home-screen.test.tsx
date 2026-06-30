@@ -57,9 +57,9 @@ jest.mock('../services/api', () => ({
 describe('HomeScreen', () => {
   it('renders generator and greeting', () => {
     const { getByText } = render(<HomeScreen />);
-    expect(getByText('DressedUp')).toBeTruthy();
-    expect(getByText(/Welcome, Test User!/)).toBeTruthy();
-    expect(getByText('Generate Outfit')).toBeTruthy();
+    expect(getByText('DRESSEDUP')).toBeTruthy();
+    expect(getByText(/Good morning, Test/)).toBeTruthy();
+    expect(getByText("Today's look")).toBeTruthy();
   });
 });
 

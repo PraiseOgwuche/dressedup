@@ -28,7 +28,7 @@ describe('ClosetScreen', () => {
   it('renders empty closet state', () => {
     const { getByText } = render(<ClosetScreen />);
     expect(getByText('Your closet is empty')).toBeTruthy();
-    expect(getByText('Add Item')).toBeTruthy();
+    expect(getByText('+ Add')).toBeTruthy();
   });
 });
 

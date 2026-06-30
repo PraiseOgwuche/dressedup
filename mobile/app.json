@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F7F3EE",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#F7F3EE"
+    },
     "scheme": "dressedup",
     "ios": {
       "supportsTablet": true,
@@ -15,6 +20,10 @@
     },
     "android": {
       "package": "com.dressedup.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F3EE"
+      },
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
@@ -36,7 +45,7 @@
       [
         "expo-notifications",
         {
-          "color": "#667eea"
+          "color": "#1C1C1C"
         }
       ]
     ],

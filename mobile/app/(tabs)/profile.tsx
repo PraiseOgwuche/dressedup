@@ -16,6 +16,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ChipSelect } from '../../components/ui/ChipSelect';
 import { COLORS, TAXONOMY } from '../../constants/config';
+import { THEME, utilityTitle, SHADOW } from '../../constants/theme';
 import { useClosetStore } from '../../store/closetStore';
 import { useRoutineStore } from '../../store/routineStore';
 import { tripsAPI, notificationsAPI, emailIngestAPI } from '../../services/api';
@@ -257,7 +258,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.title}>You</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -485,22 +486,22 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { padding: 20, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  title: { fontSize: 24, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
-  content: { alignItems: 'center', padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: THEME.utility.background },
+  header: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: THEME.utility.border },
+  title: { ...utilityTitle(28), textAlign: 'left' },
+  content: { alignItems: 'center', padding: 22, paddingBottom: 40 },
   avatar: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: COLORS.primary,
+    backgroundColor: THEME.brand.ink,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   avatarText: { fontSize: 36, fontWeight: '800', color: '#fff' },
-  name: { fontSize: 24, fontWeight: '700', color: COLORS.text, marginBottom: 4 },
-  email: { fontSize: 14, color: COLORS.textLight, marginBottom: 10 },
+  name: { fontSize: 24, fontWeight: '700', color: THEME.utility.text, marginBottom: 4 },
+  email: { fontSize: 14, color: THEME.utility.textMuted, marginBottom: 10 },
   premiumBadge: {
     fontSize: 12,
     fontWeight: '700',
@@ -511,25 +512,26 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   premiumOn: { backgroundColor: '#FFF5E8', color: '#B66A00' },
-  premiumOff: { backgroundColor: '#F0F1F3', color: COLORS.textLight },
+  premiumOff: { backgroundColor: THEME.utility.surfaceMuted, color: THEME.utility.textMuted },
   stats: { flexDirection: 'row', gap: 12, marginBottom: 20, width: '100%' },
   statBox: {
     flex: 1,
-    backgroundColor: COLORS.backgroundLight,
+    backgroundColor: THEME.utility.surfaceMuted,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
   },
-  statNumber: { fontSize: 28, fontWeight: '800', color: COLORS.primary, marginBottom: 4 },
-  statLabel: { fontSize: 12, color: COLORS.textLight },
+  statNumber: { fontSize: 28, fontWeight: '800', color: THEME.brand.ink, marginBottom: 4 },
+  statLabel: { fontSize: 12, color: THEME.utility.textMuted },
   emailCard: {
     width: '100%',
-    backgroundColor: '#F4FBF6',
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: THEME.editorial.surface,
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#D4EDDA',
+    borderColor: THEME.editorial.border,
+    ...SHADOW.soft,
   },
   emailLabel: { fontSize: 12, fontWeight: '700', color: COLORS.text, marginTop: 8, marginBottom: 4 },
   emailAddress: {
@@ -543,12 +545,13 @@ const styles = StyleSheet.create({
   emailLogItem: { fontSize: 13, color: COLORS.text, paddingVertical: 4 },
   routineCard: {
     width: '100%',
-    backgroundColor: '#EEF0FF',
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: THEME.editorial.surface,
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#D8DCFF',
+    borderColor: THEME.editorial.border,
+    ...SHADOW.soft,
   },
   cardTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text, marginBottom: 6 },
   cardHint: { fontSize: 12, color: COLORS.textLight, lineHeight: 17, marginBottom: 12 },
@@ -565,10 +568,13 @@ const styles = StyleSheet.create({
   logoutButton: { width: '100%', marginTop: 8 },
   tripCard: {
     width: '100%',
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: THEME.editorial.surface,
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: THEME.editorial.border,
+    ...SHADOW.soft,
   },
   tripLocked: { fontSize: 13, color: COLORS.textLight },
   tripList: { maxHeight: 220, marginTop: 10 },
@@ -577,11 +583,11 @@ const styles = StyleSheet.create({
   tripPackBtn: { marginTop: 4 },
   packingBox: {
     marginTop: 12,
-    padding: 12,
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    padding: 14,
+    backgroundColor: THEME.editorial.pill,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: THEME.editorial.border,
   },
   packingSummary: { fontSize: 14, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
   weatherNote: { fontSize: 12, color: COLORS.warning, marginBottom: 8, lineHeight: 17 },

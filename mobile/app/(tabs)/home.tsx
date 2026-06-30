@@ -1,18 +1,30 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TextInput,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useRoutineStore } from '../../store/routineStore';
 import { useClosetStore } from '../../store/closetStore';
-import { COLORS, TAXONOMY } from '../../constants/config';
+import { TAXONOMY } from '../../constants/config';
+import { THEME, FONTS, editorialTitle, sectionLabel } from '../../constants/theme';
 import { closetAPI, outfitAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { ChipSelect } from '../../components/ui/ChipSelect';
-import { Input } from '../../components/ui/Input';
+import { CollapsibleSection } from '../../components/ui/CollapsibleSection';
 import { OutfitCard, OutfitSlotKey } from '../../components/OutfitCard';
+import { OutfitHero } from '../../components/OutfitHero';
+
+const firstName = (full?: string) => (full?.trim().split(/\s+/)[0] || 'there');
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -67,7 +79,7 @@ export default function HomeScreen() {
         await loadSuggestion();
       }
     } catch {
-      // Non-blocking — wear logging still succeeds if feedback fails.
+      // non-blocking
     } finally {
       setFeedbackLoading(false);
     }
@@ -93,7 +105,7 @@ export default function HomeScreen() {
   const handleAsk = async () => {
     const query = askQuery.trim();
     if (query.length < 3) {
-      Alert.alert('Say more', 'Try something like “Dress me for a cold work day, quiet luxury”.');
+      Alert.alert('Say more', 'Try: “Dress me for a cold work day, quiet luxury”.');
       return;
     }
     setAskLoading(true);
@@ -175,7 +187,7 @@ export default function HomeScreen() {
         },
         'wore',
       );
-      Alert.alert('Logged', 'Marked as worn — anything past its wash limit is now in the hamper.');
+      Alert.alert('Logged', 'Marked as worn.');
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
     } finally {
@@ -200,7 +212,6 @@ export default function HomeScreen() {
         },
         'wore',
       );
-      Alert.alert('Logged', `Marked your ${activity.title.toLowerCase()} outfit as worn.`);
     } catch (error: any) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not log this outfit.'));
     } finally {
@@ -226,7 +237,7 @@ export default function HomeScreen() {
       );
       setSuggestion(response);
     } catch {
-      Alert.alert('Unable to swap', 'No better alternative found in your closet for that piece.');
+      Alert.alert('Unable to swap', 'No better alternative found for that piece.');
     } finally {
       setSwappingSlot(null);
     }
@@ -239,63 +250,90 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.header}>
-          <Text style={styles.title}>DressedUp</Text>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.welcomeText}>Welcome, {user?.full_name}!</Text>
+    <View style={styles.root}>
+      <ScrollView bounces showsVerticalScrollIndicator={false}>
+        {/* —— Editorial hero zone —— */}
+        <SafeAreaView edges={['top']} style={styles.editorialZone}>
+          <Text style={styles.brand}>DRESSEDUP</Text>
+          <Text style={styles.greeting}>Good morning, {firstName(user?.full_name)}</Text>
+          <Text style={styles.heroSubtitle}>Today&apos;s look</Text>
 
           {items.length === 0 ? (
-            <View style={styles.emptyClosetCard}>
-              <Text style={styles.emptyClosetTitle}>Closet is empty</Text>
+            <View style={styles.emptyCloset}>
               <Text style={styles.emptyClosetText}>
-                Add a few items — try a flat-lay photo — and outfit plans will light up here.
+                Start with a few pieces in your closet — a flat-lay photo works great.
               </Text>
-              <Button title="Go to Closet" onPress={() => router.push('/(tabs)/closet')} />
+              <Button title="Open closet" variant="editorial" onPress={() => router.push('/(tabs)/closet')} />
             </View>
-          ) : null}
+          ) : (
+            <OutfitHero
+              top={suggestion?.top}
+              bottom={suggestion?.bottom}
+              shoes={suggestion?.shoes}
+              outerwear={suggestion?.outerwear}
+              rationale={suggestion?.rationale}
+              interpretation={askInterpretation}
+              loading={isLoading || askLoading}
+              onShuffle={loadSuggestion}
+              onWore={handleWoreSuggestion}
+              woreLoading={wearing}
+              onLike={
+                suggestion
+                  ? () =>
+                      sendOutfitFeedback(
+                        {
+                          top: suggestion.top,
+                          bottom: suggestion.bottom,
+                          shoes: suggestion.shoes,
+                          outerwear: suggestion.outerwear,
+                        },
+                        'like',
+                      )
+                  : undefined
+              }
+              onDislike={
+                suggestion
+                  ? () =>
+                      sendOutfitFeedback(
+                        {
+                          top: suggestion.top,
+                          bottom: suggestion.bottom,
+                          shoes: suggestion.shoes,
+                          outerwear: suggestion.outerwear,
+                        },
+                        'dislike',
+                      )
+                  : undefined
+              }
+              feedbackLoading={feedbackLoading}
+              onSwapSlot={suggestion ? handleSwapSlot : undefined}
+              swappingSlot={swappingSlot}
+            />
+          )}
 
           {laundry?.laundry_due ? (
-            <View style={styles.laundryHint}>
-              <Text style={styles.laundryHintText}>🧺 {laundry.message}</Text>
-            </View>
+            <Text style={styles.laundryHint}>🧺 {laundry.message}</Text>
           ) : null}
 
-          <View style={styles.routineHero}>
-            <Text style={styles.sectionTitle}>Ask DressedUp</Text>
-            <Text style={styles.sectionHint}>
-              Type what you need — we&apos;ll pick occasion, weather, and vibe for you.
-            </Text>
-            <Input
-              placeholder="Dress me for a cold work day, quiet luxury…"
+          <View style={styles.askRow}>
+            <TextInput
+              style={styles.askInput}
+              placeholder="Dress me for…"
+              placeholderTextColor={THEME.editorial.textMuted}
               value={askQuery}
               onChangeText={setAskQuery}
               onSubmitEditing={handleAsk}
               returnKeyType="go"
             />
-            <Button title="Dress me" loading={askLoading} onPress={handleAsk} />
-            {askInterpretation ? (
-              <Text style={styles.askInterpretation}>{askInterpretation}</Text>
-            ) : null}
+            <Button title="Ask" variant="editorial" loading={askLoading} onPress={handleAsk} style={styles.askBtn} />
           </View>
+        </SafeAreaView>
 
-          <View style={styles.routineHero}>
-            <Text style={styles.sectionTitle}>My routine</Text>
-            <Text style={styles.sectionHint}>
-              One tap — outfit from your saved routine (work, gym days, weather).
-            </Text>
-            <Button title="Send me my plan" loading={routineLoading} onPress={handleSendMyPlan} />
-          </View>
+        {/* —— Utility zone —— */}
+        <View style={styles.utilityZone}>
+          <Text style={styles.utilityHeading}>More for today</Text>
 
-          {/* Plan my day */}
-          <View style={styles.planControls}>
-            <Text style={styles.sectionTitle}>Plan my day</Text>
-            <Text style={styles.sectionHint}>
-              Pick what you&apos;re doing today. We&apos;ll dress you for the first thing and pack the rest.
-            </Text>
+          <CollapsibleSection title="Plan my day" subtitle="Work, gym, dates — we pack the rest">
             <ChipSelect
               label="Today I'm doing"
               options={TAXONOMY.activities}
@@ -309,13 +347,11 @@ export default function HomeScreen() {
               selected={weatherTag}
               onSelect={(v) => setWeatherTag((prev) => (prev === v ? '' : v))}
             />
-            <Button title="Plan my day" loading={planLoading} onPress={loadPlan} />
-          </View>
-
-          {plan?.activities?.length ? (
-            plan.activities.map((activity) => (
+            <Button title="Build plan" loading={planLoading} onPress={loadPlan} />
+            {plan?.activities?.map((activity) => (
               <OutfitCard
                 key={activity.activity}
+                variant="utility"
                 title={activity.title}
                 badge={activity.mode === 'wear' ? 'WEAR NOW' : 'PACK'}
                 rationale={activity.rationale}
@@ -327,19 +363,14 @@ export default function HomeScreen() {
                 onWore={activity.mode === 'wear' ? () => handleWoreActivity(activity) : undefined}
                 woreLoading={wearingActivity === activity.activity}
               />
-            ))
-          ) : (
-            <View style={styles.emptyPlan}>
-              <Text style={styles.emptyPlanText}>
-                Add some clean clothes to your closet, then tap “Plan my day”.
-              </Text>
-            </View>
-          )}
+            ))}
+          </CollapsibleSection>
 
-          {/* Custom one-off outfit */}
-          <View style={styles.divider} />
-          <Text style={styles.sectionTitle}>Custom outfit</Text>
-          <View style={styles.generatorCard}>
+          <CollapsibleSection title="My routine" subtitle="One tap from saved preferences">
+            <Button title="Send me my plan" loading={routineLoading} onPress={handleSendMyPlan} />
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Fine-tune outfit" subtitle="Occasion, vibe, regenerate">
             <ChipSelect
               label="Occasion"
               options={TAXONOMY.occasions}
@@ -352,116 +383,85 @@ export default function HomeScreen() {
               selected={trend}
               onSelect={(v) => setTrend((prev) => (prev === v ? '' : v))}
             />
-            <Button title="Generate Outfit" loading={isLoading} onPress={loadSuggestion} />
-          </View>
-
-          <OutfitCard
-            title={suggestion?.title || 'Daily outfit suggestion'}
-            rationale={suggestion?.rationale}
-            top={suggestion?.top}
-            bottom={suggestion?.bottom}
-            shoes={suggestion?.shoes}
-            outerwear={suggestion?.outerwear}
-            alternatives={suggestion?.alternatives}
-            onLike={
-              suggestion
-                ? () =>
-                    sendOutfitFeedback(
-                      {
-                        top: suggestion.top,
-                        bottom: suggestion.bottom,
-                        shoes: suggestion.shoes,
-                        outerwear: suggestion.outerwear,
-                      },
-                      'like',
-                    )
-                : undefined
-            }
-            onDislike={
-              suggestion
-                ? () =>
-                    sendOutfitFeedback(
-                      {
-                        top: suggestion.top,
-                        bottom: suggestion.bottom,
-                        shoes: suggestion.shoes,
-                        outerwear: suggestion.outerwear,
-                      },
-                      'dislike',
-                    )
-                : undefined
-            }
-            feedbackLoading={feedbackLoading}
-            onSwapSlot={suggestion ? handleSwapSlot : undefined}
-            swappingSlot={swappingSlot}
-            onWore={handleWoreSuggestion}
-            woreLoading={wearing}
-          />
+            <Button title="Regenerate" loading={isLoading} onPress={loadSuggestion} />
+          </CollapsibleSection>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { padding: 20, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  title: { fontSize: 24, fontWeight: '800', color: COLORS.primary, textAlign: 'center' },
-  content: { padding: 20 },
-  welcomeText: { fontSize: 22, fontWeight: '700', marginBottom: 18, color: COLORS.text },
-  emptyClosetCard: {
-    backgroundColor: '#FFF8EE',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#FFE0B2',
+  root: { flex: 1, backgroundColor: THEME.utility.background },
+  editorialZone: {
+    backgroundColor: THEME.editorial.background,
+    paddingHorizontal: 22,
+    paddingBottom: 28,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
-  emptyClosetTitle: { fontSize: 17, fontWeight: '800', color: COLORS.text, marginBottom: 6 },
-  emptyClosetText: { fontSize: 13, color: COLORS.textLight, lineHeight: 18, marginBottom: 12 },
-  laundryHint: {
-    backgroundColor: '#FFF3E0',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  laundryHintText: { fontSize: 13, color: COLORS.warning, fontWeight: '600' },
-  routineHero: {
-    backgroundColor: '#EEF0FF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#D8DCFF',
-  },
-  sectionTitle: { fontSize: 18, fontWeight: '800', color: COLORS.text, marginBottom: 4 },
-  sectionHint: { fontSize: 13, color: COLORS.textLight, lineHeight: 18, marginBottom: 12 },
-  planControls: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  emptyPlan: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-  },
-  emptyPlanText: { fontSize: 14, color: COLORS.textLight, lineHeight: 20 },
-  divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 8 },
-  generatorCard: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  askInterpretation: {
-    fontSize: 13,
-    color: COLORS.primary,
-    fontWeight: '600',
-    marginTop: 10,
+  brand: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 3,
+    color: THEME.editorial.accentDark,
     textAlign: 'center',
+    marginTop: 8,
+    textTransform: 'uppercase',
+  },
+  greeting: {
+    ...editorialTitle(32),
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  heroSubtitle: {
+    fontSize: 13,
+    color: THEME.editorial.textMuted,
+    textAlign: 'center',
+    marginTop: 6,
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+  emptyCloset: {
+    backgroundColor: THEME.editorial.surface,
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    gap: 12,
+  },
+  emptyClosetText: {
+    fontSize: 14,
+    color: THEME.editorial.textMuted,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  laundryHint: {
+    fontSize: 13,
+    color: THEME.shared.warning,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  askRow: { flexDirection: 'row', gap: 10, marginTop: 20, alignItems: 'center' },
+  askInput: {
+    flex: 1,
+    backgroundColor: THEME.editorial.pill,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: THEME.editorial.border,
+    paddingHorizontal: 16,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 10,
+    fontSize: 15,
+    color: THEME.editorial.text,
+    fontFamily: FONTS.sans,
+  },
+  askBtn: { minWidth: 88, minHeight: 48, paddingVertical: 12 },
+  utilityZone: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+  utilityHeading: {
+    ...sectionLabel(),
+    marginBottom: 14,
   },
 });

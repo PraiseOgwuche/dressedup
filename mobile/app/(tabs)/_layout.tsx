@@ -1,17 +1,25 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
-import { COLORS } from '../../constants/config';
+import { THEME } from '../../constants/theme';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: THEME.brand.ink,
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          height: 80,
+          height: 72,
           paddingBottom: 10,
-          paddingTop: 10,
+          paddingTop: 8,
+          backgroundColor: THEME.utility.surface,
+          borderTopColor: THEME.utility.border,
+          borderTopWidth: 1,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 0.2,
         },
         headerShown: false,
       }}
@@ -19,36 +27,36 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: () => <Text style={{ fontSize: 26 }}>🏠</Text>,
+          title: 'Today',
+          tabBarIcon: () => <Text style={{ fontSize: 22 }}>✦</Text>,
         }}
       />
       <Tabs.Screen
         name="closet"
         options={{
           title: 'Closet',
-          tabBarIcon: () => <Text style={{ fontSize: 26 }}>👔</Text>,
+          tabBarIcon: () => <Text style={{ fontSize: 22 }}>▦</Text>,
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
           title: 'Feed',
-          tabBarIcon: () => <Text style={{ fontSize: 26 }}>📱</Text>,
+          tabBarIcon: () => <Text style={{ fontSize: 22 }}>◎</Text>,
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
           title: 'Shop',
-          tabBarIcon: () => <Text style={{ fontSize: 26 }}>🛍️</Text>,
+          tabBarIcon: () => <Text style={{ fontSize: 22 }}>◇</Text>,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: () => <Text style={{ fontSize: 26 }}>👤</Text>,
+          title: 'You',
+          tabBarIcon: () => <Text style={{ fontSize: 22 }}>○</Text>,
         }}
       />
     </Tabs>

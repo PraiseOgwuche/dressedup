@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { COLORS } from '../../constants/config';
+import { THEME, editorialTitle } from '../../constants/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -94,13 +94,14 @@ export default function LoginScreen() {
                 title="Log In"
                 onPress={handleLogin}
                 loading={isLoading}
+                variant="editorial"
                 style={styles.loginButton}
               />
 
               <Button
                 title="Create Account"
                 onPress={() => router.push('/(auth)/signup')}
-                variant="outline"
+                variant="editorialOutline"
               />
             </View>
           </View>
@@ -113,7 +114,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: THEME.editorial.background,
   },
   keyboardView: {
     flex: 1,
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
   },
   header: {
@@ -131,14 +132,14 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: COLORS.primary,
-    marginBottom: 8,
+    ...editorialTitle(40),
+    marginBottom: 10,
   },
   subtitle: {
+    marginTop: 18,
     fontSize: 15,
-    color: COLORS.textLight,
+    color: THEME.editorial.textMuted,
+    textAlign: 'center',
   },
   form: {
     width: '100%',
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   errorText: {
-    color: COLORS.error,
+    color: THEME.shared.error,
     textAlign: 'center',
     marginBottom: 16,
   },

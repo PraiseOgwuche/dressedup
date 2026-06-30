@@ -5,9 +5,9 @@ import {
   Text,
   StyleSheet,
   TextInputProps,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
-import { COLORS } from '../../constants/config';
+import { THEME, sectionLabel } from '../../constants/theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -25,24 +25,24 @@ export const Input: React.FC<InputProps> = ({
 
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, error && styles.inputError]}
-          placeholderTextColor={COLORS.textLight}
+          placeholderTextColor={THEME.utility.textMuted}
           secureTextEntry={isSecure}
           {...props}
         />
-        {secureTextEntry && (
+        {secureTextEntry ? (
           <TouchableOpacity
             style={styles.eyeIcon}
             onPress={() => setIsSecure(!isSecure)}
           >
-            <Text>{isSecure ? 'Show' : 'Hide'}</Text>
+            <Text style={styles.eyeText}>{isSecure ? 'Show' : 'Hide'}</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
@@ -52,33 +52,37 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
+    ...sectionLabel(),
     marginBottom: 8,
   },
   inputContainer: {
     position: 'relative',
   },
   input: {
-    borderWidth: 2,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+    borderRadius: 14,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: THEME.editorial.pill,
+    color: THEME.utility.text,
   },
   inputError: {
-    borderColor: COLORS.error,
+    borderColor: THEME.shared.error,
   },
   eyeIcon: {
     position: 'absolute',
     right: 16,
     top: 16,
   },
+  eyeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: THEME.brand.ink,
+  },
   errorText: {
-    color: COLORS.error,
+    color: THEME.shared.error,
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
