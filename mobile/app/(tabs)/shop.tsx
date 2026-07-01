@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
+  Image,
   Linking,
   Pressable,
   StyleSheet,
@@ -14,6 +15,15 @@ import { useFocusEffect } from 'expo-router';
 import { THEME, SHADOW, utilityTitle } from '../../constants/theme';
 import { shopAPI } from '../../services/api';
 import { ShopRecommendation } from '../../types';
+import { ChipSelect } from '../../components/ui/ChipSelect';
+
+const CATEGORY_FILTERS = [
+  { label: 'All', value: '' },
+  { label: 'Tops', value: 'top' },
+  { label: 'Bottoms', value: 'bottom' },
+  { label: 'Shoes', value: 'footwear' },
+  { label: 'Outerwear', value: 'outerwear' },
+];
 
 function formatPrice(usd: number) {
   return `$${usd.toFixed(usd % 1 === 0 ? 0 : 2)}`;
@@ -22,12 +32,13 @@ function formatPrice(usd: number) {
 export default function ShopScreen() {
   const [summary, setSummary] = useState('');
   const [recommendations, setRecommendations] = useState<ShopRecommendation[]>([]);
+  const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
 
   const loadRecommendations = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await shopAPI.getRecommendations();
+      const response = await shopAPI.getRecommendations(category || undefined);
       setSummary(response.summary);
       setRecommendations(response.recommendations);
     } catch {
@@ -35,13 +46,17 @@ export default function ShopScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [category]);
 
   useFocusEffect(
     useCallback(() => {
       loadRecommendations();
     }, [loadRecommendations]),
   );
+
+  useEffect(() => {
+    loadRecommendations();
+  }, [category]);
 
   const openProduct = async (url: string) => {
     if (!url) return;
@@ -66,7 +81,18 @@ export default function ShopScreen() {
         refreshing={loading}
         contentContainerStyle={recommendations.length ? styles.list : styles.emptyList}
         ListHeaderComponent={
-          summary ? <Text style={styles.summary}>{summary}</Text> : null
+          <View style={styles.listHeader}>
+            {summary ? <Text style={styles.summary}>{summary}</Text> : null}
+            <ChipSelect
+              label="Category"
+              options={CATEGORY_FILTERS.map((f) => f.label)}
+              selected={CATEGORY_FILTERS.find((f) => f.value === category)?.label ?? 'All'}
+              onSelect={(label) => {
+                const next = CATEGORY_FILTERS.find((f) => f.label === label)?.value ?? '';
+                setCategory(next);
+              }}
+            />
+          </View>
         }
         ListEmptyComponent={
           <Text style={styles.emptyText}>
@@ -76,12 +102,15 @@ export default function ShopScreen() {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardTop}>
-              <View style={[styles.swatch, { backgroundColor: item.color ? undefined : THEME.editorial.pill }]}>
-                {item.color ? (
+              {item.image_url ? (
+                <Image source={{ uri: item.image_url }} style={styles.productImage} resizeMode="cover" />
+              ) : (
+                <View style={[styles.swatch, { backgroundColor: THEME.editorial.pill }]}>
                   <View style={[styles.swatchFill, { backgroundColor: swatchColor(item) }]} />
-                ) : null}
-              </View>
+                </View>
+              )}
               <View style={styles.cardBody}>
+                <Text style={styles.retailer}>{item.retailer || item.brand}</Text>
                 <Text style={styles.brand}>{item.brand}</Text>
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.meta}>
@@ -98,8 +127,8 @@ export default function ShopScreen() {
               </Text>
             </View>
             <Text style={styles.reason}>{item.pitch}</Text>
-            <Pressable style={styles.shopBtn} onPress={() => openProduct(item.product_url)}>
-              <Text style={styles.shopBtnText}>View product</Text>
+            <Pressable style={styles.shopBtn} onPress={() => openProduct(item.buy_url || item.product_url)}>
+              <Text style={styles.shopBtnText}>Shop at {item.retailer || item.brand}</Text>
             </Pressable>
           </View>
         )}
@@ -119,6 +148,7 @@ function swatchColor(item: ShopRecommendation): string {
     tan: '#C4A574',
     black: '#1C1C1C',
     camel: '#C9A66B',
+    brown: '#8B6914',
   };
   return map[item.color?.toLowerCase() ?? ''] ?? THEME.editorial.pill;
 }
@@ -150,6 +180,10 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingBottom: 40,
   },
+  listHeader: {
+    gap: 12,
+    marginBottom: 16,
+  },
   emptyList: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -159,7 +193,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     color: THEME.utility.text,
-    marginBottom: 16,
     fontWeight: '600',
   },
   emptyText: {
@@ -180,9 +213,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 14,
   },
+  productImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 12,
+    backgroundColor: THEME.editorial.pill,
+  },
   swatch: {
-    width: 56,
-    height: 56,
+    width: 88,
+    height: 88,
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: THEME.editorial.pill,
@@ -193,7 +232,15 @@ const styles = StyleSheet.create({
   cardBody: {
     flex: 1,
   },
+  retailer: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: THEME.utility.textMuted,
+  },
   brand: {
+    marginTop: 2,
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1.2,

@@ -352,8 +352,10 @@ export const socialAPI = {
 };
 
 export const shopAPI = {
-  getRecommendations: async (): Promise<ShopRecommendationsResponse> => {
-    const response = await api.get<ShopRecommendationsResponse>('/shop/recommendations');
+  getRecommendations: async (category?: string): Promise<ShopRecommendationsResponse> => {
+    const response = await api.get<ShopRecommendationsResponse>('/shop/recommendations', {
+      params: category ? { category } : undefined,
+    });
     return response.data;
   },
 };

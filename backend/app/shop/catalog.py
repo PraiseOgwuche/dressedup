@@ -24,6 +24,9 @@ class CatalogProduct:
     price_usd: float
     product_url: str
     pitch: str
+    image_url: str | None = None
+    affiliate_url: str | None = None
+    retailer: str | None = None
 
 
 def _parse_product(raw: dict[str, Any]) -> CatalogProduct:
@@ -40,6 +43,9 @@ def _parse_product(raw: dict[str, Any]) -> CatalogProduct:
         price_usd=float(raw.get("price_usd", 0)),
         product_url=str(raw.get("product_url", "")),
         pitch=str(raw.get("pitch", "")),
+        image_url=raw.get("image_url"),
+        affiliate_url=raw.get("affiliate_url"),
+        retailer=raw.get("retailer") or raw.get("brand"),
     )
 
 

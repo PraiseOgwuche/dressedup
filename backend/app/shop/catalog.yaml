@@ -1,9 +1,11 @@
-# Curated Shop v1 catalog — hand-picked staples with wardrobe attributes for outfit scoring.
-# product_url is an example link; swap for affiliate URLs when partnerships exist.
+# Curated Shop catalog — wardrobe attributes for outfit scoring.
+# affiliate_url: tracked buy link (swap for real affiliate IDs when partnerships exist).
+# image_url: stable product-style photos for the Shop UI.
 
 products:
   - id: uniqlo-linen-shirt-white
     brand: Uniqlo
+    retailer: Uniqlo
     name: Premium Linen Shirt
     category: top
     subcategory: shirt
@@ -12,11 +14,14 @@ products:
     formality: smart-casual
     pattern: solid
     price_usd: 49.90
-    product_url: https://www.uniqlo.com
+    product_url: https://www.uniqlo.com/us/en/men/linen-shirts
+    affiliate_url: https://www.uniqlo.com/us/en/men/linen-shirts?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=480&h=480&fit=crop
     pitch: Crisp white layer that unlocks smart-casual combos.
 
   - id: uniqlo-crew-tee-navy
     brand: Uniqlo
+    retailer: Uniqlo
     name: Supima Cotton Crew Neck
     category: top
     subcategory: t-shirt
@@ -25,11 +30,14 @@ products:
     formality: casual
     pattern: solid
     price_usd: 14.90
-    product_url: https://www.uniqlo.com
+    product_url: https://www.uniqlo.com/us/en/men/t-shirts
+    affiliate_url: https://www.uniqlo.com/us/en/men/t-shirts?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=480&h=480&fit=crop
     pitch: Everyday navy tee — works with almost any bottom you own.
 
   - id: everlane-cheeky-jean
     brand: Everlane
+    retailer: Everlane
     name: The Cheeky Jean
     category: bottom
     subcategory: jeans
@@ -38,11 +46,14 @@ products:
     formality: casual
     pattern: solid
     price_usd: 98.00
-    product_url: https://www.everlane.com
+    product_url: https://www.everlane.com/collections/womens-jeans
+    affiliate_url: https://www.everlane.com/collections/womens-jeans?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1542272604-787c3835535d?w=480&h=480&fit=crop
     pitch: Medium-wash denim to anchor weekend and casual looks.
 
   - id: uniqlo-smart-ankle-pants
     brand: Uniqlo
+    retailer: Uniqlo
     name: Smart Ankle Pants
     category: bottom
     subcategory: trousers
@@ -51,11 +62,14 @@ products:
     formality: business
     pattern: solid
     price_usd: 49.90
-    product_url: https://www.uniqlo.com
+    product_url: https://www.uniqlo.com/us/en/men/trousers
+    affiliate_url: https://www.uniqlo.com/us/en/men/trousers?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1473966968600-fa801b869a0a?w=480&h=480&fit=crop
     pitch: Tailored trouser for work days when jeans won't cut it.
 
   - id: new-balance-574
     brand: New Balance
+    retailer: New Balance
     name: "574 Core"
     category: footwear
     subcategory: sneakers
@@ -64,11 +78,14 @@ products:
     formality: casual
     pattern: solid
     price_usd: 89.99
-    product_url: https://www.newbalance.com
+    product_url: https://www.newbalance.com/574
+    affiliate_url: https://www.newbalance.com/574?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1549298916-b41d501d3772?w=480&h=480&fit=crop
     pitch: Neutral sneaker that bridges casual tops and bottoms.
 
   - id: clarks-desert-boot
     brand: Clarks
+    retailer: Clarks
     name: Desert Boot
     category: footwear
     subcategory: boots
@@ -77,11 +94,14 @@ products:
     formality: smart-casual
     pattern: solid
     price_usd: 150.00
-    product_url: https://www.clarks.com
+    product_url: https://www.clarks.com/desert-boot
+    affiliate_url: https://www.clarks.com/desert-boot?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1608256246200-53bd35f4f755?w=480&h=480&fit=crop
     pitch: Elevates chinos and denim without feeling formal.
 
   - id: uniqlo-ultra-light-jacket
     brand: Uniqlo
+    retailer: Uniqlo
     name: Ultra Light Down Jacket
     category: outerwear
     subcategory: jacket
@@ -90,11 +110,14 @@ products:
     formality: casual
     pattern: solid
     price_usd: 69.90
-    product_url: https://www.uniqlo.com
+    product_url: https://www.uniqlo.com/us/en/men/outerwear
+    affiliate_url: https://www.uniqlo.com/us/en/men/outerwear?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1551028711-21922b037e12?w=480&h=480&fit=crop
     pitch: Packable layer for cool mornings and travel days.
 
   - id: cos-wool-blazer
     brand: COS
+    retailer: COS
     name: Single-Breasted Wool Blazer
     category: outerwear
     subcategory: blazer
@@ -103,11 +126,14 @@ products:
     formality: business
     pattern: solid
     price_usd: 225.00
-    product_url: https://www.cos.com
+    product_url: https://www.cos.com/women/blazers
+    affiliate_url: https://www.cos.com/women/blazers?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=480&h=480&fit=crop
     pitch: Instant polish over tees and shirts you already own.
 
   - id: everlane-cashmere-crew
     brand: Everlane
+    retailer: Everlane
     name: Grade-A Cashmere Crew
     category: top
     subcategory: sweater
@@ -116,11 +142,14 @@ products:
     formality: smart-casual
     pattern: solid
     price_usd: 135.00
-    product_url: https://www.everlane.com
+    product_url: https://www.everlane.com/collections/womens-sweaters
+    affiliate_url: https://www.everlane.com/collections/womens-sweaters?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=480&h=480&fit=crop
     pitch: Warm neutral knit for quiet-luxury layering.
 
   - id: aritzia-effortless-pant
     brand: Aritzia
+    retailer: Aritzia
     name: The Effortless Pant
     category: bottom
     subcategory: trousers
@@ -129,5 +158,71 @@ products:
     formality: smart-casual
     pattern: solid
     price_usd: 148.00
-    product_url: https://www.aritzia.com
+    product_url: https://www.aritzia.com/us/en/clothing/pants
+    affiliate_url: https://www.aritzia.com/us/en/clothing/pants?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=480&h=480&fit=crop
     pitch: Drapey black trouser for date night and office-casual.
+
+  - id: nike-air-force-1
+    brand: Nike
+    retailer: Nike
+    name: Air Force 1 '07
+    category: footwear
+    subcategory: sneakers
+    color: white
+    color_hex: "#F4F1EA"
+    formality: casual
+    pattern: solid
+    price_usd: 115.00
+    product_url: https://www.nike.com/t/air-force-1-07-shoe
+    affiliate_url: https://www.nike.com/t/air-force-1-07-shoe?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=480&h=480&fit=crop
+    pitch: Clean white sneaker — pairs with denim, chinos, and dresses.
+
+  - id: madewell-perfect-tee
+    brand: Madewell
+    retailer: Madewell
+    name: The Perfect Vintage Tee
+    category: top
+    subcategory: t-shirt
+    color: white
+    color_hex: "#F4F1EA"
+    formality: casual
+    pattern: solid
+    price_usd: 24.50
+    product_url: https://www.madewell.com/womens/clothing/tees
+    affiliate_url: https://www.madewell.com/womens/clothing/tees?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1622445275463-afa12ab34c44?w=480&h=480&fit=crop
+    pitch: Soft vintage tee to fill a basics gap without duplicating what you own.
+
+  - id: lululemon-align-legging
+    brand: Lululemon
+    retailer: Lululemon
+    name: Align High-Rise Pant
+    category: bottom
+    subcategory: leggings
+    color: black
+    color_hex: "#1C1C1C"
+    formality: casual
+    pattern: solid
+    price_usd: 98.00
+    product_url: https://shop.lululemon.com/p/womens-leggings
+    affiliate_url: https://shop.lululemon.com/p/womens-leggings?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=480&h=480&fit=crop
+    pitch: Gym-to-street bottom for active days in your routine.
+
+  - id: patagonia-better-sweater
+    brand: Patagonia
+    retailer: Patagonia
+    name: Better Sweater Fleece
+    category: outerwear
+    subcategory: jacket
+    color: grey
+    color_hex: "#9A9A9A"
+    formality: casual
+    pattern: solid
+    price_usd: 149.00
+    product_url: https://www.patagonia.com/shop/mens-fleece
+    affiliate_url: https://www.patagonia.com/shop/mens-fleece?utm_source=dressedup&utm_medium=shop
+    image_url: https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=480&h=480&fit=crop
+    pitch: Cozy mid-layer for mild weather and weekend errands.

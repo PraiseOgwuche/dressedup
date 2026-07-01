@@ -350,6 +350,9 @@ export interface ShopRecommendation {
   color?: string | null;
   price_usd: number;
   product_url: string;
+  buy_url: string;
+  image_url?: string | null;
+  retailer?: string | null;
   pitch: string;
   outfit_count: number;
   reason: string;

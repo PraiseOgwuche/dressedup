@@ -212,13 +212,14 @@ class ShopService:
         return count
 
     @classmethod
-    def get_recommendations(cls, db: Session, user_id: int) -> dict:
+    def get_recommendations(cls, db: Session, user_id: int, *, category: str | None = None) -> dict:
         items = (
             db.query(ClothingItem)
             .filter(ClothingItem.user_id == user_id, ClothingItem.is_clean.is_(True))
             .all()
         )
         catalog = load_catalog()
+        category_filter = category.lower().strip() if category else None
 
         if len(items) < 2:
             return {
@@ -228,6 +229,8 @@ class ShopService:
 
         scored: list[dict] = []
         for product in catalog:
+            if category_filter and product.category != category_filter:
+                continue
             if cls._user_has_near_duplicate(items, product):
                 continue
             outfit_count = cls._outfit_count_for_product(db, user_id, items, product)
@@ -235,6 +238,7 @@ class ShopService:
                 continue
 
             priority = "high" if outfit_count >= 8 else ("medium" if outfit_count >= 4 else "low")
+            buy_url = product.affiliate_url or product.product_url
             scored.append(
                 {
                     "product_id": product.id,
@@ -244,6 +248,9 @@ class ShopService:
                     "color": product.color,
                     "price_usd": product.price_usd,
                     "product_url": product.product_url,
+                    "buy_url": buy_url,
+                    "image_url": product.image_url,
+                    "retailer": product.retailer,
                     "pitch": product.pitch,
                     "outfit_count": outfit_count,
                     "reason": (

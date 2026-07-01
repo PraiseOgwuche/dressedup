@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -12,8 +14,9 @@ router = APIRouter(prefix="/shop", tags=["Shop"])
 
 @router.get("/recommendations", response_model=ShopRecommendationResponse)
 def get_shop_recommendations(
+    category: Optional[str] = Query(default=None, description="Filter by category slug"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return ShopService.get_recommendations(db, current_user.id)
+    return ShopService.get_recommendations(db, current_user.id, category=category)
 
