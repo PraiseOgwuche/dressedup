@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Linking,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -19,9 +18,11 @@ import { marketplaceAPI, shopAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { ClosetListing, ListingType, ShopRecommendation } from '../../types';
 import { ShopProductCard } from '../../components/shop/ShopProductCard';
+import { ShopOutfitPreviewModal } from '../../components/shop/ShopOutfitPreviewModal';
 import { MarketplaceListingCard } from '../../components/shop/MarketplaceListingCard';
 import { CreateListingModal } from '../../components/shop/CreateListingModal';
 import { Button } from '../../components/ui/Button';
+import { openExternalUrl } from '../../services/openUrl';
 
 type ShopSection = 'picks' | 'passiton';
 type PassMode = 'browse' | 'mine';
@@ -55,6 +56,7 @@ export default function ShopScreen() {
   const [search, setSearch] = useState('');
   const [passLoading, setPassLoading] = useState(false);
   const [listModalOpen, setListModalOpen] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<ShopRecommendation | null>(null);
 
   const listedItemIds = useMemo(
     () =>
@@ -114,12 +116,9 @@ export default function ShopScreen() {
     if (section === 'passiton') loadPassItOn();
   }, [passFilter, search, section, loadPassItOn]);
 
-  const openProduct = async (url: string) => {
-    if (!url) return;
-    const can = await Linking.canOpenURL(url);
-    if (can) await Linking.openURL(url);
-    else Alert.alert('Link unavailable', 'Could not open this product page.');
-  };
+  const openProduct = useCallback((url: string) => {
+    void openExternalUrl(url);
+  }, []);
 
   const renderPicks = () => (
     <FlatList
@@ -171,7 +170,11 @@ export default function ShopScreen() {
         ) : null
       }
       renderItem={({ item }) => (
-        <ShopProductCard item={item} onOpen={() => openProduct(item.buy_url || item.product_url)} />
+        <ShopProductCard
+          item={item}
+          onOpen={() => openProduct(item.buy_url || item.product_url)}
+          onPreviewOutfits={() => setPreviewProduct(item)}
+        />
       )}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
     />
@@ -295,6 +298,12 @@ export default function ShopScreen() {
         listedItemIds={listedItemIds}
         onClose={() => setListModalOpen(false)}
         onCreated={loadPassItOn}
+      />
+
+      <ShopOutfitPreviewModal
+        product={previewProduct}
+        visible={previewProduct != null}
+        onClose={() => setPreviewProduct(null)}
       />
     </SafeAreaView>
   );

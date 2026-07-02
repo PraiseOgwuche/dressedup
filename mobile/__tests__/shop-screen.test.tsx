@@ -12,6 +12,10 @@ jest.mock('expo-router', () => {
   };
 });
 
+jest.mock('../services/openUrl', () => ({
+  openExternalUrl: jest.fn(),
+}));
+
 jest.mock('../services/api', () => ({
   shopAPI: {
     getRecommendations: jest.fn().mockResolvedValue({ summary: 'Top pick ready', recommendations: [] }),

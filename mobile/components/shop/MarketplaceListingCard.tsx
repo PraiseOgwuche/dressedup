@@ -1,10 +1,11 @@
 import React from 'react';
-import { Alert, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { mediaUrl } from '../../constants/config';
 import { THEME, FONTS, SHADOW } from '../../constants/theme';
 import { marketplaceAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
+import { openExternalUrl } from '../../services/openUrl';
 import { ClosetListing } from '../../types';
 
 type Props = {
@@ -24,12 +25,7 @@ export function MarketplaceListingCard({ listing, onChanged }: Props) {
   const contactSeller = async () => {
     try {
       const result = await marketplaceAPI.interest(listing.id);
-      const can = await Linking.canOpenURL(result.mailto);
-      if (can) {
-        await Linking.openURL(result.mailto);
-      } else {
-        Alert.alert('Contact seller', `Email ${result.seller_name} from your mail app to coordinate.`);
-      }
+      await openExternalUrl(result.mailto);
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not start contact.'));
     }

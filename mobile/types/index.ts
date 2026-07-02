@@ -369,6 +369,24 @@ export interface TripPackingPlan {
   weather_note?: string | null;
 }
 
+export interface ShopOutfitGarment {
+  id: number;
+  name: string;
+  category: string;
+  color?: string | null;
+  image_url?: string | null;
+  thumbnail_url?: string | null;
+  is_shop_pick?: boolean;
+}
+
+export interface ShopOutfitPreview {
+  score: number;
+  top?: ShopOutfitGarment | null;
+  bottom?: ShopOutfitGarment | null;
+  shoes?: ShopOutfitGarment | null;
+  outerwear?: ShopOutfitGarment | null;
+}
+
 export interface ShopRecommendation {
   product_id: string;
   brand: string;
@@ -382,6 +400,7 @@ export interface ShopRecommendation {
   retailer?: string | null;
   pitch: string;
   outfit_count: number;
+  sample_outfits?: ShopOutfitPreview[];
   reason: string;
   priority: string;
 }

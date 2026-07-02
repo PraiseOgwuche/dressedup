@@ -43,6 +43,8 @@ def test_shop_recommends_with_outfit_counts(client, auth_header):
     if body["recommendations"]:
         rec = body["recommendations"][0]
         assert rec["outfit_count"] >= 1
+        assert "sample_outfits" in rec
+        assert isinstance(rec["sample_outfits"], list)
         assert rec["product_id"]
         assert rec["brand"]
         assert rec["product_url"]

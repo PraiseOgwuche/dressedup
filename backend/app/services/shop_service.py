@@ -13,6 +13,7 @@ from app.services.outfit_service import OutfitService
 from app.shop.catalog import CatalogProduct, load_catalog
 
 _MIN_OUTFIT_SCORE = 0.48
+_MAX_SAMPLE_OUTFITS = 3
 _SHOP_CONTEXT = MatchContext(
     occasion="everyday",
     weather_tag="mild",
@@ -124,6 +125,81 @@ class ShopService:
 
         return tops, bottoms, shoes
 
+    @staticmethod
+    def _serialize_garment(garment) -> dict | None:
+        if garment is None:
+            return None
+        is_shop = getattr(garment, "source", None) == "shop_catalog" or garment.id < 0
+        image_url = getattr(garment, "image_url", None)
+        thumbnail_url = getattr(garment, "thumbnail_url", None) or image_url
+        return {
+            "id": garment.id,
+            "name": garment.name,
+            "category": garment.category,
+            "color": getattr(garment, "color", None),
+            "image_url": image_url,
+            "thumbnail_url": thumbnail_url,
+            "is_shop_pick": is_shop,
+        }
+
+    @classmethod
+    def _outfit_sample(
+        cls,
+        db: Session,
+        user_id: int,
+        top,
+        bottom,
+        shoe,
+        *,
+        outerwear=None,
+    ) -> dict | None:
+        garments = [g for g in (top, bottom, shoe, outerwear) if g is not None]
+        if len(garments) < 2:
+            return None
+        score = OutfitService._score(db, user_id, garments, _SHOP_CONTEXT)
+        if score < _MIN_OUTFIT_SCORE:
+            return None
+        return {
+            "score": round(score, 2),
+            "top": cls._serialize_garment(top),
+            "bottom": cls._serialize_garment(bottom),
+            "shoes": cls._serialize_garment(shoe),
+            "outerwear": cls._serialize_garment(outerwear),
+        }
+
+    @classmethod
+    def _collect_outfits_with_item(
+        cls,
+        db: Session,
+        user_id: int,
+        tops: list,
+        bottoms: list,
+        shoes: list,
+        required: VirtualGarment,
+    ) -> tuple[int, list[dict]]:
+        count = 0
+        samples: list[tuple[float, dict]] = []
+        top_opts = tops or [None]
+        bottom_opts = bottoms or [None]
+        shoe_opts = shoes or [None]
+
+        for top in top_opts:
+            for bottom in bottom_opts:
+                if top is None and bottom is None:
+                    continue
+                for shoe in shoe_opts:
+                    garments = [top, bottom, shoe]
+                    if required not in garments:
+                        continue
+                    sample = cls._outfit_sample(db, user_id, top, bottom, shoe)
+                    if sample is None:
+                        continue
+                    count += 1
+                    samples.append((sample["score"], sample))
+
+        samples.sort(key=lambda row: -row[0])
+        return count, [sample for _, sample in samples[:_MAX_SAMPLE_OUTFITS]]
+
     @classmethod
     def _count_outfits_with_item(
         cls,
@@ -171,19 +247,57 @@ class ShopService:
         user_id: int,
         items: list[ClothingItem],
         product: CatalogProduct,
-    ) -> int:
+    ) -> tuple[int, list[dict]]:
         slot = cls._slot_for_category(product.category)
         if slot is None:
-            return 0
+            return 0, []
         virtual = cls._to_virtual(product)
+        virtual.image_url = product.image_url
 
         if slot == "outerwear":
-            return cls._count_outerwear_outfits(db, user_id, items, virtual)
+            return cls._collect_outerwear_outfits(db, user_id, items, virtual)
 
         tops, bottoms, shoes = cls._build_pools(items, virtual, slot)
         if not tops and not bottoms and not shoes:
-            return 0
-        return cls._count_outfits_with_item(db, user_id, tops, bottoms, shoes, virtual)
+            return 0, []
+        return cls._collect_outfits_with_item(db, user_id, tops, bottoms, shoes, virtual)
+
+    @classmethod
+    def _collect_outerwear_outfits(
+        cls,
+        db: Session,
+        user_id: int,
+        items: list[ClothingItem],
+        virtual: VirtualGarment,
+    ) -> tuple[int, list[dict]]:
+        tops, bottoms, shoes = cls._build_pools(items, virtual, "top")
+        count = 0
+        samples: list[tuple[float, dict]] = []
+        for top in tops or [None]:
+            for bottom in bottoms or [None]:
+                if top is None and bottom is None:
+                    continue
+                for shoe in shoes or [None]:
+                    trio = [top, bottom, shoe]
+                    if OutfitService._score(db, user_id, trio, _SHOP_CONTEXT) < _MIN_OUTFIT_SCORE:
+                        continue
+                    anchor = top or bottom or shoe
+                    if anchor is None:
+                        continue
+                    sample = cls._outfit_sample(
+                        db,
+                        user_id,
+                        top,
+                        bottom,
+                        shoe,
+                        outerwear=virtual,
+                    )
+                    if sample is None:
+                        continue
+                    count += 1
+                    samples.append((sample["score"], sample))
+        samples.sort(key=lambda row: -row[0])
+        return count, [sample for _, sample in samples[:_MAX_SAMPLE_OUTFITS]]
 
     @classmethod
     def _count_outerwear_outfits(
@@ -233,7 +347,7 @@ class ShopService:
                 continue
             if cls._user_has_near_duplicate(items, product):
                 continue
-            outfit_count = cls._outfit_count_for_product(db, user_id, items, product)
+            outfit_count, sample_outfits = cls._outfit_count_for_product(db, user_id, items, product)
             if outfit_count < 1:
                 continue
 
@@ -253,6 +367,7 @@ class ShopService:
                     "retailer": product.retailer,
                     "pitch": product.pitch,
                     "outfit_count": outfit_count,
+                    "sample_outfits": sample_outfits,
                     "reason": (
                         f"Works in {outfit_count} outfit{'s' if outfit_count != 1 else ''} "
                         f"with your closet. {product.pitch}"

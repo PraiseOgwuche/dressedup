@@ -14,29 +14,33 @@ const PRIORITY_LABEL: Record<string, string> = {
 type Props = {
   item: ShopRecommendation;
   onOpen: () => void;
+  onPreviewOutfits: () => void;
 };
 
 function formatPrice(usd: number) {
   return `$${usd.toFixed(usd % 1 === 0 ? 0 : 2)}`;
 }
 
-export function ShopProductCard({ item, onOpen }: Props) {
+export function ShopProductCard({ item, onOpen, onPreviewOutfits }: Props) {
   const priority = PRIORITY_LABEL[item.priority] ?? 'Pick';
+  const hasPreviews = (item.sample_outfits?.length ?? 0) > 0;
 
   return (
-    <Pressable style={styles.card} onPress={onOpen}>
-      <View style={styles.imageWrap}>
-        {item.image_url ? (
-          <Image source={{ uri: item.image_url }} style={styles.image} resizeMode="cover" />
-        ) : (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderEmoji}>🛍️</Text>
+    <View style={styles.card}>
+      <Pressable onPress={onOpen}>
+        <View style={styles.imageWrap}>
+          {item.image_url ? (
+            <Image source={{ uri: item.image_url }} style={styles.image} resizeMode="cover" />
+          ) : (
+            <View style={styles.placeholder}>
+              <Text style={styles.placeholderEmoji}>🛍️</Text>
+            </View>
+          )}
+          <View style={styles.priorityBadge}>
+            <Text style={styles.priorityText}>{priority}</Text>
           </View>
-        )}
-        <View style={styles.priorityBadge}>
-          <Text style={styles.priorityText}>{priority}</Text>
         </View>
-      </View>
+      </Pressable>
 
       <View style={styles.body}>
         <Text style={styles.retailer}>{item.retailer || item.brand}</Text>
@@ -46,11 +50,12 @@ export function ShopProductCard({ item, onOpen }: Props) {
           {item.color ? ` · ${item.color}` : ''} · {formatPrice(item.price_usd)}
         </Text>
 
-        <View style={styles.outfitPill}>
+        <Pressable style={styles.outfitPill} onPress={onPreviewOutfits}>
           <Text style={styles.outfitPillText}>
             +{item.outfit_count} outfit{item.outfit_count === 1 ? '' : 's'} with your closet
           </Text>
-        </View>
+          <Text style={styles.outfitPillHint}>{hasPreviews ? 'Tap to preview' : 'See combinations'}</Text>
+        </Pressable>
 
         <Text style={styles.pitch}>{item.pitch}</Text>
 
@@ -58,7 +63,7 @@ export function ShopProductCard({ item, onOpen }: Props) {
           <Text style={styles.ctaText}>View at {item.retailer || item.brand}</Text>
         </Pressable>
       </View>
-    </Pressable>
+    </View>
   );
 }
 
@@ -119,12 +124,14 @@ const styles = StyleSheet.create({
   outfitPill: {
     alignSelf: 'flex-start',
     backgroundColor: THEME.brand.ink,
-    borderRadius: 999,
+    borderRadius: 14,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     marginTop: 4,
+    gap: 2,
   },
   outfitPillText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  outfitPillHint: { color: 'rgba(255,255,255,0.78)', fontSize: 10, fontWeight: '600' },
   pitch: {
     fontSize: 14,
     lineHeight: 20,
