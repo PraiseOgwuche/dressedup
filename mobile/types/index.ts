@@ -99,7 +99,6 @@ export interface ClosetItemCreate {
   source?: string;
   needs_review?: boolean;
   confidence?: Record<string, number>;
-  product_name?: string;
   ai_metadata?: Record<string, unknown>;
 }
 

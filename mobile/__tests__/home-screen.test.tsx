@@ -38,6 +38,12 @@ jest.mock('../store/routineStore', () => ({
   }),
 }));
 
+jest.mock('../constants/avatar', () => ({
+  AVATAR_3D_ENABLED: false,
+  AVATAR_SPIN_SPEED: 0.45,
+  AVATAR_VIEWPORT_HEIGHT: 300,
+}));
+
 jest.mock('../services/api', () => ({
   outfitAPI: {
     getSuggestion: jest.fn().mockResolvedValue({
@@ -51,6 +57,9 @@ jest.mock('../services/api', () => ({
   },
   closetAPI: {
     wear: jest.fn(),
+  },
+  socialAPI: {
+    createPost: jest.fn(),
   },
 }));
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import { THEME, FONTS, SHADOW } from '../constants/theme';
 import { mediaUrl } from '../constants/config';
+import { AVATAR_3D_ENABLED } from '../constants/avatar';
 import { ClosetItem } from '../types';
 import { Button } from './ui/Button';
 import { OutfitSlotKey } from './OutfitCard';
+import { OutfitAvatarViewer } from './avatar/OutfitAvatarViewer';
 
 interface OutfitHeroProps {
   top?: ClosetItem | null;
@@ -32,6 +34,13 @@ interface OutfitHeroProps {
   swappingSlot?: OutfitSlotKey | null;
 }
 
+const SLOT_FALLBACK: Record<string, string> = {
+  top: '#B8956B',
+  bottom: '#5B6B7A',
+  shoes: '#6B6560',
+  outerwear: '#8A7355',
+};
+
 export function OutfitHero({
   top,
   bottom,
@@ -49,6 +58,9 @@ export function OutfitHero({
   onSwapSlot,
   swappingSlot,
 }: OutfitHeroProps) {
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const use3dAvatar = AVATAR_3D_ENABLED && !avatarFailed;
+
   const pieces = [
     { key: 'top' as const, label: 'Top', item: top },
     { key: 'bottom' as const, label: 'Bottom', item: bottom },
@@ -57,6 +69,54 @@ export function OutfitHero({
   ].filter((p) => p.item);
 
   const hasOutfit = pieces.length > 0;
+
+  const renderGallery = (compact = false) => (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={[styles.gallery, compact && styles.galleryCompact]}
+    >
+      {pieces.map(({ key, label, item }) => {
+        const uri = mediaUrl(item?.thumbnail_url ?? item?.image_url);
+        const swapping = swappingSlot === key;
+        return (
+          <Pressable
+            key={key}
+            style={[styles.piece, compact && styles.pieceCompact]}
+            onPress={onSwapSlot ? () => onSwapSlot(key) : undefined}
+            disabled={!onSwapSlot || !!swappingSlot}
+          >
+            {uri ? (
+              <Image
+                source={{ uri }}
+                style={[styles.pieceImage, compact && styles.pieceImageCompact]}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={[styles.piecePlaceholder, compact && styles.pieceImageCompact]}>
+                <Text style={styles.pieceEmoji}>👕</Text>
+              </View>
+            )}
+            <View style={styles.pieceFooter}>
+              <Text style={styles.pieceLabel}>{label}</Text>
+              <Text style={[styles.pieceName, compact && styles.pieceNameCompact]} numberOfLines={1}>
+                {item?.name}
+              </Text>
+            </View>
+            {onSwapSlot ? (
+              <View style={styles.swapOverlay}>
+                {swapping ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.swapText}>Swap</Text>
+                )}
+              </View>
+            ) : null}
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
 
   return (
     <View style={styles.wrap}>
@@ -70,43 +130,35 @@ export function OutfitHero({
           <Text style={styles.loadingText}>Curating your look…</Text>
         </View>
       ) : hasOutfit ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gallery}>
-          {pieces.map(({ key, label, item }) => {
-            const uri = mediaUrl(item?.thumbnail_url ?? item?.image_url);
-            const swapping = swappingSlot === key;
-            return (
-              <Pressable
-                key={key}
-                style={styles.piece}
-                onPress={onSwapSlot ? () => onSwapSlot(key) : undefined}
-                disabled={!onSwapSlot || !!swappingSlot}
-              >
-                {uri ? (
-                  <Image source={{ uri }} style={styles.pieceImage} resizeMode="cover" />
-                ) : (
-                  <View style={styles.piecePlaceholder}>
-                    <Text style={styles.pieceEmoji}>👕</Text>
-                  </View>
-                )}
-                <View style={styles.pieceFooter}>
-                  <Text style={styles.pieceLabel}>{label}</Text>
-                  <Text style={styles.pieceName} numberOfLines={1}>
-                    {item?.name}
-                  </Text>
-                </View>
-                {onSwapSlot ? (
-                  <View style={styles.swapOverlay}>
-                    {swapping ? (
-                      <ActivityIndicator color="#fff" size="small" />
-                    ) : (
-                      <Text style={styles.swapText}>Swap</Text>
-                    )}
-                  </View>
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+        <>
+          {use3dAvatar ? (
+            <>
+              <OutfitAvatarViewer
+                topUri={mediaUrl(top?.thumbnail_url ?? top?.image_url)}
+                bottomUri={mediaUrl(bottom?.thumbnail_url ?? bottom?.image_url)}
+                shoesUri={mediaUrl(shoes?.thumbnail_url ?? shoes?.image_url)}
+                outerUri={mediaUrl(outerwear?.thumbnail_url ?? outerwear?.image_url)}
+                topSubcategory={top?.subcategory}
+                bottomSubcategory={bottom?.subcategory}
+                shoesSubcategory={shoes?.subcategory}
+                outerSubcategory={outerwear?.subcategory}
+                topColor={top?.color_hex || SLOT_FALLBACK.top}
+                bottomColor={bottom?.color_hex || SLOT_FALLBACK.bottom}
+                shoesColor={shoes?.color_hex || SLOT_FALLBACK.shoes}
+                outerColor={outerwear?.color_hex || SLOT_FALLBACK.outerwear}
+                onFailed={() => setAvatarFailed(true)}
+              />
+              {onSwapSlot ? (
+                <>
+                  <Text style={styles.swapHint}>Tap a piece to swap</Text>
+                  {renderGallery(true)}
+                </>
+              ) : null}
+            </>
+          ) : (
+            renderGallery(false)
+          )}
+        </>
       ) : (
         <View style={styles.emptyHero}>
           <Text style={styles.emptyTitle}>Your look awaits</Text>
@@ -158,7 +210,17 @@ const styles = StyleSheet.create({
   },
   loadingBox: { alignItems: 'center', paddingVertical: 48 },
   loadingText: { marginTop: 12, fontSize: 14, color: THEME.editorial.textMuted },
+  swapHint: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: THEME.editorial.textMuted,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+    marginTop: 4,
+  },
   gallery: { gap: 14, paddingVertical: 4 },
+  galleryCompact: { gap: 10, paddingVertical: 0 },
   piece: {
     width: 148,
     backgroundColor: THEME.editorial.surface,
@@ -166,7 +228,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...SHADOW.lift,
   },
+  pieceCompact: {
+    width: 108,
+    borderRadius: 12,
+  },
   pieceImage: { width: '100%', height: 168 },
+  pieceImageCompact: { height: 96 },
   piecePlaceholder: {
     width: '100%',
     height: 168,
@@ -184,6 +251,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   pieceName: { fontSize: 14, fontWeight: '600', color: THEME.editorial.text, marginTop: 2 },
+  pieceNameCompact: { fontSize: 12 },
   swapOverlay: {
     position: 'absolute',
     top: 10,

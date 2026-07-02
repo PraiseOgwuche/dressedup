@@ -1,0 +1,9 @@
+base-mesh-male.glb
+-------------------
+Source: https://github.com/BoQsc/Godot-3D-Male-Base-Mesh
+Original asset: "Male Base Mesh" by orange-juice-games (https://orange-juice-games.itch.io/male-base-mesh)
+License: CC0 1.0 Universal (Public Domain) — https://creativecommons.org/publicdomain/zero/1.0/
+Free for personal and commercial use, no attribution required.
+
+Rigged, UV-unwrapped, T-pose, low-poly human base mesh. No embedded textures or animations;
+DressedUp applies its own materials and drives rotation directly.

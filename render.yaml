@@ -29,4 +29,5 @@ services:
         value: us-east-1
       - key: S3_PUBLIC_BASE_URL
         sync: false
-
+      - key: BG_REMOVAL_ENABLED
+        value: "true"

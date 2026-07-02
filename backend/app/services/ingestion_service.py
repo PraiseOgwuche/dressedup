@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 
 from app.config import settings
 from app.schemas.ingestion import BatchIngestEntry, IngestResult, MultiIngestEntry, MultiIngestResult, ReceiptIngestResult
+from app.services.image_processing import remove_background
 from app.services.storage import get_storage_provider
 from app.services.vision import get_vision_provider
 
@@ -19,6 +20,15 @@ class IngestionService:
     the AI bridge, so this whole flow runs with zero token spend."""
 
     @staticmethod
+    def _save_cutout(garment_bytes: bytes, storage, fallback_url: str) -> str:
+        """Background-removed transparent PNG for thumbnail_url; falls back to
+        the original photo URL whenever the cutout can't be produced."""
+        cutout = remove_background(garment_bytes)
+        if cutout is None:
+            return fallback_url
+        return storage.save(cutout, ext="png", subdir="cutouts")
+
+    @staticmethod
     def ingest(
         garment_bytes: bytes,
         garment_ext: str,
@@ -26,14 +36,14 @@ class IngestionService:
     ) -> IngestResult:
         storage = get_storage_provider()
         image_url = storage.save(garment_bytes, ext=garment_ext, subdir="items")
+        thumbnail_url = IngestionService._save_cutout(garment_bytes, storage, image_url)
 
         draft = get_vision_provider().extract_attributes(
             garment_image=garment_bytes,
             label_image=label_bytes,
         )
 
-        # Thumbnail == original for now; real thumbnailing arrives with cloud storage.
-        return IngestResult(draft=draft, image_url=image_url, thumbnail_url=image_url)
+        return IngestResult(draft=draft, image_url=image_url, thumbnail_url=thumbnail_url)
 
     @staticmethod
     def ingest_multi(
@@ -43,6 +53,7 @@ class IngestionService:
     ) -> MultiIngestResult:
         storage = get_storage_provider()
         image_url = storage.save(garment_bytes, ext=garment_ext, subdir="items")
+        thumbnail_url = IngestionService._save_cutout(garment_bytes, storage, image_url)
 
         drafts = get_vision_provider().extract_multi_attributes(
             garment_image=garment_bytes,
@@ -56,7 +67,7 @@ class IngestionService:
                 index=i,
                 draft=draft,
                 image_url=image_url,
-                thumbnail_url=image_url,
+                thumbnail_url=thumbnail_url,
             )
             for i, draft in enumerate(drafts[: settings.MAX_MULTI_ITEMS_PER_PHOTO])
         ]

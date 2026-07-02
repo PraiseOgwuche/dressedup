@@ -61,6 +61,13 @@ class Settings(BaseSettings):
     # Allow POST /closet/email-ingest/simulate in production (off by default).
     EMAIL_INGEST_ALLOW_SIMULATE: bool = False
 
+    # Garment background removal (rembg/ONNX, runs locally — no API cost).
+    # The cutout becomes thumbnail_url; failures silently keep the original.
+    BG_REMOVAL_ENABLED: bool = True
+    # u2netp is the lightweight model (~5MB weights) — fits small instances.
+    BG_REMOVAL_MODEL: str = "u2netp"
+    BG_REMOVAL_MAX_PX: int = 1024
+
     # Image storage. "local" writes under MEDIA_DIR and serves at MEDIA_URL_PREFIX.
     # "s3" uploads to S3 and returns a public HTTPS URL (see S3_* settings).
     STORAGE_PROVIDER: str = "local"
