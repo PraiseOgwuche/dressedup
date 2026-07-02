@@ -24,6 +24,7 @@ class SocialPost(Base):
 
     user = relationship("User", back_populates="social_posts")
     likes = relationship("SocialPostLike", back_populates="post", cascade="all, delete-orphan")
+    comments = relationship("SocialPostComment", back_populates="post", cascade="all, delete-orphan")
     top = relationship("ClothingItem", foreign_keys=[top_id])
     bottom = relationship("ClothingItem", foreign_keys=[bottom_id])
     shoes = relationship("ClothingItem", foreign_keys=[shoes_id])

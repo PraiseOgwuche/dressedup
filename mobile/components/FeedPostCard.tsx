@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { THEME, SHADOW } from '../constants/theme';
+import { THEME, FONTS, SHADOW } from '../constants/theme';
 import { mediaUrl } from '../constants/config';
-import { OutfitCard } from './OutfitCard';
 import { SocialPost } from '../types';
+import { OutfitLookBoard } from './OutfitLookBoard';
+import { FeedOutfitStrip } from './feed/FeedOutfitStrip';
 
 const formatWhen = (iso: string) => {
   const date = new Date(iso);
@@ -22,11 +23,34 @@ const formatWhen = (iso: string) => {
 interface FeedPostCardProps {
   post: SocialPost;
   onToggleLike: () => void;
+  onOpenComments: () => void;
+  onDelete?: () => void;
   likeLoading?: boolean;
 }
 
-export function FeedPostCard({ post, onToggleLike, likeLoading }: FeedPostCardProps) {
+export function FeedPostCard({
+  post,
+  onToggleLike,
+  onOpenComments,
+  onDelete,
+  likeLoading,
+}: FeedPostCardProps) {
   const firstName = post.user_name?.trim().split(/\s+/)[0] || 'User';
+  const slots = [
+    { key: 'top' as const, label: 'Top', item: post.top },
+    { key: 'bottom' as const, label: 'Bottom', item: post.bottom },
+    { key: 'shoes' as const, label: 'Shoes', item: post.shoes },
+    { key: 'outerwear' as const, label: 'Layer', item: post.outerwear },
+  ];
+  const hasPhoto = !!post.photo_url;
+
+  const handleMenu = () => {
+    if (!post.is_mine || !onDelete) return;
+    Alert.alert('Your fit', undefined, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete post', style: 'destructive', onPress: onDelete },
+    ]);
+  };
 
   return (
     <View style={styles.card}>
@@ -36,37 +60,72 @@ export function FeedPostCard({ post, onToggleLike, likeLoading }: FeedPostCardPr
         </View>
         <View style={styles.headerText}>
           <Text style={styles.name}>{post.user_name}</Text>
-          <Text style={styles.when}>{formatWhen(post.created_at)}</Text>
+          <Text style={styles.when}>
+            {formatWhen(post.created_at)}
+            {post.following_author && !post.is_mine ? ' · Following' : ''}
+          </Text>
         </View>
+        {post.is_mine ? (
+          <Pressable onPress={handleMenu} hitSlop={8} style={styles.menuBtn}>
+            <Text style={styles.menuText}>···</Text>
+          </Pressable>
+        ) : null}
       </View>
+
+      {post.occasion || post.look_name ? (
+        <View style={styles.tagRow}>
+          {post.occasion ? (
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{post.occasion}</Text>
+            </View>
+          ) : null}
+          {post.look_name ? (
+            <View style={[styles.tag, styles.tagMuted]}>
+              <Text style={[styles.tagText, styles.tagTextMuted]}>{post.look_name}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
 
       {!!post.caption && <Text style={styles.caption}>{post.caption}</Text>}
 
-      {!!post.photo_url && (
-        <Image source={{ uri: mediaUrl(post.photo_url) }} style={styles.photo} resizeMode="cover" />
+      {hasPhoto ? (
+        <>
+          <Image
+            source={{ uri: mediaUrl(post.photo_url) }}
+            style={styles.photo}
+            resizeMode="cover"
+          />
+          <FeedOutfitStrip
+            top={post.top}
+            bottom={post.bottom}
+            shoes={post.shoes}
+            outerwear={post.outerwear}
+          />
+        </>
+      ) : (
+        <OutfitLookBoard slots={slots} compact />
       )}
 
-      <OutfitCard
-        variant="utility"
-        title="Outfit"
-        top={post.top}
-        bottom={post.bottom}
-        shoes={post.shoes}
-        outerwear={post.outerwear}
-      />
+      <View style={styles.actions}>
+        <Pressable
+          style={[styles.actionBtn, post.liked_by_me && styles.actionBtnActive]}
+          onPress={onToggleLike}
+          disabled={likeLoading}
+        >
+          <Text style={[styles.actionIcon, post.liked_by_me && styles.actionIconActive]}>
+            {post.liked_by_me ? '♥' : '♡'}
+          </Text>
+          <Text style={[styles.actionLabel, post.liked_by_me && styles.actionLabelActive]}>
+            {post.reactions_count}
+          </Text>
+        </Pressable>
 
-      <Pressable
-        style={[styles.likeRow, post.liked_by_me && styles.likeRowActive]}
-        onPress={onToggleLike}
-        disabled={likeLoading}
-      >
-        <Text style={[styles.likeIcon, post.liked_by_me && styles.likeIconActive]}>
-          {post.liked_by_me ? '♥' : '♡'}
-        </Text>
-        <Text style={[styles.likeCount, post.liked_by_me && styles.likeCountActive]}>
-          {post.reactions_count} {post.reactions_count === 1 ? 'like' : 'likes'}
-        </Text>
-      </Pressable>
+        <Pressable style={styles.actionBtn} onPress={onOpenComments}>
+          <Text style={styles.actionIcon}>💬</Text>
+          <Text style={styles.actionLabel}>{post.comments_count}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -74,7 +133,7 @@ export function FeedPostCard({ post, onToggleLike, likeLoading }: FeedPostCardPr
 const styles = StyleSheet.create({
   card: {
     backgroundColor: THEME.utility.surface,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 16,
     gap: 12,
     borderWidth: 1,
@@ -87,9 +146,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: THEME.brand.sand,
     alignItems: 'center',
     justifyContent: 'center',
@@ -99,10 +158,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: THEME.utility.text,
   },
-  headerText: {
-    flex: 1,
-  },
+  headerText: { flex: 1 },
   name: {
+    fontFamily: FONTS.sans,
     fontSize: 15,
     fontWeight: '700',
     color: THEME.utility.text,
@@ -112,6 +170,31 @@ const styles = StyleSheet.create({
     color: THEME.utility.textMuted,
     marginTop: 2,
   },
+  menuBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  menuText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: THEME.utility.textMuted,
+    lineHeight: 20,
+  },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tag: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: THEME.brand.sand,
+  },
+  tagMuted: { backgroundColor: THEME.utility.surfaceMuted },
+  tagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: THEME.utility.text,
+    textTransform: 'capitalize',
+  },
+  tagTextMuted: { color: THEME.utility.textMuted },
   caption: {
     fontSize: 15,
     lineHeight: 21,
@@ -119,36 +202,40 @@ const styles = StyleSheet.create({
   },
   photo: {
     width: '100%',
-    height: 260,
-    borderRadius: 14,
-    backgroundColor: THEME.utility.surfaceMuted,
+    height: 320,
+    borderRadius: 16,
+    backgroundColor: THEME.editorial.pill,
   },
-  likeRow: {
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 2,
+  },
+  actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    alignSelf: 'flex-start',
+    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: THEME.utility.surfaceMuted,
   },
-  likeRowActive: {
+  actionBtnActive: {
     backgroundColor: THEME.brand.sand,
   },
-  likeIcon: {
-    fontSize: 18,
+  actionIcon: {
+    fontSize: 16,
     color: THEME.utility.textMuted,
   },
-  likeIconActive: {
+  actionIconActive: {
     color: THEME.shared.error,
   },
-  likeCount: {
+  actionLabel: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: THEME.utility.textMuted,
   },
-  likeCountActive: {
+  actionLabelActive: {
     color: THEME.utility.text,
   },
 });

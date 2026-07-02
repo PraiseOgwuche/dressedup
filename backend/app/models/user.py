@@ -36,6 +36,18 @@ class User(Base):
     outfit_feedback = relationship(
         "OutfitFeedback", back_populates="user", cascade="all, delete-orphan"
     )
+    following_links = relationship(
+        "UserFollow",
+        foreign_keys="UserFollow.follower_id",
+        back_populates="follower",
+        cascade="all, delete-orphan",
+    )
+    follower_links = relationship(
+        "UserFollow",
+        foreign_keys="UserFollow.following_id",
+        back_populates="following",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"

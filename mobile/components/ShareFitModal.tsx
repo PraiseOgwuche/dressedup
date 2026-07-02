@@ -14,7 +14,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 
 import { THEME, SHADOW, utilityTitle } from '../constants/theme';
-import { OutfitCard } from './OutfitCard';
+import { OutfitLookBoard } from './OutfitLookBoard';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 import { OutfitSharePayload } from '../types';
@@ -25,11 +25,12 @@ type PickedPhoto = { uri: string; name?: string | null; mimeType?: string | null
 interface ShareFitModalProps {
   visible: boolean;
   outfit: OutfitSharePayload | null;
+  occasion?: string;
   onClose: () => void;
   onShare: (payload: { caption?: string; photo?: PickedPhoto | null }) => Promise<void>;
 }
 
-export function ShareFitModal({ visible, outfit, onClose, onShare }: ShareFitModalProps) {
+export function ShareFitModal({ visible, outfit, occasion, onClose, onShare }: ShareFitModalProps) {
   const [caption, setCaption] = useState('');
   const [photo, setPhoto] = useState<PickedPhoto | null>(null);
   const [sharing, setSharing] = useState(false);
@@ -77,6 +78,13 @@ export function ShareFitModal({ visible, outfit, onClose, onShare }: ShareFitMod
 
   if (!outfit) return null;
 
+  const slots = [
+    { key: 'top' as const, label: 'Top', item: outfit.top },
+    { key: 'bottom' as const, label: 'Bottom', item: outfit.bottom },
+    { key: 'shoes' as const, label: 'Shoes', item: outfit.shoes },
+    { key: 'outerwear' as const, label: 'Layer', item: outfit.outerwear },
+  ];
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.overlay}>
@@ -87,16 +95,15 @@ export function ShareFitModal({ visible, outfit, onClose, onShare }: ShareFitMod
           <View style={styles.sheet}>
             <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
               <Text style={styles.title}>Share to feed</Text>
-              <Text style={styles.subtitle}>Your outfit card will be attached. Caption and mirror photo are optional.</Text>
+              <Text style={styles.subtitle}>
+                Your outfit board will be attached. Caption and mirror photo are optional.
+              </Text>
 
-              <OutfitCard
-                variant="utility"
-                title="Today's fit"
-                top={outfit.top}
-                bottom={outfit.bottom}
-                shoes={outfit.shoes}
-                outerwear={outfit.outerwear}
-              />
+              <OutfitLookBoard slots={slots} compact />
+
+              {occasion ? (
+                <Text style={styles.occasionHint}>Tagged as {occasion}</Text>
+              ) : null}
 
               {photo ? (
                 <View style={styles.photoWrap}>
@@ -158,6 +165,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: THEME.utility.textMuted,
     lineHeight: 20,
+  },
+  occasionHint: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: THEME.brand.goldDark,
+    textTransform: 'capitalize',
   },
   photoWrap: {
     gap: 8,

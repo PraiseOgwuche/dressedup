@@ -282,7 +282,35 @@ export interface SocialPost {
   reactions_count: number;
   comments_count: number;
   liked_by_me: boolean;
+  is_mine: boolean;
+  following_author: boolean;
   created_at: string;
+}
+
+export type FeedScope = 'all' | 'following' | 'mine';
+
+export interface SocialComment {
+  id: number;
+  post_id: number;
+  user_id: number;
+  user_name: string;
+  body: string;
+  is_mine: boolean;
+  created_at: string;
+}
+
+export interface SocialUserSummary {
+  id: number;
+  full_name: string;
+  post_count: number;
+  follower_count: number;
+  is_following: boolean;
+  is_self: boolean;
+}
+
+export interface SocialFollowResult {
+  following: boolean;
+  follower_count: number;
 }
 
 export interface SocialPostLikeResult {
@@ -361,4 +389,28 @@ export interface ShopRecommendation {
 export interface ShopRecommendationsResponse {
   summary: string;
   recommendations: ShopRecommendation[];
+}
+
+export type ListingType = 'sell' | 'gift';
+export type ListingCondition = 'like_new' | 'good' | 'fair';
+export type ListingStatus = 'active' | 'gone' | 'removed';
+
+export interface ClosetListing {
+  id: number;
+  user_id: number;
+  seller_name: string;
+  listing_type: ListingType;
+  title: string;
+  description?: string | null;
+  price_cents?: number | null;
+  condition: ListingCondition;
+  status: ListingStatus;
+  is_mine: boolean;
+  item: ClosetItem;
+  created_at: string;
+}
+
+export interface ListingInterestResult {
+  mailto: string;
+  seller_name: string;
 }

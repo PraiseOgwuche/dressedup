@@ -197,6 +197,7 @@ export default function HomeScreen() {
       shoes_id: shareOutfit.shoes?.id,
       outerwear_id: shareOutfit.outerwear?.id,
       caption: payload.caption,
+      occasion: occasion || undefined,
       photo: payload.photo,
     });
     Alert.alert('Shared', 'Your fit is on the feed.');
@@ -299,7 +300,11 @@ export default function HomeScreen() {
         <SafeAreaView edges={['top']} style={styles.editorialZone}>
           <Text style={styles.brand}>DRESSEDUP</Text>
           <Text style={styles.greeting}>Good morning, {firstName(user?.full_name)}</Text>
-          <Text style={styles.heroSubtitle}>Today&apos;s look</Text>
+          <Text style={styles.heroSubtitle}>
+            {items.length > 0
+              ? `Today's look · ${items.length} piece${items.length === 1 ? '' : 's'} · ${items.filter((i) => i.is_clean).length} clean`
+              : "Today's look"}
+          </Text>
 
           {items.length === 0 ? (
             <View style={styles.emptyCloset}>
@@ -433,6 +438,7 @@ export default function HomeScreen() {
       <ShareFitModal
         visible={shareVisible}
         outfit={shareOutfit}
+        occasion={occasion || undefined}
         onClose={() => {
           setShareVisible(false);
           setShareOutfit(null);

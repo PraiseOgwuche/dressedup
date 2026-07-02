@@ -17,9 +17,16 @@ import {
   OutfitAskResponse,
   SocialPost,
   SocialPostLikeResult,
-  OutfitSharePayload,
+  SocialComment,
+  SocialUserSummary,
+  SocialFollowResult,
+  FeedScope,
   StreakStats,
   ShopRecommendationsResponse,
+  ClosetListing,
+  ListingType,
+  ListingCondition,
+  ListingInterestResult,
   TripPlan,
   TripPackingPlan,
   DailyPlan,
@@ -313,8 +320,14 @@ export const notificationsAPI = {
 };
 
 export const socialAPI = {
-  listPosts: async (): Promise<SocialPost[]> => {
-    const response = await api.get<SocialPost[]>('/social/posts');
+  listPosts: async (scope: FeedScope = 'all', offset = 0, limit = 20): Promise<SocialPost[]> => {
+    const response = await api.get<SocialPost[]>('/social/posts', {
+      params: { scope, offset, limit },
+    });
+    return response.data;
+  },
+  getPost: async (postId: number): Promise<SocialPost> => {
+    const response = await api.get<SocialPost>(`/social/posts/${postId}`);
     return response.data;
   },
   createPost: async (payload: {
@@ -323,6 +336,8 @@ export const socialAPI = {
     shoes_id?: number;
     outerwear_id?: number;
     caption?: string;
+    look_name?: string;
+    occasion?: string;
     photo?: ImageUpload | null;
   }): Promise<SocialPost> => {
     const form = new FormData();
@@ -331,6 +346,8 @@ export const socialAPI = {
     if (payload.shoes_id != null) form.append('shoes_id', String(payload.shoes_id));
     if (payload.outerwear_id != null) form.append('outerwear_id', String(payload.outerwear_id));
     if (payload.caption?.trim()) form.append('caption', payload.caption.trim());
+    if (payload.look_name?.trim()) form.append('look_name', payload.look_name.trim());
+    if (payload.occasion?.trim()) form.append('occasion', payload.occasion.trim());
     if (payload.photo) {
       form.append('photo', toFilePart(payload.photo, 'fit.jpg') as any);
     }
@@ -339,8 +356,30 @@ export const socialAPI = {
     });
     return response.data;
   },
+  deletePost: async (postId: number): Promise<void> => {
+    await api.delete(`/social/posts/${postId}`);
+  },
   toggleLike: async (postId: number): Promise<SocialPostLikeResult> => {
     const response = await api.post<SocialPostLikeResult>(`/social/posts/${postId}/like`);
+    return response.data;
+  },
+  listComments: async (postId: number): Promise<SocialComment[]> => {
+    const response = await api.get<SocialComment[]>(`/social/posts/${postId}/comments`);
+    return response.data;
+  },
+  addComment: async (postId: number, body: string): Promise<SocialComment> => {
+    const response = await api.post<SocialComment>(`/social/posts/${postId}/comments`, { body });
+    return response.data;
+  },
+  deleteComment: async (commentId: number): Promise<void> => {
+    await api.delete(`/social/comments/${commentId}`);
+  },
+  listPeople: async (): Promise<SocialUserSummary[]> => {
+    const response = await api.get<SocialUserSummary[]>('/social/people');
+    return response.data;
+  },
+  toggleFollow: async (userId: number): Promise<SocialFollowResult> => {
+    const response = await api.post<SocialFollowResult>(`/social/users/${userId}/follow`);
     return response.data;
   },
   getStreak: async (timezone?: string): Promise<StreakStats> => {
@@ -356,6 +395,47 @@ export const shopAPI = {
     const response = await api.get<ShopRecommendationsResponse>('/shop/recommendations', {
       params: category ? { category } : undefined,
     });
+    return response.data;
+  },
+};
+
+export const marketplaceAPI = {
+  browse: async (params?: {
+    listing_type?: ListingType;
+    category?: string;
+    q?: string;
+  }): Promise<ClosetListing[]> => {
+    const response = await api.get<ClosetListing[]>('/marketplace/listings', { params });
+    return response.data;
+  },
+  mine: async (): Promise<ClosetListing[]> => {
+    const response = await api.get<ClosetListing[]>('/marketplace/listings/mine');
+    return response.data;
+  },
+  create: async (payload: {
+    clothing_item_id: number;
+    listing_type: ListingType;
+    title?: string;
+    description?: string;
+    price_cents?: number;
+    condition?: ListingCondition;
+  }): Promise<ClosetListing> => {
+    const response = await api.post<ClosetListing>('/marketplace/listings', payload);
+    return response.data;
+  },
+  markGone: async (listingId: number): Promise<ClosetListing> => {
+    const response = await api.patch<ClosetListing>(`/marketplace/listings/${listingId}`, {
+      status: 'gone',
+    });
+    return response.data;
+  },
+  remove: async (listingId: number): Promise<void> => {
+    await api.delete(`/marketplace/listings/${listingId}`);
+  },
+  interest: async (listingId: number): Promise<ListingInterestResult> => {
+    const response = await api.post<ListingInterestResult>(
+      `/marketplace/listings/${listingId}/interest`,
+    );
     return response.data;
   },
 };

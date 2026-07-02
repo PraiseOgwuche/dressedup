@@ -14,6 +14,7 @@ import { AVATAR_3D_ENABLED } from '../constants/avatar';
 import { ClosetItem } from '../types';
 import { Button } from './ui/Button';
 import { OutfitSlotKey } from './OutfitCard';
+import { OutfitLookBoard } from './OutfitLookBoard';
 import { OutfitAvatarViewer } from './avatar/OutfitAvatarViewer';
 
 interface OutfitHeroProps {
@@ -61,13 +62,14 @@ export function OutfitHero({
   const [avatarFailed, setAvatarFailed] = useState(false);
   const use3dAvatar = AVATAR_3D_ENABLED && !avatarFailed;
 
-  const pieces = [
+  const slots = [
     { key: 'top' as const, label: 'Top', item: top },
     { key: 'bottom' as const, label: 'Bottom', item: bottom },
     { key: 'shoes' as const, label: 'Shoes', item: shoes },
     { key: 'outerwear' as const, label: 'Layer', item: outerwear },
-  ].filter((p) => p.item);
+  ];
 
+  const pieces = slots.filter((p) => p.item);
   const hasOutfit = pieces.length > 0;
 
   const renderGallery = (compact = false) => (
@@ -156,7 +158,11 @@ export function OutfitHero({
               ) : null}
             </>
           ) : (
-            renderGallery(false)
+            <OutfitLookBoard
+              slots={slots}
+              swappingSlot={swappingSlot}
+              onSwapSlot={onSwapSlot}
+            />
           )}
         </>
       ) : (
@@ -167,12 +173,23 @@ export function OutfitHero({
       )}
 
       {!!rationale && (
-        <Text style={styles.rationale}>{rationale}</Text>
+        <View style={styles.rationalePill}>
+          <Text style={styles.rationale}>{rationale}</Text>
+        </View>
       )}
 
       <View style={styles.actions}>
         {onShuffle ? (
-          <Button title="Shuffle outfit" variant="editorial" loading={loading} onPress={onShuffle} style={styles.actionBtn} />
+          <Button title="Shuffle" variant="editorial" loading={loading} onPress={onShuffle} style={styles.actionBtn} />
+        ) : null}
+        {hasOutfit && onWore ? (
+          <Button
+            title="I wore this"
+            variant="editorialOutline"
+            loading={woreLoading}
+            onPress={onWore}
+            style={styles.actionBtn}
+          />
         ) : null}
         {hasOutfit && (onLike || onDislike) ? (
           <View style={styles.feedbackRow}>
@@ -189,10 +206,6 @@ export function OutfitHero({
           </View>
         ) : null}
       </View>
-
-      {hasOutfit && onWore ? (
-        <Button title="I wore this" variant="editorialOutline" loading={woreLoading} onPress={onWore} />
-      ) : null}
     </View>
   );
 }
@@ -264,13 +277,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swapText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  rationalePill: {
+    marginTop: 16,
+    backgroundColor: THEME.editorial.pill,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: THEME.editorial.border,
+  },
   rationale: {
     fontFamily: FONTS.serif,
     fontSize: 15,
     lineHeight: 22,
     color: THEME.editorial.textMuted,
-    marginTop: 16,
     fontStyle: 'italic',
+    textAlign: 'center',
   },
   emptyHero: {
     backgroundColor: THEME.editorial.surface,

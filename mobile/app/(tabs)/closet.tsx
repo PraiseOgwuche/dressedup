@@ -11,17 +11,19 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 
-import { COLORS, mediaUrl, TAXONOMY } from '../../constants/config';
-import { THEME, SHADOW, utilityTitle } from '../../constants/theme';
+import { mediaUrl, TAXONOMY } from '../../constants/config';
+import { THEME, SHADOW, utilityTitle, FONTS } from '../../constants/theme';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ChipSelect } from '../../components/ui/ChipSelect';
+import { ClosetGridCard } from '../../components/closet/ClosetGridCard';
 import { closetAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { useClosetStore } from '../../store/closetStore';
@@ -158,6 +160,7 @@ export default function ClosetScreen() {
   };
 
   const cleanCount = useMemo(() => items.filter((i) => i.is_clean).length, [items]);
+  const dirtyCount = useMemo(() => items.filter((i) => !i.is_clean).length, [items]);
 
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -589,65 +592,59 @@ export default function ClosetScreen() {
     ]);
   };
 
-  const renderItem = ({ item }: { item: ClosetItem }) => {
-    const thumb = mediaUrl(item.thumbnail_url ?? item.image_url);
-    return (
-      <Pressable style={styles.gridCard} onPress={() => openEdit(item)}>
-        <View style={styles.thumbWrap}>
-          {thumb ? (
-            <Image source={{ uri: thumb }} style={styles.thumb} resizeMode="cover" />
-          ) : (
-            <View style={styles.thumbPlaceholder}>
-              <Text style={styles.thumbEmoji}>👕</Text>
-            </View>
-          )}
-          {item.needs_review ? <Text style={styles.reviewBadge}>Review</Text> : null}
-          {!item.is_clean ? <Text style={styles.dirtyBadge}>Dirty</Text> : null}
-        </View>
-        <Text style={styles.gridName} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.gridMeta} numberOfLines={1}>
-          {item.brand ? `${item.brand} • ` : ''}{item.category}
-        </Text>
-      </Pressable>
-    );
-  };
+  const renderItem = ({ item }: { item: ClosetItem }) => (
+    <ClosetGridCard item={item} onPress={() => openEdit(item)} />
+  );
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Closet</Text>
-        <Text style={styles.subtitle}>
-          {items.length
-            ? `${filteredItems.length} piece${filteredItems.length === 1 ? '' : 's'} · ${cleanCount} clean`
-            : 'Snap a flat-lay or add items to get started'}
-        </Text>
-      </View>
-      <View style={styles.toolbar}>
-        <Button title="+ Add" onPress={openAddMenu} />
+  const listHeader = items.length > 0 ? (
+    <View style={styles.listHeader}>
+      <View style={styles.statsRow}>
+        <Pressable
+          style={[styles.statPill, cleanFilter === 'all' && styles.statPillActive]}
+          onPress={() => setCleanFilter('all')}
+        >
+          <Text style={[styles.statValue, cleanFilter === 'all' && styles.statValueActive]}>{items.length}</Text>
+          <Text style={[styles.statLabel, cleanFilter === 'all' && styles.statLabelActive]}>All</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.statPill, cleanFilter === 'clean' && styles.statPillActive]}
+          onPress={() => setCleanFilter('clean')}
+        >
+          <Text style={[styles.statValue, cleanFilter === 'clean' && styles.statValueActive]}>{cleanCount}</Text>
+          <Text style={[styles.statLabel, cleanFilter === 'clean' && styles.statLabelActive]}>Clean</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.statPill, cleanFilter === 'dirty' && styles.statPillActive]}
+          onPress={() => setCleanFilter('dirty')}
+        >
+          <Text style={[styles.statValue, cleanFilter === 'dirty' && styles.statValueActive]}>{dirtyCount}</Text>
+          <Text style={[styles.statLabel, cleanFilter === 'dirty' && styles.statLabelActive]}>Hamper</Text>
+        </Pressable>
       </View>
 
-      {items.length > 0 ? (
-        <View style={styles.filters}>
-          <Input
-            label="Search"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Name, brand, color…"
-          />
-          <ChipSelect
-            label="Category"
-            options={TAXONOMY.categories}
-            selected={categoryFilter}
-            onSelect={(v) => setCategoryFilter((prev) => (prev === v ? '' : v))}
-          />
-          <ChipSelect
-            label="Laundry"
-            options={['all', 'clean', 'dirty']}
-            selected={cleanFilter}
-            onSelect={(v) => setCleanFilter(v as 'all' | 'clean' | 'dirty')}
-          />
-        </View>
-      ) : null}
+      <TextInput
+        style={styles.searchInput}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search name, brand, color…"
+        placeholderTextColor={THEME.utility.textMuted}
+        clearButtonMode="while-editing"
+      />
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+        {TAXONOMY.categories.map((cat) => {
+          const active = categoryFilter === cat;
+          return (
+            <Pressable
+              key={cat}
+              style={[styles.filterChip, active && styles.filterChipActive]}
+              onPress={() => setCategoryFilter((prev) => (prev === cat ? '' : cat))}
+            >
+              <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{cat}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
 
       {laundry ? (
         <View style={[styles.laundryBanner, laundry.laundry_due && styles.laundryBannerDue]}>
@@ -656,11 +653,29 @@ export default function ClosetScreen() {
           </Text>
           {laundry.dirty_count > 0 ? (
             <Pressable onPress={handleWashAll} style={styles.laundryActionBtn}>
-              <Text style={styles.laundryActionText}>I did laundry</Text>
+              <Text style={styles.laundryActionText}>Done</Text>
             </Pressable>
           ) : null}
         </View>
       ) : null}
+    </View>
+  ) : null;
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.headerRow}>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Closet</Text>
+          <Text style={styles.subtitle}>
+            {items.length
+              ? `${filteredItems.length} showing`
+              : 'Snap a flat-lay or add items to get started'}
+          </Text>
+        </View>
+        <Pressable style={styles.addFab} onPress={openAddMenu} accessibilityLabel="Add to closet">
+          <Text style={styles.addFabText}>+ Add</Text>
+        </Pressable>
+      </View>
 
       <FlatList
         data={filteredItems}
@@ -669,6 +684,7 @@ export default function ClosetScreen() {
         numColumns={2}
         columnWrapperStyle={filteredItems.length ? styles.row : undefined}
         contentContainerStyle={filteredItems.length ? styles.listContent : styles.emptyContainer}
+        ListHeaderComponent={listHeader}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={fetchItems} />}
         ListEmptyComponent={
           items.length ? (
@@ -855,15 +871,75 @@ export default function ClosetScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: THEME.utility.background },
-  header: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 8 },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerText: { flex: 1, paddingRight: 12 },
   title: { ...utilityTitle(28), textAlign: 'left' },
   subtitle: { fontSize: 14, color: THEME.utility.textMuted, marginTop: 4 },
-  toolbar: { paddingHorizontal: 22, paddingBottom: 12 },
-  filters: { paddingHorizontal: 22, paddingBottom: 8 },
+  addFab: {
+    backgroundColor: THEME.brand.ink,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 22,
+    ...SHADOW.soft,
+  },
+  addFabText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  listHeader: { paddingBottom: 8 },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
+  statPill: {
+    flex: 1,
+    backgroundColor: THEME.utility.surface,
+    borderRadius: 14,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  statPillActive: { backgroundColor: THEME.brand.ink, borderColor: THEME.brand.ink },
+  statValue: { fontFamily: FONTS.sans, fontSize: 18, fontWeight: '800', color: THEME.utility.text },
+  statValueActive: { color: '#fff' },
+  statLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: '600',
+    color: THEME.utility.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  statLabelActive: { color: 'rgba(255,255,255,0.85)' },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    backgroundColor: THEME.utility.surface,
+    color: THEME.utility.text,
+    marginBottom: 12,
+  },
+  filterChips: { gap: 8, paddingBottom: 12 },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: THEME.utility.surface,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  filterChipActive: { backgroundColor: THEME.brand.ink, borderColor: THEME.brand.ink },
+  filterChipText: { fontSize: 13, color: THEME.utility.text, textTransform: 'capitalize' },
+  filterChipTextActive: { color: '#fff', fontWeight: '700' },
   emptyBtn: { marginTop: 12, alignSelf: 'stretch' },
   laundryBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginHorizontal: 22, marginBottom: 12, padding: 14, borderRadius: 14,
+    marginBottom: 12, padding: 14, borderRadius: 14,
     backgroundColor: THEME.utility.surfaceMuted,
   },
   laundryBannerDue: { backgroundColor: '#FFF8EE' },
@@ -881,7 +957,7 @@ const styles = StyleSheet.create({
   wearActions: { flexDirection: 'row', gap: 10 },
   wearBtn: { flex: 1 },
   listContent: { paddingHorizontal: 18, paddingBottom: 40 },
-  row: { gap: 14, marginBottom: 14 },
+  row: { gap: 12, marginBottom: 12 },
   emptyContainer: { flexGrow: 1, justifyContent: 'center', padding: 22 },
   emptyState: {
     alignItems: 'center',
@@ -893,35 +969,6 @@ const styles = StyleSheet.create({
   emptyEmoji: { fontSize: 56, marginBottom: 12 },
   emptyText: { fontSize: 20, fontWeight: '700', color: THEME.utility.text, marginBottom: 8 },
   emptySubtext: { fontSize: 14, color: THEME.utility.textMuted, textAlign: 'center', lineHeight: 20 },
-  gridCard: {
-    flex: 1,
-    backgroundColor: THEME.utility.surface,
-    borderRadius: 16,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: THEME.utility.border,
-    ...SHADOW.soft,
-  },
-  thumbWrap: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: THEME.editorial.pill,
-  },
-  thumb: { width: '100%', height: '100%' },
-  thumbPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  thumbEmoji: { fontSize: 48 },
-  reviewBadge: {
-    position: 'absolute', top: 8, left: 8, fontSize: 11, fontWeight: '700', color: '#fff',
-    backgroundColor: COLORS.warning, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, overflow: 'hidden',
-  },
-  dirtyBadge: {
-    position: 'absolute', top: 8, right: 8, fontSize: 11, fontWeight: '700', color: '#fff',
-    backgroundColor: COLORS.error, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, overflow: 'hidden',
-  },
-  gridName: { marginTop: 8, fontSize: 13, fontWeight: '700', color: THEME.utility.text },
-  gridMeta: { marginTop: 2, fontSize: 11, color: THEME.utility.textMuted },
   overlay: {
     ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)',
     alignItems: 'center', justifyContent: 'center', gap: 12,

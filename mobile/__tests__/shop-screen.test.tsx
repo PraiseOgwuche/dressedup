@@ -1,0 +1,32 @@
+import React from 'react';
+import { render } from '@testing-library/react-native';
+
+import ShopScreen from '../app/(tabs)/shop';
+
+jest.mock('expo-router', () => {
+  const React = require('react');
+  return {
+    useFocusEffect: (cb: () => void) => {
+      React.useEffect(cb, [cb]);
+    },
+  };
+});
+
+jest.mock('../services/api', () => ({
+  shopAPI: {
+    getRecommendations: jest.fn().mockResolvedValue({ summary: 'Top pick ready', recommendations: [] }),
+  },
+  marketplaceAPI: {
+    browse: jest.fn().mockResolvedValue([]),
+    mine: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+describe('ShopScreen', () => {
+  it('renders shop sections', () => {
+    const { getByText } = render(<ShopScreen />);
+    expect(getByText('Shop')).toBeTruthy();
+    expect(getByText('New picks')).toBeTruthy();
+    expect(getByText('Pass it on')).toBeTruthy();
+  });
+});
