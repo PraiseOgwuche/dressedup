@@ -36,6 +36,9 @@ class User(Base):
     outfit_feedback = relationship(
         "OutfitFeedback", back_populates="user", cascade="all, delete-orphan"
     )
+    style_signals = relationship(
+        "StyleSignal", back_populates="user", cascade="all, delete-orphan"
+    )
     following_links = relationship(
         "UserFollow",
         foreign_keys="UserFollow.follower_id",

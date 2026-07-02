@@ -24,6 +24,9 @@ jest.mock('../services/api', () => ({
     browse: jest.fn().mockResolvedValue([]),
     mine: jest.fn().mockResolvedValue([]),
   },
+  styleAPI: {
+    track: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 describe('ShopScreen', () => {

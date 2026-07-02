@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
 import { THEME, FONTS, SHADOW, utilityTitle } from '../../constants/theme';
-import { marketplaceAPI, shopAPI } from '../../services/api';
+import { marketplaceAPI, shopAPI, styleAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { ClosetListing, ListingType, ShopRecommendation } from '../../types';
 import { ShopProductCard } from '../../components/shop/ShopProductCard';
@@ -116,9 +116,27 @@ export default function ShopScreen() {
     if (section === 'passiton') loadPassItOn();
   }, [passFilter, search, section, loadPassItOn]);
 
-  const openProduct = useCallback((url: string) => {
-    void openExternalUrl(url);
+  const trackStyle = useCallback((payload: Parameters<typeof styleAPI.track>[0]) => {
+    void styleAPI.track(payload).catch(() => {
+      // non-blocking personalization signal
+    });
   }, []);
+
+  const openProduct = useCallback(
+    (item: ShopRecommendation) => {
+      trackStyle({ event_type: 'shop_tap', product_id: item.product_id });
+      void openExternalUrl(item.buy_url || item.product_url);
+    },
+    [trackStyle],
+  );
+
+  const previewOutfits = useCallback(
+    (item: ShopRecommendation) => {
+      trackStyle({ event_type: 'shop_preview', product_id: item.product_id });
+      setPreviewProduct(item);
+    },
+    [trackStyle],
+  );
 
   const renderPicks = () => (
     <FlatList
@@ -172,8 +190,8 @@ export default function ShopScreen() {
       renderItem={({ item }) => (
         <ShopProductCard
           item={item}
-          onOpen={() => openProduct(item.buy_url || item.product_url)}
-          onPreviewOutfits={() => setPreviewProduct(item)}
+          onOpen={() => openProduct(item)}
+          onPreviewOutfits={() => previewOutfits(item)}
         />
       )}
       ItemSeparatorComponent={() => <View style={styles.separator} />}

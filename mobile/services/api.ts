@@ -38,6 +38,7 @@ import {
   OutfitFeedbackPayload,
   OutfitSwapOptions,
   OutfitSlotKey,
+  StyleSignalPayload,
 } from '../types';
 
 type ImageUpload = { uri: string; name?: string | null; mimeType?: string | null };
@@ -303,6 +304,12 @@ export const outfitAPI = {
   feedback: async (payload: OutfitFeedbackPayload) => {
     const response = await api.post('/outfits/feedback', payload);
     return response.data;
+  },
+};
+
+export const styleAPI = {
+  track: async (payload: StyleSignalPayload): Promise<void> => {
+    await api.post('/style/signals', payload);
   },
 };
 

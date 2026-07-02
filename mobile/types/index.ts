@@ -410,6 +410,28 @@ export interface ShopRecommendationsResponse {
   recommendations: ShopRecommendation[];
 }
 
+export type StyleEventType =
+  | 'like'
+  | 'dislike'
+  | 'wore'
+  | 'swap'
+  | 'shop_tap'
+  | 'shop_preview'
+  | 'feed_share'
+  | 'feed_like';
+
+export interface StyleSignalPayload {
+  event_type: StyleEventType;
+  top_id?: number | null;
+  bottom_id?: number | null;
+  shoes_id?: number | null;
+  outerwear_id?: number | null;
+  product_id?: string | null;
+  post_id?: number | null;
+  occasion?: string | null;
+  weather_tag?: string | null;
+}
+
 export type ListingType = 'sell' | 'gift';
 export type ListingCondition = 'like_new' | 'good' | 'fair';
 export type ListingStatus = 'active' | 'gone' | 'removed';

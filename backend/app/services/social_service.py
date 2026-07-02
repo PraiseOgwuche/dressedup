@@ -22,6 +22,7 @@ from app.schemas.social import (
     SocialUserSummary,
 )
 from app.services.storage import get_storage_provider
+from app.services.style_signal_service import StyleSignalService
 
 
 class SocialService:
@@ -218,6 +219,17 @@ class SocialService:
         db.add(post)
         db.commit()
         db.refresh(post)
+        StyleSignalService.record(
+            db,
+            user_id,
+            "feed_share",
+            top_id=payload.top_id,
+            bottom_id=payload.bottom_id,
+            shoes_id=payload.shoes_id,
+            outerwear_id=payload.outerwear_id,
+            post_id=post.id,
+            occasion=occasion,
+        )
         post = SocialService._post_query(db).filter(SocialPost.id == post.id).one()
         return SocialService._serialize_post(post, viewer_id=user_id)
 
@@ -250,6 +262,17 @@ class SocialService:
             db.add(SocialPostLike(post_id=post_id, user_id=user_id))
             post.reactions_count = (post.reactions_count or 0) + 1
             liked = True
+            StyleSignalService.record(
+                db,
+                user_id,
+                "feed_like",
+                top_id=post.top_id,
+                bottom_id=post.bottom_id,
+                shoes_id=post.shoes_id,
+                outerwear_id=post.outerwear_id,
+                post_id=post.id,
+                occasion=post.occasion,
+            )
 
         db.commit()
         db.refresh(post)

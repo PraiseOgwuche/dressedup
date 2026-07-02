@@ -17,6 +17,7 @@ from app.fashion import FashionMatcher, MatchContext
 from app.fashion.style_rules import needs_outerwear, weather_seasons
 from app.models.clothing_item import ClothingItem
 from app.services.preference_service import PreferenceService
+from app.services.style_signal_service import StyleSignalService
 
 _SLOT_CAP = 10
 _VARIETY_MARGIN = 0.12
@@ -317,6 +318,27 @@ class OutfitService:
         )
         if rationale:
             rationale = f"Swapped the {swapped} — kept the rest. {rationale}"
+
+        replaced_item = {
+            "top": locked_top,
+            "bottom": locked_bottom,
+            "shoes": locked_shoes,
+            "outerwear": locked_outerwear,
+        }[swap_slot]
+
+        StyleSignalService.record(
+            db,
+            user_id,
+            "swap",
+            top_id=chosen_top.id if chosen_top else None,
+            bottom_id=chosen_bottom.id if chosen_bottom else None,
+            shoes_id=chosen_shoes.id if chosen_shoes else None,
+            outerwear_id=chosen_outerwear.id if chosen_outerwear else None,
+            swap_slot=swap_slot,
+            replaced_item_id=replaced_item.id if replaced_item else None,
+            occasion=occasion,
+            weather_tag=weather_tag,
+        )
 
         return {
             "title": f"New {swapped} suggestion",
