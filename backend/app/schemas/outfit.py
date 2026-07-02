@@ -18,6 +18,7 @@ class OutfitSuggestion(BaseModel):
     occasion: Optional[str] = None
     trend: Optional[str] = None
     rationale: Optional[str] = None
+    styling_note: Optional[str] = None
     top: Optional[ClothingItemResponse] = None
     bottom: Optional[ClothingItemResponse] = None
     shoes: Optional[ClothingItemResponse] = None

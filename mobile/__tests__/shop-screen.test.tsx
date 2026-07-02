@@ -18,7 +18,11 @@ jest.mock('../services/openUrl', () => ({
 
 jest.mock('../services/api', () => ({
   shopAPI: {
-    getRecommendations: jest.fn().mockResolvedValue({ summary: 'Top pick ready', recommendations: [] }),
+    getRecommendations: jest.fn().mockResolvedValue({
+      summary: 'Top pick ready',
+      styling_insight: 'Add versatile bottoms to unlock more outfits.',
+      recommendations: [],
+    }),
   },
   marketplaceAPI: {
     browse: jest.fn().mockResolvedValue([]),

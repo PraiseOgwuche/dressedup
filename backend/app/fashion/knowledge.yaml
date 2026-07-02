@@ -4,7 +4,7 @@
 # conventions; dress-code references (business casual, black-tie adjacent).
 
 meta:
-  version: 3
+  version: 4
   description: Universal outfit-matching rules before user personalization.
 
 colors:
@@ -117,6 +117,17 @@ colors:
     - [mustard, navy]
     - [rust, cream]
     - [rust, denim]
+    - [espresso, cream]
+    - [espresso, camel]
+    - [powder-blue, white]
+    - [forest, cream]
+    - [wine, gray]
+    - [wine, grey]
+    - [cobalt, white]
+    - [cobalt, tan]
+    - [charcoal, camel]
+    - [black, camel]
+    - [black, tan]
   clashing_pairings:
     - [red, green]
     - [orange, pink]
@@ -169,6 +180,24 @@ occasions:
     formality_gap_max: 3
     min_formality: loungewear
     color_palette: [gray, grey, black, cream, oatmeal, beige, soft-pink, lavender, white]
+  brunch:
+    formality_gap_max: 2
+    min_formality: casual
+    color_palette: [cream, white, blush, sage, denim, tan, camel, light-blue, olive, stripe]
+  interview:
+    formality_gap_max: 1
+    min_formality: smart-casual
+    banned_footwear: [sneakers, sandals, slides, flip-flops, trainers]
+    color_palette: [navy, charcoal, gray, grey, white, black, beige, brown, cream]
+  wedding-guest:
+    formality_gap_max: 1
+    min_formality: smart-casual
+    banned_footwear: [flip-flops, slides]
+    color_palette: [navy, emerald, blush, lavender, cream, gold, burgundy, sage, charcoal]
+  coffee-run:
+    formality_gap_max: 3
+    min_formality: loungewear
+    color_palette: [denim, white, gray, grey, black, beige, olive, cream, tan, navy]
 
 patterns:
   statement:
@@ -312,3 +341,113 @@ trends:
     avoid_patterns: [graphic, camo]
     materials: [wool, cotton, leather, silk, cashmere, linen]
     footwear: [loafers, oxfords, heels, boots, brogues]
+  dark-academia:
+    label: Dark academia
+    formality: [smart-casual, business, casual]
+    colors: [brown, espresso, charcoal, forest, burgundy, cream, tan, olive, navy, black]
+    patterns: [solid, plaid, checked, striped]
+    avoid_patterns: [graphic, neon, camo]
+    materials: [wool, tweed, cotton, leather, cashmere, corduroy]
+    footwear: [loafers, boots, oxfords, brogues, derbies]
+  coastal:
+    label: Coastal
+    formality: [casual, smart-casual]
+    colors: [white, navy, sand, cream, light-blue, tan, sage, denim, coral, stripe]
+    patterns: [solid, striped]
+    avoid_patterns: [graphic, camo, animal-print]
+    materials: [linen, cotton, denim, canvas, leather]
+    footwear: [sandals, sneakers, boat-shoes, loafers, espadrilles]
+  old-money:
+    label: Old money
+    formality: [smart-casual, business, formal]
+    colors: [navy, cream, camel, white, forest, burgundy, tan, charcoal, beige, brown]
+    patterns: [solid, striped, checked]
+    avoid_patterns: [graphic, camo, neon]
+    materials: [wool, cashmere, silk, linen, cotton, leather]
+    footwear: [loafers, boat-shoes, oxfords, heels, brogues]
+  sporty-chic:
+    label: Sporty chic
+    formality: [casual, smart-casual, loungewear]
+    colors: [white, black, gray, grey, navy, cream, olive, tan, red, cobalt]
+    patterns: [solid]
+    avoid_patterns: [graphic, camo, animal-print]
+    materials: [cotton, nylon, fleece, denim, leather, elastane]
+    footwear: [sneakers, trainers, boots, sandals]
+
+# Balanced silhouette pairings — proportion harmony.
+silhouette:
+  balanced_pairs:
+    - top_fit: [oversized, relaxed, boxy, hoodie, sweater, crewneck]
+      bottom_fit: [slim, skinny, tailored, straight, chinos, trousers]
+      bonus: 0.45
+      note: relaxed top with cleaner bottom
+    - top_fit: [fitted, slim, tank, bodysuit, cropped]
+      bottom_fit: [wide-leg, palazzo, relaxed, baggy, wide, flare]
+      bonus: 0.40
+      note: fitted top balances volume on the bottom
+    - top_fit: [tunic, longline, duster]
+      bottom_fit: [slim, skinny, leggings, straight]
+      bonus: 0.35
+      note: long top needs a streamlined base
+
+# Classic outfit formulas — archetype bonuses when slots align.
+archetypes:
+  - name: smart separate
+    slots:
+      top: [blazer, jacket, oxford, shirt, sweater]
+      bottom: [trousers, chinos, slacks, dress-pants]
+      footwear: [loafers, oxfords, brogues, derbies, heels, boots]
+    bonus: 0.50
+  - name: casual uniform
+    slots:
+      top: [t-shirt, tee, henley, sweatshirt]
+      bottom: [jeans, denim, chinos, shorts]
+      footwear: [sneakers, trainers, sandals, boots]
+    bonus: 0.35
+  - name: weekend polish
+    slots:
+      top: [polo, oxford, sweater, knit]
+      bottom: [chinos, trousers, jeans]
+      footwear: [loafers, boat-shoes, sneakers, boots]
+    bonus: 0.40
+  - name: evening out
+    slots:
+      top: [blouse, shirt, bodysuit, knit, blazer]
+      bottom: [trousers, skirt, dress-pants, jeans]
+      footwear: [heels, boots, loafers, dress-shoes]
+    bonus: 0.45
+
+# Rule-based closet gap hints (used when LLM stylist is off).
+gap_priorities:
+  - category: bottom
+    unlock_weight: 1.0
+    hint: "Versatile bottoms anchor most outfits — chinos or dark denim unlock the most tops."
+  - category: footwear
+    unlock_weight: 0.9
+    hint: "Shoes set the tone — one clean sneaker and one smart pair cover most occasions."
+  - category: top
+    unlock_weight: 0.85
+    hint: "Neutral tops multiply combinations — white, navy, and grey tees go with everything."
+  - category: outerwear
+    unlock_weight: 0.7
+    hint: "A layer piece extends seasonal range without replacing your core wardrobe."
+
+# Weather layering guidance.
+weather_layering:
+  cold:
+    prefer_outerwear: true
+    bonus_materials: [wool, cashmere, fleece, down, leather]
+  rainy:
+    prefer_outerwear: true
+    bonus_materials: [nylon, polyester, waxed-cotton, gore-tex]
+  snow:
+    prefer_outerwear: true
+    bonus_materials: [wool, down, fleece, thermal]
+  mild:
+    prefer_outerwear: false
+  warm:
+    prefer_outerwear: false
+    prefer_materials: [linen, cotton, jersey]
+  hot:
+    prefer_outerwear: false
+    prefer_materials: [linen, cotton, mesh, jersey]

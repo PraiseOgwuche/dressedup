@@ -23,6 +23,7 @@ interface OutfitHeroProps {
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
   rationale?: string | null;
+  stylingNote?: string | null;
   interpretation?: string | null;
   loading?: boolean;
   onShuffle?: () => void;
@@ -48,6 +49,7 @@ export function OutfitHero({
   shoes,
   outerwear,
   rationale,
+  stylingNote,
   interpretation,
   loading,
   onShuffle,
@@ -120,6 +122,8 @@ export function OutfitHero({
     </ScrollView>
   );
 
+  const styleNote = stylingNote || rationale;
+
   return (
     <View style={styles.wrap}>
       {interpretation ? (
@@ -172,9 +176,9 @@ export function OutfitHero({
         </View>
       )}
 
-      {!!rationale && (
+      {!!styleNote && (
         <View style={styles.rationalePill}>
-          <Text style={styles.rationale}>{rationale}</Text>
+          <Text style={styles.rationale}>{styleNote}</Text>
         </View>
       )}
 

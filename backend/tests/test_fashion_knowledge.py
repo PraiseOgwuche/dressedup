@@ -15,8 +15,8 @@ from types import SimpleNamespace
 
 def test_knowledge_yaml_loads():
     data = load_knowledge()
-    assert data["meta"]["version"] >= 3
-    assert knowledge_version() >= 3
+    assert data["meta"]["version"] >= 4
+    assert knowledge_version() >= 4
     assert len(classic_color_pairings()) >= 20
     assert "quiet-luxury" in trend_profiles()
     assert "work" in occasion_color_palettes()

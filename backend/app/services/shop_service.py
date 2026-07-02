@@ -10,6 +10,7 @@ from app.fashion import MatchContext
 from app.fashion.style_rules import weather_seasons
 from app.models.clothing_item import ClothingItem
 from app.services.outfit_service import OutfitService
+from app.services.stylist_service import StylistService
 from app.shop.catalog import CatalogProduct, load_catalog
 
 _MIN_OUTFIT_SCORE = 0.48
@@ -336,8 +337,10 @@ class ShopService:
         category_filter = category.lower().strip() if category else None
 
         if len(items) < 2:
+            summary = "Add a few more pieces to your closet — we'll show what to buy next."
             return {
-                "summary": "Add a few more pieces to your closet — we'll show what to buy next.",
+                "summary": summary,
+                "styling_insight": StylistService.shop_insight(db, user_id, summary=summary, top_pick=None),
                 "recommendations": [],
             }
 
@@ -387,7 +390,16 @@ class ShopService:
                 f"~{top['outfit_count']} new outfits from what you own."
             )
 
+        top_pick = scored[0] if scored else None
+        styling_insight = StylistService.shop_insight(
+            db,
+            user_id,
+            summary=summary,
+            top_pick=top_pick,
+        )
+
         return {
             "summary": summary,
+            "styling_insight": styling_insight,
             "recommendations": scored[:8],
         }

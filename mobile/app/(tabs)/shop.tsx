@@ -46,6 +46,7 @@ export default function ShopScreen() {
   const [passMode, setPassMode] = useState<PassMode>('browse');
 
   const [summary, setSummary] = useState('');
+  const [stylingInsight, setStylingInsight] = useState('');
   const [recommendations, setRecommendations] = useState<ShopRecommendation[]>([]);
   const [pickCategory, setPickCategory] = useState('');
   const [pickLoading, setPickLoading] = useState(false);
@@ -74,6 +75,7 @@ export default function ShopScreen() {
     try {
       const response = await shopAPI.getRecommendations(pickCategory || undefined);
       setSummary(response.summary);
+      setStylingInsight(response.styling_insight ?? '');
       setRecommendations(response.recommendations);
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not load shop picks.'));
@@ -148,6 +150,7 @@ export default function ShopScreen() {
       ListHeaderComponent={
         <View style={styles.listHeader}>
           {summary ? <Text style={styles.summary}>{summary}</Text> : null}
+          {stylingInsight ? <Text style={styles.insight}>{stylingInsight}</Text> : null}
           {recommendations.length > 0 ? (
             <View style={styles.statsRow}>
               <View style={styles.statPill}>
@@ -355,6 +358,12 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 40, gap: 14 },
   listHeader: { gap: 12, marginBottom: 8 },
   summary: { fontSize: 15, lineHeight: 22, color: THEME.utility.text, fontWeight: '600' },
+  insight: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: THEME.utility.textMuted,
+    fontStyle: 'italic',
+  },
   statsRow: { flexDirection: 'row', gap: 10 },
   statPill: {
     flex: 1,

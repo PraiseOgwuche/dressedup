@@ -166,6 +166,7 @@ export interface OutfitSuggestion {
   occasion?: string | null;
   trend?: string | null;
   rationale?: string | null;
+  styling_note?: string | null;
   top?: ClosetItem | null;
   bottom?: ClosetItem | null;
   shoes?: ClosetItem | null;
@@ -407,6 +408,7 @@ export interface ShopRecommendation {
 
 export interface ShopRecommendationsResponse {
   summary: string;
+  styling_insight?: string | null;
   recommendations: ShopRecommendation[];
 }
 

@@ -41,4 +41,5 @@ class ShopRecommendation(BaseModel):
 
 class ShopRecommendationResponse(BaseModel):
     summary: str
+    styling_insight: Optional[str] = None
     recommendations: List[ShopRecommendation]

@@ -10,12 +10,15 @@ from app.fashion.color_harmony import outfit_color_score
 from app.fashion.context import MatchContext
 from app.fashion.style_rules import (
     needs_outerwear,
+    score_archetype,
     score_footwear,
     score_formality,
     score_occasion_fit,
     score_patterns,
     score_season,
+    score_silhouette,
     score_textures,
+    score_weather_materials,
 )
 from app.fashion.trend_rules import score_occasion_palette, score_trend_fit
 
@@ -23,15 +26,18 @@ if TYPE_CHECKING:
     from app.models.clothing_item import ClothingItem
 
 # Layer 1 weights (fashion standards). Sum of absolute weights ~= 1.0 scale target.
-_W_COLOR = 0.26
-_W_FORMALITY = 0.18
-_W_PATTERN = 0.10
+_W_COLOR = 0.24
+_W_FORMALITY = 0.17
+_W_PATTERN = 0.09
 _W_TEXTURE = 0.07
-_W_FOOTWEAR = 0.10
-_W_SEASON = 0.08
+_W_FOOTWEAR = 0.09
+_W_SEASON = 0.07
 _W_OCCASION = 0.05
-_W_PALETTE = 0.08
-_W_TREND = 0.08
+_W_PALETTE = 0.07
+_W_TREND = 0.07
+_W_SILHOUETTE = 0.05
+_W_ARCHETYPE = 0.05
+_W_WEATHER_MAT = 0.03
 _W_FRESH = 0.02
 
 # Layer 2 — learned preferences can move the needle but not override hard clashes.
@@ -50,6 +56,9 @@ class ScoreBreakdown:
     occasion: float = 0.0
     occasion_palette: float = 0.0
     trend: float = 0.0
+    silhouette: float = 0.0
+    archetype: float = 0.0
+    weather_materials: float = 0.0
     freshness: float = 0.0
     personalization: float = 0.0
     highlights: list[str] = field(default_factory=list)
@@ -136,6 +145,19 @@ class FashionMatcher:
         breakdown.highlights.extend(trend_hi)
         breakdown.warnings.extend(trend_warn)
 
+        sil_raw, sil_hi, sil_warn = score_silhouette(garments)
+        breakdown.silhouette = sil_raw
+        breakdown.highlights.extend(sil_hi)
+        breakdown.warnings.extend(sil_warn)
+
+        arch_raw, arch_hi, _ = score_archetype(garments)
+        breakdown.archetype = arch_raw
+        breakdown.highlights.extend(arch_hi)
+
+        wx_mat_raw, wx_mat_hi, _ = score_weather_materials(garments, context.weather_tag)
+        breakdown.weather_materials = wx_mat_raw
+        breakdown.highlights.extend(wx_mat_hi)
+
         wears = sum((g.times_worn or 0) for g in garments)
         breakdown.freshness = -min(wears * 0.02, 0.25)
 
@@ -152,6 +174,9 @@ class FashionMatcher:
             + _W_OCCASION * breakdown.occasion
             + _W_PALETTE * breakdown.occasion_palette
             + _W_TREND * breakdown.trend
+            + _W_SILHOUETTE * breakdown.silhouette
+            + _W_ARCHETYPE * breakdown.archetype
+            + _W_WEATHER_MAT * breakdown.weather_materials
             + _W_FRESH * breakdown.freshness
             + _W_PERSONAL * personalization
         )

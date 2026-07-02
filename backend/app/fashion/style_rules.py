@@ -6,13 +6,16 @@ from itertools import combinations
 from typing import TYPE_CHECKING, Any, Optional
 
 from app.fashion.knowledge import (
+    archetype_rules,
     category_rules,
     cold_weather_tags,
     footwear_rules,
     occasion_rules,
     pattern_clashes,
+    silhouette_rules,
     statement_patterns,
     texture_rules,
+    weather_layering_rules,
     weather_season_map,
 )
 from app.taxonomy import FORMALITY_LEVELS
@@ -249,4 +252,129 @@ def weather_seasons(weather_tag: Optional[str]) -> set[str]:
 
 
 def needs_outerwear(weather_tag: Optional[str]) -> bool:
-    return weather_tag in cold_weather_tags()
+    if weather_tag in cold_weather_tags():
+        return True
+    layer_rule = weather_layering_rules().get(weather_tag or "", {})
+    return bool(layer_rule.get("prefer_outerwear"))
+
+
+def _fit_tokens(item: ClothingItem) -> set[str]:
+    tokens: set[str] = set()
+    for raw in (
+        (item.subcategory or "").lower(),
+        (getattr(item, "name", None) or "").lower(),
+        (getattr(item, "product_name", None) or "").lower(),
+    ):
+        for part in raw.replace("-", " ").split():
+            if part:
+                tokens.add(part)
+    return tokens
+
+
+def score_silhouette(garments: list[ClothingItem]) -> tuple[float, list[str], list[str]]:
+    """Proportion balance — e.g. relaxed top + slim bottom."""
+    tops = [g for g in garments if (g.category or "").lower() in {"top", "outerwear"}]
+    bottoms = [g for g in garments if (g.category or "").lower() == "bottom"]
+    if not tops or not bottoms:
+        return 0.0, [], []
+
+    top_tokens = set()
+    for top in tops:
+        top_tokens |= _fit_tokens(top)
+    bottom_tokens = set()
+    for bottom in bottoms:
+        bottom_tokens |= _fit_tokens(bottom)
+
+    highlights: list[str] = []
+    warnings: list[str] = []
+    best = 0.0
+    for rule in silhouette_rules().get("balanced_pairs", []):
+        top_fit = set(rule.get("top_fit", []))
+        bottom_fit = set(rule.get("bottom_fit", []))
+        if top_tokens & top_fit and bottom_tokens & bottom_fit:
+            bonus = float(rule.get("bonus", 0.3))
+            best = max(best, bonus)
+            note = rule.get("note")
+            if note:
+                highlights.append(note)
+
+    if best == 0.0 and len(tops) > 0 and len(bottoms) > 0:
+        # Both oversized can read sloppy unless intentional streetwear.
+        oversized_markers = {"oversized", "boxy", "baggy", "wide", "wide-leg", "relaxed"}
+        if (top_tokens & oversized_markers) and (bottom_tokens & oversized_markers):
+            return -0.15, [], ["double-volume silhouette — try balancing proportions"]
+
+    return max(-1.0, min(1.0, best)), highlights, warnings
+
+
+def _slot_label(item: ClothingItem) -> str:
+    return ((item.subcategory or item.category) or "").lower()
+
+
+def score_archetype(garments: list[ClothingItem]) -> tuple[float, list[str], list[str]]:
+    """Bonus when outfit matches a classic formula from the knowledge base."""
+    if len(garments) < 2:
+        return 0.0, [], []
+
+    slot_map = {
+        "top": [g for g in garments if (g.category or "").lower() in {"top", "outerwear"}],
+        "bottom": [g for g in garments if (g.category or "").lower() == "bottom"],
+        "footwear": [
+            g
+            for g in garments
+            if (g.category or "").lower() in {"footwear", "shoes", "sneakers", "boots", "heels", "sandals"}
+        ],
+    }
+
+    best_score = 0.0
+    best_name = ""
+    for archetype in archetype_rules():
+        slots = archetype.get("slots", {})
+        if not slots:
+            continue
+        matches = 0
+        checked = 0
+        for slot_name, hints in slots.items():
+            items = slot_map.get(slot_name, [])
+            if not items:
+                continue
+            checked += 1
+            hint_set = {h.lower() for h in hints}
+            if any(any(token in _slot_label(item) for token in hint_set) for item in items):
+                matches += 1
+        if checked >= 2 and matches >= max(2, checked - 1):
+            score = float(archetype.get("bonus", 0.35)) * (matches / checked)
+            if score > best_score:
+                best_score = score
+                best_name = archetype.get("name", "classic look")
+
+    highlights = [f"{best_name} formula"] if best_name and best_score > 0 else []
+    return max(-1.0, min(1.0, best_score)), highlights, []
+
+
+def score_weather_materials(
+    garments: list[ClothingItem],
+    weather_tag: Optional[str],
+) -> tuple[float, list[str], list[str]]:
+    """Light bonus for weather-appropriate fabrics from knowledge.yaml."""
+    if not weather_tag:
+        return 0.0, [], []
+    rule = weather_layering_rules().get(weather_tag, {})
+    if not rule:
+        return 0.0, [], []
+
+    prefer = {m.lower() for m in rule.get("prefer_materials", []) + rule.get("bonus_materials", [])}
+    if not prefer:
+        return 0.0, [], []
+
+    hits = 0
+    for garment in garments:
+        material = (getattr(garment, "material", None) or "").lower()
+        if material and any(token in material for token in prefer):
+            hits += 1
+
+    if hits == 0:
+        return 0.0, [], []
+    ratio = hits / len(garments)
+    score = min(0.6, ratio * 0.8)
+    return score, ["weather-right fabrics"], []

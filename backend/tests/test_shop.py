@@ -39,7 +39,7 @@ def test_shop_recommends_with_outfit_counts(client, auth_header):
     assert response.status_code == 200
     body = response.json()
     assert "summary" in body
-    assert "recommendations" in body
+    assert "styling_insight" in body
     if body["recommendations"]:
         rec = body["recommendations"][0]
         assert rec["outfit_count"] >= 1
@@ -72,3 +72,4 @@ def test_shop_empty_closet_message(client, auth_header):
     body = response.json()
     assert body["recommendations"] == []
     assert "closet" in body["summary"].lower()
+    assert body.get("styling_insight")

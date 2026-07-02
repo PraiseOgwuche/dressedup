@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     VISION_MODEL: str = "claude-haiku-4-5"
     VISION_MAX_IMAGE_PX: int = 768
     VISION_MAX_OUTPUT_TOKENS: int = 600
+
+    # LLM stylist (Phase 4) — outfit notes + shop gap insights. Reuses ANTHROPIC_API_KEY.
+    STYLIST_PROVIDER: str = "stub"
+    STYLIST_MODEL: str = "claude-haiku-4-5"
+    STYLIST_MAX_OUTPUT_TOKENS: int = 400
     # Bulk scan: cap items per batch (bounds token spend) and parallelism for speed.
     MAX_BATCH_ITEMS: int = 15
     INGEST_CONCURRENCY: int = 4

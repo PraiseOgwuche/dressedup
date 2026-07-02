@@ -18,6 +18,7 @@ from app.fashion.style_rules import needs_outerwear, weather_seasons
 from app.models.clothing_item import ClothingItem
 from app.services.preference_service import PreferenceService
 from app.services.style_signal_service import StyleSignalService
+from app.services.stylist_service import StylistService
 
 _SLOT_CAP = 10
 _VARIETY_MARGIN = 0.12
@@ -71,6 +72,24 @@ class OutfitService:
         personal, notes = PreferenceService.personalization_bonus(db, user_id, garments)
         breakdown = FashionMatcher.score_outfit(garments, context, personalization=personal, personal_notes=notes)
         return breakdown.rationale()
+
+    @classmethod
+    def _attach_styling_note(cls, db: Session, user_id: int, payload: dict) -> dict:
+        note = StylistService.enhance_outfit(
+            db,
+            user_id,
+            top=payload.get("top"),
+            bottom=payload.get("bottom"),
+            shoes=payload.get("shoes"),
+            outerwear=payload.get("outerwear"),
+            occasion=payload.get("occasion"),
+            weather_tag=payload.get("weather_tag"),
+            trend=payload.get("trend"),
+            rule_rationale=payload.get("rationale"),
+        )
+        if note:
+            payload["styling_note"] = note
+        return payload
 
     @staticmethod
     def _candidates(
@@ -191,7 +210,10 @@ class OutfitService:
             context,
         )
 
-        return {
+        return cls._attach_styling_note(
+            db,
+            user_id,
+            {
             "title": "Today's outfit suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
@@ -202,7 +224,8 @@ class OutfitService:
             "shoes": chosen_shoes,
             "outerwear": chosen_outerwear,
             "alternatives": alternatives,
-        }
+            },
+        )
 
     @classmethod
     def _swap_piece(
@@ -340,7 +363,10 @@ class OutfitService:
             weather_tag=weather_tag,
         )
 
-        return {
+        return cls._attach_styling_note(
+            db,
+            user_id,
+            {
             "title": f"New {swapped} suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
@@ -351,7 +377,8 @@ class OutfitService:
             "shoes": chosen_shoes,
             "outerwear": chosen_outerwear,
             "alternatives": alternatives,
-        }
+            },
+        )
 
     @classmethod
     def _best_combo(

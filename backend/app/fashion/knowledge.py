@@ -112,5 +112,25 @@ def trend_profiles() -> dict[str, dict[str, Any]]:
     return {name: dict(profile) for name, profile in (raw or {}).items()}
 
 
+@lru_cache
+def silhouette_rules() -> dict[str, Any]:
+    return dict(load_knowledge().get("silhouette", {}))
+
+
+@lru_cache
+def archetype_rules() -> list[dict[str, Any]]:
+    return list(load_knowledge().get("archetypes", []))
+
+
+@lru_cache
+def gap_priorities() -> list[dict[str, Any]]:
+    return list(load_knowledge().get("gap_priorities", []))
+
+
+@lru_cache
+def weather_layering_rules() -> dict[str, Any]:
+    return dict(load_knowledge().get("weather_layering", {}))
+
+
 def knowledge_version() -> int:
     return int(load_knowledge().get("meta", {}).get("version", 1))

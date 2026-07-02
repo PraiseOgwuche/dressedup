@@ -320,6 +320,7 @@ export default function HomeScreen() {
               shoes={suggestion?.shoes}
               outerwear={suggestion?.outerwear}
               rationale={suggestion?.rationale}
+              stylingNote={suggestion?.styling_note}
               interpretation={askInterpretation}
               loading={isLoading || askLoading}
               onShuffle={loadSuggestion}
