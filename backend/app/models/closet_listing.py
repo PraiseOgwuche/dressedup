@@ -26,3 +26,4 @@ class ClosetListing(Base):
 
     user = relationship("User")
     item = relationship("ClothingItem")
+    interests = relationship("ListingInterest", back_populates="listing", cascade="all, delete-orphan")

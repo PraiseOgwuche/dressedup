@@ -37,6 +37,8 @@ class ClosetListingResponse(BaseModel):
     condition: ListingCondition
     status: ListingStatus
     is_mine: bool = False
+    interest_count: int = 0
+    i_am_interested: bool = False
     item: ClothingItemResponse
     created_at: datetime
 
@@ -47,3 +49,22 @@ class ClosetListingResponse(BaseModel):
 class ListingInterestResponse(BaseModel):
     mailto: str
     seller_name: str
+    saved: bool = True
+
+
+class ReceivedListingInterest(BaseModel):
+    id: int
+    listing_id: int
+    listing_title: str
+    listing_status: ListingStatus
+    buyer_user_id: int
+    buyer_name: str
+    created_at: datetime
+    mailto: str
+
+
+class MyListingInterest(BaseModel):
+    id: int
+    listing_id: int
+    expressed_at: datetime
+    listing: ClosetListingResponse

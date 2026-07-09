@@ -28,6 +28,8 @@ import {
   ListingType,
   ListingCondition,
   ListingInterestResult,
+  MyListingInterest,
+  ReceivedListingInterest,
   TripPlan,
   TripPackingPlan,
   DailyPlan,
@@ -456,6 +458,20 @@ export const marketplaceAPI = {
     const response = await api.post<ListingInterestResult>(
       `/marketplace/listings/${listingId}/interest`,
     );
+    return response.data;
+  },
+  listingInterests: async (listingId: number): Promise<ReceivedListingInterest[]> => {
+    const response = await api.get<ReceivedListingInterest[]>(
+      `/marketplace/listings/${listingId}/interests`,
+    );
+    return response.data;
+  },
+  receivedInterests: async (): Promise<ReceivedListingInterest[]> => {
+    const response = await api.get<ReceivedListingInterest[]>('/marketplace/interests/received');
+    return response.data;
+  },
+  myInterests: async (): Promise<MyListingInterest[]> => {
+    const response = await api.get<MyListingInterest[]>('/marketplace/interests/mine');
     return response.data;
   },
 };

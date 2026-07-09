@@ -335,7 +335,13 @@ export interface StreakStats {
   timezone: string;
 }
 
-export type FeedActivityType = 'like' | 'comment' | 'follow' | 'new_post' | 'streak_nudge';
+export type FeedActivityType =
+  | 'like'
+  | 'comment'
+  | 'follow'
+  | 'new_post'
+  | 'streak_nudge'
+  | 'listing_interest';
 
 export interface FeedActivityItem {
   id: string;
@@ -344,6 +350,7 @@ export interface FeedActivityItem {
   actor_name: string;
   message: string;
   post_id?: number | null;
+  listing_id?: number | null;
   created_at: string;
   is_unread: boolean;
 }
@@ -507,6 +514,8 @@ export interface ClosetListing {
   condition: ListingCondition;
   status: ListingStatus;
   is_mine: boolean;
+  interest_count?: number;
+  i_am_interested?: boolean;
   item: ClosetItem;
   created_at: string;
 }
@@ -514,4 +523,23 @@ export interface ClosetListing {
 export interface ListingInterestResult {
   mailto: string;
   seller_name: string;
+  saved?: boolean;
+}
+
+export interface ReceivedListingInterest {
+  id: number;
+  listing_id: number;
+  listing_title: string;
+  listing_status: ListingStatus;
+  buyer_user_id: number;
+  buyer_name: string;
+  created_at: string;
+  mailto: string;
+}
+
+export interface MyListingInterest {
+  id: number;
+  listing_id: number;
+  expressed_at: string;
+  listing: ClosetListing;
 }

@@ -8,6 +8,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session, joinedload
 
+from app.models.listing_interest import ListingInterest
+from app.models.closet_listing import ClosetListing
 from app.models.social_post import SocialPost
 from app.models.social_post_comment import SocialPostComment
 from app.models.social_post_like import SocialPostLike
@@ -29,6 +31,7 @@ class _ActivityEvent:
     actor_name: str
     message: str
     post_id: Optional[int]
+    listing_id: Optional[int]
     created_at: datetime
 
 
@@ -88,6 +91,7 @@ class FeedActivityService:
                     actor_name=actor,
                     message=f"liked {label}",
                     post_id=like.post_id,
+                    listing_id=None,
                     created_at=like.created_at,
                 )
             )
@@ -118,6 +122,7 @@ class FeedActivityService:
                     actor_name=actor,
                     message=f'commented: "{preview}"',
                     post_id=comment.post_id,
+                    listing_id=None,
                     created_at=comment.created_at,
                 )
             )
@@ -143,6 +148,7 @@ class FeedActivityService:
                     actor_name=actor,
                     message="started following you",
                     post_id=None,
+                    listing_id=None,
                     created_at=follow.created_at,
                 )
             )
@@ -172,9 +178,40 @@ class FeedActivityService:
                         actor_name=actor,
                         message=f"shared {label}",
                         post_id=post.id,
+                        listing_id=None,
                         created_at=post.created_at,
                     )
                 )
+
+        listing_interests = (
+            db.query(ListingInterest)
+            .join(ClosetListing, ClosetListing.id == ListingInterest.listing_id)
+            .options(joinedload(ListingInterest.user), joinedload(ListingInterest.listing))
+            .filter(
+                ClosetListing.user_id == user_id,
+                ListingInterest.user_id != user_id,
+                ListingInterest.created_at >= cutoff,
+            )
+            .order_by(ListingInterest.created_at.desc())
+            .limit(_MAX_ITEMS)
+            .all()
+        )
+        for interest in listing_interests:
+            listing = interest.listing
+            actor = interest.user.full_name if interest.user else "Someone"
+            title = listing.title if listing else "your listing"
+            events.append(
+                _ActivityEvent(
+                    key=f"listing_interest:{interest.id}",
+                    type="listing_interest",
+                    actor_user_id=interest.user_id,
+                    actor_name=actor,
+                    message=f"is interested in {title}",
+                    post_id=None,
+                    listing_id=interest.listing_id,
+                    created_at=interest.created_at,
+                )
+            )
 
         streak = StreakService.get_streak(db, user_id)
         today = datetime.now(UTC).date()
@@ -190,6 +227,7 @@ class FeedActivityService:
                         "log today's fit on Home."
                     ),
                     post_id=None,
+                    listing_id=None,
                     created_at=datetime.now(UTC),
                 )
             )
@@ -215,6 +253,7 @@ class FeedActivityService:
                     "actor_name": event.actor_name,
                     "message": event.message,
                     "post_id": event.post_id,
+                    "listing_id": event.listing_id,
                     "created_at": event.created_at,
                     "is_unread": is_unread,
                 }

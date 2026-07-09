@@ -10,6 +10,7 @@ from app.models.push_token import PushToken
 from app.models.email_ingest_log import EmailIngestLog
 from app.models.outfit_feedback import OutfitFeedback
 from app.models.closet_listing import ClosetListing
+from app.models.listing_interest import ListingInterest
 from app.models.style_signal import StyleSignal
 from app.models.user_feed_state import UserFeedState
 
@@ -26,6 +27,7 @@ __all__ = [
     "EmailIngestLog",
     "OutfitFeedback",
     "ClosetListing",
+    "ListingInterest",
     "StyleSignal",
     "UserFeedState",
 ]

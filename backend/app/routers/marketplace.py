@@ -10,6 +10,8 @@ from app.schemas.marketplace import (
     ClosetListingResponse,
     ClosetListingUpdate,
     ListingInterestResponse,
+    MyListingInterest,
+    ReceivedListingInterest,
 )
 from app.services.marketplace_service import MarketplaceService
 from app.utils.dependencies import get_current_user
@@ -81,3 +83,28 @@ def express_interest(
     current_user: User = Depends(get_current_user),
 ):
     return MarketplaceService.express_interest(db, current_user.id, listing_id)
+
+
+@router.get("/listings/{listing_id}/interests", response_model=List[ReceivedListingInterest])
+def listing_interests(
+    listing_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return MarketplaceService.list_listing_interests(db, current_user.id, listing_id)
+
+
+@router.get("/interests/received", response_model=List[ReceivedListingInterest])
+def received_interests(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return MarketplaceService.list_received_interests(db, current_user.id)
+
+
+@router.get("/interests/mine", response_model=List[MyListingInterest])
+def my_interests(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return MarketplaceService.list_my_interests(db, current_user.id)

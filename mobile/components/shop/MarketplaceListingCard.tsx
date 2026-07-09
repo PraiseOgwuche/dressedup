@@ -11,6 +11,7 @@ import { ClosetListing } from '../../types';
 type Props = {
   listing: ClosetListing;
   onChanged?: () => void;
+  onViewInterests?: (listing: ClosetListing) => void;
 };
 
 function formatPrice(cents?: number | null) {
@@ -18,7 +19,7 @@ function formatPrice(cents?: number | null) {
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
 
-export function MarketplaceListingCard({ listing, onChanged }: Props) {
+export function MarketplaceListingCard({ listing, onChanged, onViewInterests }: Props) {
   const thumb = mediaUrl(listing.item.thumbnail_url ?? listing.item.image_url);
   const isGift = listing.listing_type === 'gift';
 
@@ -26,6 +27,7 @@ export function MarketplaceListingCard({ listing, onChanged }: Props) {
     try {
       const result = await marketplaceAPI.interest(listing.id);
       await openExternalUrl(result.mailto);
+      onChanged?.();
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not start contact.'));
     }
@@ -98,6 +100,16 @@ export function MarketplaceListingCard({ listing, onChanged }: Props) {
 
         {listing.is_mine ? (
           <View style={styles.ownerRow}>
+            {(listing.interest_count ?? 0) > 0 ? (
+              <Pressable
+                style={styles.interestBtn}
+                onPress={() => onViewInterests?.(listing)}
+              >
+                <Text style={styles.interestBtnText}>
+                  {listing.interest_count} interested
+                </Text>
+              </Pressable>
+            ) : null}
             <Pressable style={styles.secondaryBtn} onPress={markGone}>
               <Text style={styles.secondaryBtnText}>Mark gone</Text>
             </Pressable>
@@ -106,8 +118,13 @@ export function MarketplaceListingCard({ listing, onChanged }: Props) {
             </Pressable>
           </View>
         ) : (
-          <Pressable style={styles.contactBtn} onPress={contactSeller}>
-            <Text style={styles.contactBtnText}>Email seller</Text>
+          <Pressable
+            style={[styles.contactBtn, listing.i_am_interested && styles.contactBtnDone]}
+            onPress={contactSeller}
+          >
+            <Text style={styles.contactBtnText}>
+              {listing.i_am_interested ? "I'm interested ✓" : "I'm interested"}
+            </Text>
           </Pressable>
         )}
       </View>
@@ -180,8 +197,19 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     alignItems: 'center',
   },
+  contactBtnDone: {
+    backgroundColor: THEME.shared.success,
+  },
   contactBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  ownerRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  ownerRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  interestBtn: {
+    width: '100%',
+    backgroundColor: THEME.brand.sand,
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  interestBtnText: { fontSize: 13, fontWeight: '700', color: THEME.utility.text },
   secondaryBtn: {
     flex: 1,
     borderWidth: 1,

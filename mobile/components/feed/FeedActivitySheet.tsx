@@ -19,6 +19,7 @@ const TYPE_EMOJI: Record<FeedActivityItem['type'], string> = {
   follow: '＋',
   new_post: '◎',
   streak_nudge: '🔥',
+  listing_interest: '♻️',
 };
 
 function formatWhen(iso: string): string {

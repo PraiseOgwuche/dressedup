@@ -27,6 +27,7 @@ jest.mock('../services/api', () => ({
   marketplaceAPI: {
     browse: jest.fn().mockResolvedValue([]),
     mine: jest.fn().mockResolvedValue([]),
+    myInterests: jest.fn().mockResolvedValue([]),
   },
   styleAPI: {
     track: jest.fn().mockResolvedValue(undefined),

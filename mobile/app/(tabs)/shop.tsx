@@ -17,16 +17,18 @@ import { THEME, FONTS, SHADOW, utilityTitle } from '../../constants/theme';
 import { marketplaceAPI, shopAPI, styleAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { ShopGapCard } from '../../components/shop/ShopGapCard';
-import { ClosetListing, ListingType, ShopGapCard as ShopGapCardType, ShopRecommendation } from '../../types';
+import { ClosetListing, ListingType, MyListingInterest, ShopGapCard as ShopGapCardType, ShopRecommendation } from '../../types';
 import { ShopProductCard } from '../../components/shop/ShopProductCard';
 import { ShopOutfitPreviewModal } from '../../components/shop/ShopOutfitPreviewModal';
 import { MarketplaceListingCard } from '../../components/shop/MarketplaceListingCard';
+import { MyInterestCard } from '../../components/shop/MyInterestCard';
+import { ListingInterestsSheet } from '../../components/shop/ListingInterestsSheet';
 import { CreateListingModal } from '../../components/shop/CreateListingModal';
 import { Button } from '../../components/ui/Button';
 import { openExternalUrl } from '../../services/openUrl';
 
 type ShopSection = 'picks' | 'passiton';
-type PassMode = 'browse' | 'mine';
+type PassMode = 'browse' | 'mine' | 'interested';
 
 const PICK_CATEGORIES = [
   { label: 'All', value: '' },
@@ -55,10 +57,12 @@ export default function ShopScreen() {
 
   const [listings, setListings] = useState<ClosetListing[]>([]);
   const [myListings, setMyListings] = useState<ClosetListing[]>([]);
+  const [myInterests, setMyInterests] = useState<MyListingInterest[]>([]);
   const [passFilter, setPassFilter] = useState<ListingType | ''>('');
   const [search, setSearch] = useState('');
   const [passLoading, setPassLoading] = useState(false);
   const [listModalOpen, setListModalOpen] = useState(false);
+  const [interestsListing, setInterestsListing] = useState<ClosetListing | null>(null);
   const [previewProduct, setPreviewProduct] = useState<ShopRecommendation | null>(null);
 
   const listedItemIds = useMemo(
@@ -90,15 +94,17 @@ export default function ShopScreen() {
   const loadPassItOn = useCallback(async () => {
     setPassLoading(true);
     try {
-      const [browse, mine] = await Promise.all([
+      const [browse, mine, interested] = await Promise.all([
         marketplaceAPI.browse({
           listing_type: passFilter || undefined,
           q: search.trim() || undefined,
         }),
         marketplaceAPI.mine(),
+        marketplaceAPI.myInterests(),
       ]);
       setListings(browse);
       setMyListings(mine);
+      setMyInterests(interested);
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not load listings.'));
     } finally {
@@ -212,20 +218,27 @@ export default function ShopScreen() {
   );
 
   const renderPassItOn = () => {
-    const data = passMode === 'mine' ? myListings.filter((l) => l.status === 'active') : listings;
+    const data =
+      passMode === 'mine'
+        ? myListings.filter((l) => l.status === 'active')
+        : passMode === 'interested'
+          ? []
+          : listings;
+    const interestData = passMode === 'interested' ? myInterests : [];
+    const totalInterestCount = myListings.reduce((sum, l) => sum + (l.interest_count ?? 0), 0);
 
     return (
       <>
         <View style={styles.passToolbar}>
           <View style={styles.passModeRow}>
-            {(['browse', 'mine'] as PassMode[]).map((mode) => (
+            {(['browse', 'mine', 'interested'] as PassMode[]).map((mode) => (
               <Pressable
                 key={mode}
                 style={[styles.passModePill, passMode === mode && styles.passModePillActive]}
                 onPress={() => setPassMode(mode)}
               >
                 <Text style={[styles.passModeText, passMode === mode && styles.passModeTextActive]}>
-                  {mode === 'browse' ? 'Browse' : 'My listings'}
+                  {mode === 'browse' ? 'Browse' : mode === 'mine' ? 'My listings' : 'Interested'}
                 </Text>
               </Pressable>
             ))}
@@ -233,6 +246,12 @@ export default function ShopScreen() {
               <Text style={styles.listBtnText}>+ List</Text>
             </Pressable>
           </View>
+
+          {passMode === 'mine' && totalInterestCount > 0 ? (
+            <Text style={styles.interestHint}>
+              {totalInterestCount} buyer{totalInterestCount === 1 ? '' : 's'} interested across your listings
+            </Text>
+          ) : null}
 
           {passMode === 'browse' ? (
             <>
@@ -263,32 +282,52 @@ export default function ShopScreen() {
         </View>
 
         <FlatList
-          data={data}
-          keyExtractor={(item) => item.id.toString()}
+          data={passMode === 'interested' ? interestData : data}
+          keyExtractor={(item) =>
+            passMode === 'interested' ? `interest-${item.id}` : item.id.toString()
+          }
           numColumns={2}
-          columnWrapperStyle={data.length ? styles.gridRow : undefined}
+          columnWrapperStyle={(passMode === 'interested' ? interestData : data).length ? styles.gridRow : undefined}
           onRefresh={loadPassItOn}
           refreshing={passLoading}
-          contentContainerStyle={data.length ? styles.gridList : styles.emptyList}
+          contentContainerStyle={
+            (passMode === 'interested' ? interestData : data).length ? styles.gridList : styles.emptyList
+          }
           ListEmptyComponent={
             !passLoading ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyEmoji}>♻️</Text>
                 <Text style={styles.emptyTitle}>
-                  {passMode === 'mine' ? 'Nothing listed yet' : 'No listings yet'}
+                  {passMode === 'mine'
+                    ? 'Nothing listed yet'
+                    : passMode === 'interested'
+                      ? 'No saved interest yet'
+                      : 'No listings yet'}
                 </Text>
                 <Text style={styles.emptyBody}>
                   {passMode === 'mine'
-                    ? 'List pieces you want to sell or gift. Others contact you by email.'
-                    : 'Be the first to pass something on — or check back as the community grows.'}
+                    ? 'List pieces you want to sell or gift. Buyers show up in your interest list.'
+                    : passMode === 'interested'
+                      ? 'Tap I\'m interested on a listing — it\'ll show here so you can follow up.'
+                      : 'Be the first to pass something on — or check back as the community grows.'}
                 </Text>
-                <Button title="List from closet" onPress={() => setListModalOpen(true)} />
+                {passMode !== 'interested' ? (
+                  <Button title="List from closet" onPress={() => setListModalOpen(true)} />
+                ) : null}
               </View>
             ) : null
           }
           renderItem={({ item }) => (
             <View style={styles.gridCell}>
-              <MarketplaceListingCard listing={item} onChanged={loadPassItOn} />
+              {passMode === 'interested' ? (
+                <MyInterestCard interest={item as MyListingInterest} onChanged={loadPassItOn} />
+              ) : (
+                <MarketplaceListingCard
+                  listing={item as ClosetListing}
+                  onChanged={loadPassItOn}
+                  onViewInterests={setInterestsListing}
+                />
+              )}
             </View>
           )}
         />
@@ -335,6 +374,13 @@ export default function ShopScreen() {
         product={previewProduct}
         visible={previewProduct != null}
         onClose={() => setPreviewProduct(null)}
+      />
+
+      <ListingInterestsSheet
+        visible={!!interestsListing}
+        listingId={interestsListing?.id ?? null}
+        listingTitle={interestsListing?.title}
+        onClose={() => setInterestsListing(null)}
       />
     </SafeAreaView>
   );
@@ -431,7 +477,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   passToolbar: { paddingHorizontal: 22, paddingTop: 14, gap: 10 },
-  passModeRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  passModeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
+  interestHint: {
+    fontSize: 13,
+    color: THEME.editorial.accentDark,
+    fontWeight: '600',
+    lineHeight: 18,
+  },
   passModePill: {
     paddingHorizontal: 14,
     paddingVertical: 8,

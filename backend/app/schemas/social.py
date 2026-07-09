@@ -86,7 +86,7 @@ class StreakResponse(BaseModel):
     timezone: str
 
 
-FeedActivityType = Literal["like", "comment", "follow", "new_post", "streak_nudge"]
+FeedActivityType = Literal["like", "comment", "follow", "new_post", "streak_nudge", "listing_interest"]
 
 
 class FeedActivityItem(BaseModel):
@@ -96,6 +96,7 @@ class FeedActivityItem(BaseModel):
     actor_name: str
     message: str
     post_id: Optional[int] = None
+    listing_id: Optional[int] = None
     created_at: datetime
     is_unread: bool = False
 
