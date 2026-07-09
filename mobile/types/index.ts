@@ -406,10 +406,49 @@ export interface ShopRecommendation {
   priority: string;
 }
 
+export interface ShopGapCard {
+  title: string;
+  category: string;
+  closet_count: number;
+  reason: string;
+  unlock_outfits: number;
+  product_id?: string | null;
+  product_brand?: string | null;
+  product_name?: string | null;
+  image_url?: string | null;
+  price_usd?: number | null;
+}
+
 export interface ShopRecommendationsResponse {
   summary: string;
   styling_insight?: string | null;
+  gap_card?: ShopGapCard | null;
   recommendations: ShopRecommendation[];
+}
+
+export interface StyleProfileActivity {
+  wore: number;
+  likes: number;
+  swaps: number;
+  shop_explores: number;
+  feed_shares: number;
+}
+
+export interface StyleProfileStat {
+  label: string;
+  value: number;
+}
+
+export interface StyleProfile {
+  headline: string;
+  summary: string;
+  top_colors: StyleProfileStat[];
+  top_categories: StyleProfileStat[];
+  formality_zone?: string | null;
+  top_occasions: string[];
+  activity: StyleProfileActivity;
+  insights: string[];
+  signal_count: number;
 }
 
 export type StyleEventType =

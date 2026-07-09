@@ -39,7 +39,21 @@ class ShopRecommendation(BaseModel):
     priority: str
 
 
+class ShopGapCard(BaseModel):
+    title: str
+    category: str
+    closet_count: int = Field(..., ge=0)
+    reason: str
+    unlock_outfits: int = Field(0, ge=0)
+    product_id: Optional[str] = None
+    product_brand: Optional[str] = None
+    product_name: Optional[str] = None
+    image_url: Optional[str] = None
+    price_usd: Optional[float] = None
+
+
 class ShopRecommendationResponse(BaseModel):
     summary: str
     styling_insight: Optional[str] = None
+    gap_card: Optional[ShopGapCard] = None
     recommendations: List[ShopRecommendation]

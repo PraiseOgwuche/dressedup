@@ -19,11 +19,12 @@ import { COLORS, TAXONOMY } from '../../constants/config';
 import { THEME, utilityTitle, SHADOW } from '../../constants/theme';
 import { useClosetStore } from '../../store/closetStore';
 import { useRoutineStore } from '../../store/routineStore';
-import { tripsAPI, notificationsAPI, emailIngestAPI, socialAPI } from '../../services/api';
+import { tripsAPI, notificationsAPI, emailIngestAPI, socialAPI, styleAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushNotifications';
-import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess, StreakStats } from '../../types';
+import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess, StreakStats, StyleProfile } from '../../types';
 import { StreakCard } from '../../components/StreakBadge';
+import { StyleProfileCard } from '../../components/profile/StyleProfileCard';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -52,7 +53,21 @@ export default function ProfileScreen() {
   const [emailLogs, setEmailLogs] = useState<EmailIngestLog[]>([]);
   const [simulatingEmail, setSimulatingEmail] = useState(false);
   const [streak, setStreak] = useState<StreakStats | null>(null);
+  const [styleProfile, setStyleProfile] = useState<StyleProfile | null>(null);
+  const [styleProfileLoading, setStyleProfileLoading] = useState(false);
   const deviceTimezone = getDeviceTimezone();
+
+  const loadStyleProfile = useCallback(async () => {
+    setStyleProfileLoading(true);
+    try {
+      const profile = await styleAPI.getProfile();
+      setStyleProfile(profile);
+    } catch {
+      setStyleProfile(null);
+    } finally {
+      setStyleProfileLoading(false);
+    }
+  }, []);
 
   const loadEmailIngest = useCallback(async () => {
     try {
@@ -111,7 +126,8 @@ export default function ProfileScreen() {
       fetchRoutine();
       loadEmailIngest();
       loadStreak();
-    }, [loadTrips, fetchRoutine, loadEmailIngest, loadStreak]),
+      loadStyleProfile();
+    }, [loadTrips, fetchRoutine, loadEmailIngest, loadStreak, loadStyleProfile]),
   );
 
   useEffect(() => {
@@ -301,6 +317,10 @@ export default function ProfileScreen() {
 
         <View style={styles.streakSection}>
           <StreakCard streak={streak} />
+        </View>
+
+        <View style={styles.streakSection}>
+          <StyleProfileCard profile={styleProfile} loading={styleProfileLoading} />
         </View>
 
         <View style={styles.emailCard}>

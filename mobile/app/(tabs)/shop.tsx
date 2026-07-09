@@ -16,7 +16,8 @@ import { useFocusEffect } from 'expo-router';
 import { THEME, FONTS, SHADOW, utilityTitle } from '../../constants/theme';
 import { marketplaceAPI, shopAPI, styleAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
-import { ClosetListing, ListingType, ShopRecommendation } from '../../types';
+import { ShopGapCard } from '../../components/shop/ShopGapCard';
+import { ClosetListing, ListingType, ShopGapCard as ShopGapCardType, ShopRecommendation } from '../../types';
 import { ShopProductCard } from '../../components/shop/ShopProductCard';
 import { ShopOutfitPreviewModal } from '../../components/shop/ShopOutfitPreviewModal';
 import { MarketplaceListingCard } from '../../components/shop/MarketplaceListingCard';
@@ -47,6 +48,7 @@ export default function ShopScreen() {
 
   const [summary, setSummary] = useState('');
   const [stylingInsight, setStylingInsight] = useState('');
+  const [gapCard, setGapCard] = useState<ShopGapCardType | null>(null);
   const [recommendations, setRecommendations] = useState<ShopRecommendation[]>([]);
   const [pickCategory, setPickCategory] = useState('');
   const [pickLoading, setPickLoading] = useState(false);
@@ -76,6 +78,7 @@ export default function ShopScreen() {
       const response = await shopAPI.getRecommendations(pickCategory || undefined);
       setSummary(response.summary);
       setStylingInsight(response.styling_insight ?? '');
+      setGapCard(response.gap_card ?? null);
       setRecommendations(response.recommendations);
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not load shop picks.'));
@@ -140,6 +143,12 @@ export default function ShopScreen() {
     [trackStyle],
   );
 
+  const previewGapPick = useCallback(() => {
+    if (!gapCard?.product_id) return;
+    const match = recommendations.find((r) => r.product_id === gapCard.product_id);
+    if (match) setPreviewProduct(match);
+  }, [gapCard, recommendations]);
+
   const renderPicks = () => (
     <FlatList
       data={recommendations}
@@ -150,6 +159,7 @@ export default function ShopScreen() {
       ListHeaderComponent={
         <View style={styles.listHeader}>
           {summary ? <Text style={styles.summary}>{summary}</Text> : null}
+          <ShopGapCard gap={gapCard} onPreview={gapCard?.product_id ? previewGapPick : undefined} />
           {stylingInsight ? <Text style={styles.insight}>{stylingInsight}</Text> : null}
           {recommendations.length > 0 ? (
             <View style={styles.statsRow}>

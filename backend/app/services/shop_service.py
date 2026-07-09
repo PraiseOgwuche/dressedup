@@ -338,9 +338,11 @@ class ShopService:
 
         if len(items) < 2:
             summary = "Add a few more pieces to your closet — we'll show what to buy next."
+            closet = StylistService.closet_snapshot(db, user_id)
             return {
                 "summary": summary,
                 "styling_insight": StylistService.shop_insight(db, user_id, summary=summary, top_pick=None),
+                "gap_card": StylistService.build_gap_card(closet, None),
                 "recommendations": [],
             }
 
@@ -391,15 +393,18 @@ class ShopService:
             )
 
         top_pick = scored[0] if scored else None
+        closet = StylistService.closet_snapshot(db, user_id)
         styling_insight = StylistService.shop_insight(
             db,
             user_id,
             summary=summary,
             top_pick=top_pick,
         )
+        gap_card = StylistService.build_gap_card(closet, top_pick)
 
         return {
             "summary": summary,
             "styling_insight": styling_insight,
+            "gap_card": gap_card,
             "recommendations": scored[:8],
         }

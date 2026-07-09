@@ -40,9 +40,14 @@ def test_shop_recommends_with_outfit_counts(client, auth_header):
     body = response.json()
     assert "summary" in body
     assert "styling_insight" in body
+    assert "gap_card" in body
     if body["recommendations"]:
         rec = body["recommendations"][0]
         assert rec["outfit_count"] >= 1
+        gap = body.get("gap_card")
+        if gap:
+            assert gap["title"]
+            assert gap["reason"]
         assert "sample_outfits" in rec
         assert isinstance(rec["sample_outfits"], list)
         assert rec["product_id"]

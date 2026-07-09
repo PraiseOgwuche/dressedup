@@ -39,6 +39,7 @@ import {
   OutfitSwapOptions,
   OutfitSlotKey,
   StyleSignalPayload,
+  StyleProfile,
 } from '../types';
 
 type ImageUpload = { uri: string; name?: string | null; mimeType?: string | null };
@@ -308,6 +309,10 @@ export const outfitAPI = {
 };
 
 export const styleAPI = {
+  getProfile: async (): Promise<StyleProfile> => {
+    const response = await api.get<StyleProfile>('/style/profile');
+    return response.data;
+  },
   track: async (payload: StyleSignalPayload): Promise<void> => {
     await api.post('/style/signals', payload);
   },

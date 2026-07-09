@@ -67,6 +67,55 @@ class StylistService:
                 return str(row.get("hint", "Add versatile basics to unlock more outfits."))
         return "Your closet has solid coverage — fresh picks can still add new combinations."
 
+    @staticmethod
+    def _gap_row_for_closet(closet: dict[str, Any]) -> Optional[dict[str, Any]]:
+        by_category = closet.get("by_category", {})
+        for row in sorted(gap_priorities(), key=lambda r: -float(r.get("unlock_weight", 0))):
+            category = str(row.get("category", ""))
+            count = int(by_category.get(category, 0))
+            if count < 2:
+                return {**row, "category": category, "closet_count": count}
+        return None
+
+    @classmethod
+    def build_gap_card(
+        cls,
+        closet: dict[str, Any],
+        top_pick: Optional[dict[str, Any]],
+    ) -> Optional[dict[str, Any]]:
+        gap = cls._gap_row_for_closet(closet)
+        if gap is None and not top_pick:
+            return None
+
+        category = gap["category"] if gap else (top_pick or {}).get("category", "")
+        closet_count = gap["closet_count"] if gap else closet.get("by_category", {}).get(category, 0)
+        reason = str(gap.get("hint") if gap else "A strong add can still unlock new combinations.")
+
+        pick = top_pick
+        if gap and top_pick and top_pick.get("category") != category:
+            pick = top_pick
+
+        titles = {
+            "bottom": "Bottoms gap",
+            "footwear": "Shoes gap",
+            "top": "Tops gap",
+            "outerwear": "Layer gap",
+        }
+        title = titles.get(category, f"{category.replace('-', ' ').title()} gap")
+
+        return {
+            "title": title,
+            "category": category,
+            "closet_count": closet_count,
+            "reason": reason,
+            "unlock_outfits": int((pick or {}).get("outfit_count", 0)),
+            "product_id": (pick or {}).get("product_id"),
+            "product_brand": (pick or {}).get("brand"),
+            "product_name": (pick or {}).get("name"),
+            "image_url": (pick or {}).get("image_url"),
+            "price_usd": (pick or {}).get("price_usd"),
+        }
+
     @classmethod
     def enhance_outfit(
         cls,
