@@ -9,6 +9,9 @@ jest.mock('expo-router', () => {
     useFocusEffect: (cb: () => void) => {
       React.useEffect(cb, [cb]);
     },
+    useRouter: () => ({
+      push: jest.fn(),
+    }),
   };
 });
 
@@ -26,7 +29,20 @@ jest.mock('../services/api', () => ({
       active_this_week: 0,
       timezone: 'UTC',
     }),
+    getActivity: jest.fn().mockResolvedValue({ items: [], unread_count: 0 }),
+    markActivitySeen: jest.fn().mockResolvedValue(undefined),
   },
+}));
+
+jest.mock('../store/feedActivityStore', () => ({
+  useFeedActivityStore: (selector: (state: Record<string, unknown>) => unknown) =>
+    selector({
+      items: [],
+      loading: false,
+      unreadCount: 0,
+      refresh: jest.fn(),
+      markSeen: jest.fn(),
+    }),
 }));
 
 describe('FeedScreen', () => {

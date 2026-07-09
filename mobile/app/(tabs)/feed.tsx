@@ -19,8 +19,10 @@ import { FeedScope, SocialPost, StreakStats } from '../../types';
 import { FeedPostCard } from '../../components/FeedPostCard';
 import { StreakCard } from '../../components/StreakBadge';
 import { DiscoverPeopleModal } from '../../components/feed/DiscoverPeopleModal';
+import { FeedActivitySheet } from '../../components/feed/FeedActivitySheet';
 import { PostCommentsModal } from '../../components/feed/PostCommentsModal';
 import { Button } from '../../components/ui/Button';
+import { useFeedActivityStore } from '../../store/feedActivityStore';
 
 const SCOPES: { key: FeedScope; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -36,6 +38,13 @@ export default function FeedScreen() {
   const [likingId, setLikingId] = useState<number | null>(null);
   const [commentsPost, setCommentsPost] = useState<SocialPost | null>(null);
   const [discoverOpen, setDiscoverOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
+
+  const activityItems = useFeedActivityStore((state) => state.items);
+  const activityLoading = useFeedActivityStore((state) => state.loading);
+  const unreadCount = useFeedActivityStore((state) => state.unreadCount);
+  const refreshActivity = useFeedActivityStore((state) => state.refresh);
+  const markActivitySeen = useFeedActivityStore((state) => state.markSeen);
 
   const loadFeed = useCallback(async () => {
     setLoading(true);
@@ -56,7 +65,8 @@ export default function FeedScreen() {
   useFocusEffect(
     useCallback(() => {
       loadFeed();
-    }, [loadFeed]),
+      refreshActivity();
+    }, [loadFeed, refreshActivity]),
   );
 
   useEffect(() => {
@@ -108,6 +118,29 @@ export default function FeedScreen() {
     );
   };
 
+  const openActivity = async () => {
+    setActivityOpen(true);
+    await refreshActivity();
+    await markActivitySeen();
+  };
+
+  const closeActivity = () => setActivityOpen(false);
+
+  const openPostFromActivity = async (postId: number) => {
+    setActivityOpen(false);
+    const fromFeed = posts.find((post) => post.id === postId);
+    if (fromFeed) {
+      setCommentsPost(fromFeed);
+      return;
+    }
+    try {
+      const post = await socialAPI.getPost(postId);
+      setCommentsPost(post);
+    } catch (error) {
+      Alert.alert('Error', getApiErrorMessage(error, 'Could not open that post.'));
+    }
+  };
+
   const emptyCopy =
     scope === 'following'
       ? {
@@ -154,8 +187,22 @@ export default function FeedScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Feed</Text>
-        <Text style={styles.subtitle}>Real fits from logged outfits — mirror photos welcome.</Text>
+        <View style={styles.headerRow}>
+          <View style={styles.headerCopy}>
+            <Text style={styles.title}>Feed</Text>
+            <Text style={styles.subtitle}>Real fits from logged outfits — mirror photos welcome.</Text>
+          </View>
+          <Pressable style={styles.activityBtn} onPress={openActivity}>
+            <Text style={styles.activityIcon}>🔔</Text>
+            {unreadCount > 0 ? (
+              <View style={styles.activityBadge}>
+                <Text style={styles.activityBadgeText}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            ) : null}
+          </Pressable>
+        </View>
       </View>
 
       <FlatList
@@ -196,6 +243,13 @@ export default function FeedScreen() {
         onCommentsChange={handleCommentsChange}
       />
       <DiscoverPeopleModal visible={discoverOpen} onClose={() => setDiscoverOpen(false)} />
+      <FeedActivitySheet
+        visible={activityOpen}
+        items={activityItems}
+        loading={activityLoading}
+        onClose={closeActivity}
+        onOpenPost={openPostFromActivity}
+      />
     </SafeAreaView>
   );
 }
@@ -211,6 +265,44 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: THEME.utility.border,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  headerCopy: {
+    flex: 1,
+  },
+  activityBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: THEME.utility.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  activityIcon: {
+    fontSize: 18,
+  },
+  activityBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: THEME.editorial.accentDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
   },
   title: {
     ...utilityTitle(28),

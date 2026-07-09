@@ -84,3 +84,28 @@ class StreakResponse(BaseModel):
     active_this_week: int
     last_active_date: Optional[date] = None
     timezone: str
+
+
+FeedActivityType = Literal["like", "comment", "follow", "new_post", "streak_nudge"]
+
+
+class FeedActivityItem(BaseModel):
+    id: str
+    type: FeedActivityType
+    actor_user_id: Optional[int] = None
+    actor_name: str
+    message: str
+    post_id: Optional[int] = None
+    created_at: datetime
+    is_unread: bool = False
+
+
+class FeedActivityResponse(BaseModel):
+    items: list[FeedActivityItem]
+    unread_count: int
+    last_seen_at: Optional[datetime] = None
+
+
+class FeedActivitySeenResponse(BaseModel):
+    last_seen_at: datetime
+    unread_count: int = 0

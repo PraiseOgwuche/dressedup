@@ -9,6 +9,8 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.social import (
     FeedScope,
+    FeedActivityResponse,
+    FeedActivitySeenResponse,
     SocialCommentCreate,
     SocialCommentResponse,
     SocialFollowResponse,
@@ -18,6 +20,7 @@ from app.schemas.social import (
     SocialUserSummary,
     StreakResponse,
 )
+from app.services.feed_activity_service import FeedActivityService
 from app.services.social_service import SocialService
 from app.services.streak_service import StreakService
 from app.utils.dependencies import get_current_user, get_optional_current_user
@@ -168,3 +171,20 @@ def get_streak(
     current_user: User = Depends(get_current_user),
 ):
     return StreakService.get_streak(db, current_user.id, timezone=timezone)
+
+
+@router.get("/activity", response_model=FeedActivityResponse)
+def get_feed_activity(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """In-app activity feed: likes, comments, follows, new posts, streak nudges."""
+    return FeedActivityService.get_activity(db, current_user.id)
+
+
+@router.post("/activity/seen", response_model=FeedActivitySeenResponse)
+def mark_feed_activity_seen(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return FeedActivityService.mark_seen(db, current_user.id)

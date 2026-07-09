@@ -335,6 +335,25 @@ export interface StreakStats {
   timezone: string;
 }
 
+export type FeedActivityType = 'like' | 'comment' | 'follow' | 'new_post' | 'streak_nudge';
+
+export interface FeedActivityItem {
+  id: string;
+  type: FeedActivityType;
+  actor_user_id?: number | null;
+  actor_name: string;
+  message: string;
+  post_id?: number | null;
+  created_at: string;
+  is_unread: boolean;
+}
+
+export interface FeedActivityResponse {
+  items: FeedActivityItem[];
+  unread_count: number;
+  last_seen_at?: string | null;
+}
+
 export interface TripPlan {
   id: number;
   user_id: number;

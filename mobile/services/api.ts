@@ -22,6 +22,7 @@ import {
   SocialFollowResult,
   FeedScope,
   StreakStats,
+  FeedActivityResponse,
   ShopRecommendationsResponse,
   ClosetListing,
   ListingType,
@@ -399,6 +400,13 @@ export const socialAPI = {
       params: timezone ? { timezone } : undefined,
     });
     return response.data;
+  },
+  getActivity: async (): Promise<FeedActivityResponse> => {
+    const response = await api.get<FeedActivityResponse>('/social/activity');
+    return response.data;
+  },
+  markActivitySeen: async (): Promise<void> => {
+    await api.post('/social/activity/seen');
   },
 };
 

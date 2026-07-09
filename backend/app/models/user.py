@@ -51,6 +51,9 @@ class User(Base):
         back_populates="following",
         cascade="all, delete-orphan",
     )
+    feed_state = relationship(
+        "UserFeedState", back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"

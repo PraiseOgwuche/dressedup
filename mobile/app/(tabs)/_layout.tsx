@@ -1,8 +1,20 @@
-import { Tabs } from 'expo-router';
+import { useCallback } from 'react';
+import { Tabs, useFocusEffect } from 'expo-router';
 import { Text } from 'react-native';
+
 import { THEME } from '../../constants/theme';
+import { useFeedActivityStore } from '../../store/feedActivityStore';
 
 export default function TabLayout() {
+  const unreadCount = useFeedActivityStore((state) => state.unreadCount);
+  const refreshActivity = useFeedActivityStore((state) => state.refresh);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshActivity();
+    }, [refreshActivity]),
+  );
+
   return (
     <Tabs
       screenOptions={{
@@ -43,6 +55,12 @@ export default function TabLayout() {
         options={{
           title: 'Feed',
           tabBarIcon: () => <Text style={{ fontSize: 22 }}>◎</Text>,
+          tabBarBadge: unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: THEME.editorial.accentDark,
+            fontSize: 10,
+            minWidth: 16,
+          },
         }}
       />
       <Tabs.Screen
