@@ -21,7 +21,7 @@ import { Button } from '../ui/Button';
 type Props = {
   visible: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: () => void | Promise<void>;
   listedItemIds: number[];
 };
 
@@ -89,10 +89,18 @@ export function CreateListingModal({ visible, onClose, onCreated, listedItemIds 
         price_cents: priceCents,
         condition,
       });
-      onCreated();
+      await onCreated();
       onClose();
     } catch (error) {
-      Alert.alert('Error', getApiErrorMessage(error, 'Could not create listing.'));
+      const message = getApiErrorMessage(error, 'Could not create listing.');
+      if (message.toLowerCase().includes('already listed')) {
+        Alert.alert(
+          'Already listed',
+          'This item is already on Pass it on. Open My listings to manage it.',
+        );
+      } else {
+        Alert.alert('Error', message);
+      }
     } finally {
       setSubmitting(false);
     }

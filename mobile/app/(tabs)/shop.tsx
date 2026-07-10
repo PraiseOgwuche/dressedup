@@ -94,7 +94,7 @@ export default function ShopScreen() {
   const loadPassItOn = useCallback(async () => {
     setPassLoading(true);
     try {
-      const [browse, mine, interested] = await Promise.all([
+      const [browseResult, mineResult, interestedResult] = await Promise.allSettled([
         marketplaceAPI.browse({
           listing_type: passFilter || undefined,
           q: search.trim() || undefined,
@@ -102,15 +102,37 @@ export default function ShopScreen() {
         marketplaceAPI.mine(),
         marketplaceAPI.myInterests(),
       ]);
-      setListings(browse);
-      setMyListings(mine);
-      setMyInterests(interested);
+
+      if (browseResult.status === 'fulfilled') {
+        setListings(browseResult.value);
+      }
+      if (mineResult.status === 'fulfilled') {
+        setMyListings(mineResult.value);
+      }
+      if (interestedResult.status === 'fulfilled') {
+        setMyInterests(interestedResult.value);
+      }
+
+      const failed = [browseResult, mineResult, interestedResult].filter(
+        (result) => result.status === 'rejected',
+      );
+      if (failed.length === 3) {
+        throw (failed[0] as PromiseRejectedResult).reason;
+      }
     } catch (error) {
       Alert.alert('Error', getApiErrorMessage(error, 'Could not load listings.'));
     } finally {
       setPassLoading(false);
     }
   }, [passFilter, search]);
+
+  const handleListingCreated = useCallback(async () => {
+    setPassMode('mine');
+    setPassFilter('');
+    setSearch('');
+    await loadPassItOn();
+    Alert.alert('Listed', 'Your item is live on Pass it on. Check My listings to manage it.');
+  }, [loadPassItOn]);
 
   useFocusEffect(
     useCallback(() => {
@@ -367,7 +389,7 @@ export default function ShopScreen() {
         visible={listModalOpen}
         listedItemIds={listedItemIds}
         onClose={() => setListModalOpen(false)}
-        onCreated={loadPassItOn}
+        onCreated={handleListingCreated}
       />
 
       <ShopOutfitPreviewModal
