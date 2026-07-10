@@ -39,6 +39,15 @@ def update_trip_plan(
     return TripService.update_plan(db, current_user.id, plan_id, payload)
 
 
+@router.delete("/plans/{plan_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_trip_plan(
+    plan_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_premium_user),
+):
+    TripService.delete_plan(db, current_user.id, plan_id)
+
+
 @router.get("/plans/{plan_id}/packing", response_model=TripPackingPlan)
 def get_trip_packing_plan(
     plan_id: int,

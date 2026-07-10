@@ -496,6 +496,21 @@ export const tripsAPI = {
     const response = await api.get<TripPackingPlan>(`/trips/plans/${planId}/packing`);
     return response.data;
   },
+  updatePlan: async (
+    planId: number,
+    payload: Partial<{
+      destination: string;
+      weather_tag: string | null;
+      is_completed: boolean;
+      notes: string | null;
+    }>,
+  ): Promise<TripPlan> => {
+    const response = await api.put<TripPlan>(`/trips/plans/${planId}`, payload);
+    return response.data;
+  },
+  deletePlan: async (planId: number): Promise<void> => {
+    await api.delete(`/trips/plans/${planId}`);
+  },
 };
 
 export default api;

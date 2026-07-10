@@ -76,6 +76,14 @@ class TripService:
         return plan
 
     @staticmethod
+    def delete_plan(db: Session, user_id: int, plan_id: int) -> None:
+        plan = db.query(TripPlan).filter(TripPlan.id == plan_id, TripPlan.user_id == user_id).first()
+        if not plan:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip plan not found")
+        db.delete(plan)
+        db.commit()
+
+    @staticmethod
     def _load_forecast(plan: TripPlan) -> tuple[list[DailyWeather], str, Optional[str]]:
         start, end = WeatherService.trip_date_range(plan.start_date, plan.end_date, plan.days)
         if not start or not end:

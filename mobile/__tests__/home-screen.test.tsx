@@ -61,6 +61,9 @@ jest.mock('../services/api', () => ({
   socialAPI: {
     createPost: jest.fn(),
   },
+  tripsAPI: {
+    listPlans: jest.fn().mockResolvedValue([]),
+  },
 }));
 
 describe('HomeScreen', () => {

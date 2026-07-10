@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   Alert,
-  FlatList,
   ScrollView,
   Switch,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -19,10 +19,10 @@ import { COLORS, TAXONOMY } from '../../constants/config';
 import { THEME, utilityTitle, SHADOW } from '../../constants/theme';
 import { useClosetStore } from '../../store/closetStore';
 import { useRoutineStore } from '../../store/routineStore';
-import { tripsAPI, notificationsAPI, emailIngestAPI, socialAPI, styleAPI } from '../../services/api';
+import { notificationsAPI, emailIngestAPI, socialAPI, styleAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushNotifications';
-import { EmailIngestLog, EmailIngestSettings, TripPlan, TripPackingPlan, hasPremiumAccess, StreakStats, StyleProfile } from '../../types';
+import { EmailIngestLog, EmailIngestSettings, hasPremiumAccess, StreakStats, StyleProfile } from '../../types';
 import { StreakCard } from '../../components/StreakBadge';
 import { StyleProfileCard } from '../../components/profile/StyleProfileCard';
 
@@ -31,15 +31,6 @@ export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const { items, fetchItems } = useClosetStore();
   const { routine, fetchRoutine, saveRoutine, sendMyPlan, saving, loading } = useRoutineStore();
-
-  const [tripPlans, setTripPlans] = useState<TripPlan[]>([]);
-  const [packingPlan, setPackingPlan] = useState<TripPackingPlan | null>(null);
-  const [packingLoading, setPackingLoading] = useState<number | null>(null);
-  const [destination, setDestination] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [days, setDays] = useState('3');
-  const [loadingTrips, setLoadingTrips] = useState(false);
 
   const [wakeTime, setWakeTime] = useState('07:00');
   const [weekdayActivities, setWeekdayActivities] = useState<string[]>(['work']);
@@ -83,34 +74,6 @@ export default function ProfileScreen() {
     }
   }, []);
 
-  const loadTrips = useCallback(async () => {
-    if (!hasPremiumAccess(user)) {
-      setTripPlans([]);
-      return;
-    }
-    setLoadingTrips(true);
-    try {
-      const plans = await tripsAPI.listPlans();
-      setTripPlans(plans);
-    } catch {
-      setTripPlans([]);
-    } finally {
-      setLoadingTrips(false);
-    }
-  }, [user]);
-
-  const loadPacking = async (planId: number) => {
-    setPackingLoading(planId);
-    try {
-      const plan = await tripsAPI.getPacking(planId);
-      setPackingPlan(plan);
-    } catch (error: any) {
-      Alert.alert('Packing failed', getApiErrorMessage(error, 'Could not build a packing list.'));
-    } finally {
-      setPackingLoading(null);
-    }
-  };
-
   const loadStreak = useCallback(async () => {
     try {
       const stats = await socialAPI.getStreak(deviceTimezone);
@@ -122,12 +85,11 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      loadTrips();
       fetchRoutine();
       loadEmailIngest();
       loadStreak();
       loadStyleProfile();
-    }, [loadTrips, fetchRoutine, loadEmailIngest, loadStreak, loadStyleProfile]),
+    }, [fetchRoutine, loadEmailIngest, loadStreak, loadStyleProfile]),
   );
 
   useEffect(() => {
@@ -217,38 +179,6 @@ export default function ProfileScreen() {
         },
       ],
     );
-  };
-
-  const createTripPlan = async () => {
-    if (!destination.trim()) {
-      Alert.alert('Invalid trip', 'Add a destination.');
-      return;
-    }
-
-    const hasDates = startDate.trim() && endDate.trim();
-    const parsedDays = Number(days);
-
-    if (!hasDates && (Number.isNaN(parsedDays) || parsedDays < 1)) {
-      Alert.alert('Invalid trip', 'Add start & end dates (YYYY-MM-DD) or a valid number of days.');
-      return;
-    }
-
-    try {
-      await tripsAPI.createPlan({
-        destination: destination.trim(),
-        ...(hasDates
-          ? { start_date: startDate.trim(), end_date: endDate.trim() }
-          : { days: parsedDays }),
-      });
-      setDestination('');
-      setStartDate('');
-      setEndDate('');
-      setDays('3');
-      setPackingPlan(null);
-      await loadTrips();
-    } catch (error: any) {
-      Alert.alert('Trip failed', getApiErrorMessage(error, 'Could not create that trip.'));
-    }
   };
 
   const handleSimulateEmailImport = async () => {
@@ -431,87 +361,17 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View style={styles.tripCard}>
-          <Text style={styles.cardTitle}>Trip Planner</Text>
-          <Text style={styles.cardHint}>
-            Add dates for a live weather forecast — we dress you per day (hot, rainy, etc.).
-          </Text>
-          {hasPremiumAccess(user) ? (
-            <>
-              <Input label="Destination" value={destination} onChangeText={setDestination} placeholder="Honolulu, Hawaii" />
-              <Input
-                label="Start date"
-                value={startDate}
-                onChangeText={setStartDate}
-                placeholder="2026-07-24"
-                autoCapitalize="none"
-              />
-              <Input
-                label="End date"
-                value={endDate}
-                onChangeText={setEndDate}
-                placeholder="2026-07-26"
-                autoCapitalize="none"
-              />
-              <Input
-                label="Days (if no dates)"
-                value={days}
-                onChangeText={setDays}
-                keyboardType="number-pad"
-                placeholder="3"
-              />
-              <Button title="Create Trip Plan" onPress={createTripPlan} />
-              <FlatList
-                style={styles.tripList}
-                data={tripPlans}
-                keyExtractor={(item) => item.id.toString()}
-                refreshing={loadingTrips}
-                onRefresh={loadTrips}
-                scrollEnabled={false}
-                ListEmptyComponent={<Text style={styles.tripEmpty}>No trips yet</Text>}
-                renderItem={({ item }) => (
-                  <View style={styles.tripRow}>
-                    <Text style={styles.tripItem}>
-                      {item.destination}
-                      {item.start_date && item.end_date
-                        ? ` • ${item.start_date} → ${item.end_date}`
-                        : ` • ${item.days} days`}
-                    </Text>
-                    <Button
-                      title="What to pack"
-                      onPress={() => loadPacking(item.id)}
-                      loading={packingLoading === item.id}
-                      style={styles.tripPackBtn}
-                    />
-                  </View>
-                )}
-              />
-              {packingPlan ? (
-                <View style={styles.packingBox}>
-                  <Text style={styles.packingSummary}>{packingPlan.summary}</Text>
-                  {packingPlan.weather_note ? (
-                    <Text style={styles.weatherNote}>{packingPlan.weather_note}</Text>
-                  ) : null}
-                  {packingPlan.days.map((day) => (
-                    <Text key={day.day} style={styles.packingDay}>
-                      {day.title}
-                      {day.weather_summary ? `\n${day.weather_summary}` : ''}
-                      {day.rationale ? `\n${day.rationale}` : ''}
-                    </Text>
-                  ))}
-                  <Text style={styles.packingListTitle}>Suitcase ({packingPlan.packing_list.length})</Text>
-                  {packingPlan.packing_list.map((item) => (
-                    <Text key={item.id} style={styles.packingItem}>
-                      • {item.name || item.category}
-                    </Text>
-                  ))}
-                </View>
-              ) : null}
-            </>
-          ) : (
-            <Text style={styles.tripLocked}>Upgrade to premium to unlock trip planning.</Text>
-          )}
-        </View>
+        <Pressable style={styles.tripLinkCard} onPress={() => router.push('/(tabs)/trips')}>
+          <View style={styles.tripLinkCopy}>
+            <Text style={styles.cardTitle}>Trip planner</Text>
+            <Text style={styles.cardHint}>
+              {hasPremiumAccess(user)
+                ? 'Day-by-day outfits and a deduped suitcase list — now on the Trips tab.'
+                : 'Premium feature — open Trips to learn more.'}
+            </Text>
+          </View>
+          <Text style={styles.tripLinkArrow}>→</Text>
+        </Pressable>
 
         <Button title="Log Out" onPress={handleLogout} variant="outline" style={styles.logoutButton} />
       </ScrollView>
@@ -601,8 +461,11 @@ const styles = StyleSheet.create({
   switchHint: { fontSize: 11, color: COLORS.textLight, marginTop: 2 },
   sendPlanBtn: { marginTop: 10 },
   logoutButton: { width: '100%', marginTop: 8 },
-  tripCard: {
+  tripLinkCard: {
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     backgroundColor: THEME.editorial.surface,
     borderRadius: 16,
     padding: 16,
@@ -611,23 +474,6 @@ const styles = StyleSheet.create({
     borderColor: THEME.editorial.border,
     ...SHADOW.soft,
   },
-  tripLocked: { fontSize: 13, color: COLORS.textLight },
-  tripList: { maxHeight: 220, marginTop: 10 },
-  tripRow: { marginBottom: 8 },
-  tripItem: { fontSize: 13, color: COLORS.text, paddingVertical: 4 },
-  tripPackBtn: { marginTop: 4 },
-  packingBox: {
-    marginTop: 12,
-    padding: 14,
-    backgroundColor: THEME.editorial.pill,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: THEME.editorial.border,
-  },
-  packingSummary: { fontSize: 14, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
-  weatherNote: { fontSize: 12, color: COLORS.warning, marginBottom: 8, lineHeight: 17 },
-  packingDay: { fontSize: 12, color: COLORS.textLight, marginBottom: 8, lineHeight: 17 },
-  packingListTitle: { fontSize: 13, fontWeight: '700', color: COLORS.text, marginTop: 10, marginBottom: 4 },
-  packingItem: { fontSize: 12, color: COLORS.text, paddingVertical: 2 },
-  tripEmpty: { fontSize: 13, color: COLORS.textLight, marginTop: 6 },
+  tripLinkCopy: { flex: 1 },
+  tripLinkArrow: { fontSize: 22, color: THEME.brand.ink },
 });

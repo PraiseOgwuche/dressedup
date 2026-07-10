@@ -91,3 +91,18 @@ def test_trip_requires_premium_without_trial(client, db_session):
     header = {"Authorization": f"Bearer {login.json()['access_token']}"}
     response = client.get("/api/v1/trips/plans", headers=header)
     assert response.status_code == 403
+
+
+def test_delete_trip_plan(client, auth_header):
+    create = client.post(
+        "/api/v1/trips/plans",
+        headers=auth_header,
+        json={"destination": "Tokyo", "days": 2},
+    )
+    plan_id = create.json()["id"]
+
+    delete = client.delete(f"/api/v1/trips/plans/{plan_id}", headers=auth_header)
+    assert delete.status_code == 204
+
+    plans = client.get("/api/v1/trips/plans", headers=auth_header)
+    assert all(p["id"] != plan_id for p in plans.json())

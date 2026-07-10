@@ -24,6 +24,7 @@ import { CollapsibleSection } from '../../components/ui/CollapsibleSection';
 import { OutfitCard, OutfitSlotKey } from '../../components/OutfitCard';
 import { OutfitHero } from '../../components/OutfitHero';
 import { ShareFitModal } from '../../components/ShareFitModal';
+import { TripTeaser } from '../../components/trips/TripTeaser';
 
 const firstName = (full?: string) => (full?.trim().split(/\s+/)[0] || 'there');
 
@@ -305,6 +306,8 @@ export default function HomeScreen() {
               ? `Today's look · ${items.length} piece${items.length === 1 ? '' : 's'} · ${items.filter((i) => i.is_clean).length} clean`
               : "Today's look"}
           </Text>
+
+          <TripTeaser user={user} />
 
           {items.length === 0 ? (
             <View style={styles.emptyCloset}>
