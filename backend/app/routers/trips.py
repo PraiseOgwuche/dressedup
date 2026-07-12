@@ -5,7 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.trips import TripPackingPlan, TripPlanCreate, TripPlanResponse, TripPlanUpdate
+from app.schemas.trips import (
+    TripPackingPlan,
+    TripPackingReshuffleRequest,
+    TripPlanCreate,
+    TripPlanResponse,
+    TripPlanUpdate,
+)
 from app.services.trip_service import TripService
 from app.utils.dependencies import require_premium_user
 
@@ -56,4 +62,21 @@ def get_trip_packing_plan(
 ):
     """One outfit per trip day plus a deduplicated packing list from the closet."""
     return TripService.packing_plan(db, current_user.id, plan_id)
+
+
+@router.post("/plans/{plan_id}/packing/reshuffle", response_model=TripPackingPlan)
+def reshuffle_trip_day(
+    plan_id: int,
+    payload: TripPackingReshuffleRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_premium_user),
+):
+    """Keep other days locked; pick a new outfit for one day."""
+    return TripService.packing_plan(
+        db,
+        current_user.id,
+        plan_id,
+        reshuffle_day=payload.day,
+        locked_days=payload.locked_days,
+    )
 

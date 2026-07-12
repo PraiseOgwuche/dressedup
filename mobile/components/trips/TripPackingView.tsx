@@ -1,16 +1,18 @@
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mediaUrl } from '../../constants/config';
 import { THEME, FONTS, SHADOW } from '../../constants/theme';
-import { TripPackingPlan } from '../../types';
+import { TripDayOutfit, TripPackingPlan } from '../../types';
 import { OutfitCard } from '../OutfitCard';
 
 type Props = {
   plan: TripPackingPlan;
+  onReshuffleDay?: (day: TripDayOutfit) => void | Promise<void>;
+  reshufflingDay?: number | null;
 };
 
-export function TripPackingView({ plan }: Props) {
+export function TripPackingView({ plan, onReshuffleDay, reshufflingDay = null }: Props) {
   return (
     <View style={styles.wrap}>
       <View style={styles.summaryCard}>
@@ -21,17 +23,29 @@ export function TripPackingView({ plan }: Props) {
 
       <Text style={styles.sectionTitle}>Day by day</Text>
       {plan.days.map((day) => (
-        <OutfitCard
-          key={day.day}
-          variant="utility"
-          title={day.title}
-          badge={day.weather_tag?.toUpperCase()}
-          rationale={day.weather_summary || day.rationale}
-          top={day.top}
-          bottom={day.bottom}
-          shoes={day.shoes}
-          outerwear={day.outerwear}
-        />
+        <View key={day.day} style={styles.dayBlock}>
+          <OutfitCard
+            variant="utility"
+            title={day.title}
+            badge={day.weather_tag?.toUpperCase()}
+            rationale={day.weather_summary || day.rationale}
+            top={day.top}
+            bottom={day.bottom}
+            shoes={day.shoes}
+            outerwear={day.outerwear}
+          />
+          {onReshuffleDay ? (
+            <Pressable
+              style={styles.reshuffleBtn}
+              disabled={reshufflingDay === day.day}
+              onPress={() => onReshuffleDay(day)}
+            >
+              <Text style={styles.reshuffleText}>
+                {reshufflingDay === day.day ? 'Shuffling…' : 'Shuffle this day'}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
       ))}
 
       <Text style={styles.sectionTitle}>Suitcase ({plan.packing_list.length})</Text>
@@ -85,6 +99,17 @@ const styles = StyleSheet.create({
     color: THEME.utility.textMuted,
     marginTop: 4,
   },
+  dayBlock: { gap: 8 },
+  reshuffleBtn: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: THEME.utility.surfaceMuted,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  reshuffleText: { fontSize: 12, fontWeight: '700', color: THEME.brand.ink },
   suitcaseHint: { fontSize: 13, color: THEME.utility.textMuted, marginBottom: 4 },
   suitcaseRow: { gap: 10, paddingVertical: 4 },
   suitcaseItem: {

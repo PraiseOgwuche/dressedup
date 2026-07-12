@@ -7,6 +7,10 @@ from sqlalchemy.orm import Session
 
 from app.models.clothing_item import ClothingItem
 from app.schemas.closet import ClothingItemCreate, ClothingItemUpdate
+from app.schemas.ingestion import CutoutBackfillResult
+from app.services.image_processing import fetch_stored_image_bytes, remove_background
+from app.services.ingestion_service import IngestionService
+from app.services.storage import get_storage_provider
 
 # Laundry is "due" once at least this many launderable items are dirty, or when an
 # essential category has run out of clean options (handled separately).
@@ -66,6 +70,76 @@ class ClosetService:
         item = ClosetService.get_item(db, user_id, item_id)
         db.delete(item)
         db.commit()
+
+    @staticmethod
+    def replace_photo(
+        db: Session,
+        user_id: int,
+        item_id: int,
+        garment_bytes: bytes,
+        garment_ext: str,
+    ):
+        """Swap an item's photo + rembg thumbnail without re-running vision."""
+        ClosetService.get_item(db, user_id, item_id)
+        storage = get_storage_provider()
+        image_url = storage.save(garment_bytes, ext=garment_ext, subdir="items")
+        thumbnail_url = IngestionService._save_cutout(garment_bytes, storage, image_url)
+        return ClosetService.update_item(
+            db,
+            user_id,
+            item_id,
+            ClothingItemUpdate(image_url=image_url, thumbnail_url=thumbnail_url),
+        )
+
+    @staticmethod
+    def backfill_cutouts(
+        db: Session,
+        user_id: int,
+        *,
+        limit: int = 20,
+    ) -> CutoutBackfillResult:
+        """Generate rembg thumbnails for items still using the original photo."""
+        candidates = (
+            db.query(ClothingItem)
+            .filter(ClothingItem.user_id == user_id)
+            .filter(ClothingItem.image_url.isnot(None))
+            .order_by(ClothingItem.created_at.desc())
+            .limit(max(1, min(limit, 50)) * 3)
+            .all()
+        )
+        items = [
+            item
+            for item in candidates
+            if not item.thumbnail_url
+            or item.thumbnail_url == item.image_url
+            or "/cutouts/" not in (item.thumbnail_url or "")
+        ][: max(1, min(limit, 50))]
+
+        storage = get_storage_provider()
+        updated_ids: list[int] = []
+        skipped = 0
+
+        for item in items:
+            data = fetch_stored_image_bytes(item.image_url or "")
+            if data is None:
+                skipped += 1
+                continue
+            cutout = remove_background(data)
+            if cutout is None:
+                skipped += 1
+                continue
+            item.thumbnail_url = storage.save(cutout, ext="png", subdir="cutouts")
+            db.add(item)
+            updated_ids.append(item.id)
+
+        if updated_ids:
+            db.commit()
+
+        return CutoutBackfillResult(
+            updated=len(updated_ids),
+            skipped=skipped,
+            updated_ids=updated_ids,
+        )
 
     # ----- wear / laundry loop ----------------------------------------------
 

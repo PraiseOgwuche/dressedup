@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -13,6 +13,7 @@ import { TAXONOMY } from '../../constants/config';
 import { THEME, utilityTitle } from '../../constants/theme';
 import { tripsAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
+import { TripPlan } from '../../types';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { ChipSelect } from '../ui/ChipSelect';
@@ -20,10 +21,12 @@ import { ChipSelect } from '../ui/ChipSelect';
 type Props = {
   visible: boolean;
   onClose: () => void;
-  onCreated: () => void | Promise<void>;
+  onSaved: () => void | Promise<void>;
+  trip?: TripPlan | null;
 };
 
-export function CreateTripModal({ visible, onClose, onCreated }: Props) {
+export function CreateTripModal({ visible, onClose, onSaved, trip = null }: Props) {
+  const editing = Boolean(trip);
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -32,17 +35,26 @@ export function CreateTripModal({ visible, onClose, onCreated }: Props) {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => {
-    setDestination('');
-    setStartDate('');
-    setEndDate('');
-    setDays('3');
-    setWeatherTag('');
-    setNotes('');
-  };
+  useEffect(() => {
+    if (!visible) return;
+    if (trip) {
+      setDestination(trip.destination ?? '');
+      setStartDate(trip.start_date ?? '');
+      setEndDate(trip.end_date ?? '');
+      setDays(String(trip.days ?? 3));
+      setWeatherTag(trip.weather_tag ?? '');
+      setNotes(trip.notes ?? '');
+    } else {
+      setDestination('');
+      setStartDate('');
+      setEndDate('');
+      setDays('3');
+      setWeatherTag('');
+      setNotes('');
+    }
+  }, [visible, trip]);
 
   const handleClose = () => {
-    reset();
     onClose();
   };
 
@@ -63,21 +75,36 @@ export function CreateTripModal({ visible, onClose, onCreated }: Props) {
       return;
     }
 
+    const payload = {
+      destination: destination.trim(),
+      weather_tag: weatherTag || null,
+      notes: notes.trim() || null,
+      ...(hasDates
+        ? { start_date: startDate.trim(), end_date: endDate.trim() }
+        : { days: parsedDays, start_date: null, end_date: null }),
+    };
+
     setSubmitting(true);
     try {
-      await tripsAPI.createPlan({
-        destination: destination.trim(),
-        weather_tag: weatherTag || undefined,
-        notes: notes.trim() || undefined,
-        ...(hasDates
-          ? { start_date: startDate.trim(), end_date: endDate.trim() }
-          : { days: parsedDays }),
-      });
-      reset();
-      await onCreated();
+      if (editing && trip) {
+        await tripsAPI.updatePlan(trip.id, payload);
+      } else {
+        await tripsAPI.createPlan({
+          destination: payload.destination,
+          weather_tag: weatherTag || undefined,
+          notes: notes.trim() || undefined,
+          ...(hasDates
+            ? { start_date: startDate.trim(), end_date: endDate.trim() }
+            : { days: parsedDays }),
+        });
+      }
+      await onSaved();
       onClose();
     } catch (error) {
-      Alert.alert('Error', getApiErrorMessage(error, 'Could not create that trip.'));
+      Alert.alert(
+        'Error',
+        getApiErrorMessage(error, editing ? 'Could not update that trip.' : 'Could not create that trip.'),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +117,7 @@ export function CreateTripModal({ visible, onClose, onCreated }: Props) {
           <Pressable onPress={handleClose} style={styles.closeLink}>
             <Text style={styles.closeText}>Cancel</Text>
           </Pressable>
-          <Text style={styles.title}>Plan a trip</Text>
+          <Text style={styles.title}>{editing ? 'Edit trip' : 'Plan a trip'}</Text>
           <Text style={styles.subtitle}>
             We build a day-by-day outfit plan from your closet and dedupe your suitcase list.
             Add dates for live weather.
@@ -142,7 +169,11 @@ export function CreateTripModal({ visible, onClose, onCreated }: Props) {
         </ScrollView>
 
         <View style={styles.actions}>
-          <Button title="Create trip" loading={submitting} onPress={handleSubmit} />
+          <Button
+            title={editing ? 'Save changes' : 'Create trip'}
+            loading={submitting}
+            onPress={handleSubmit}
+          />
         </View>
       </View>
     </Modal>

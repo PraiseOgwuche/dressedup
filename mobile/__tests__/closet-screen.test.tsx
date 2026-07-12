@@ -8,20 +8,35 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('../store/closetStore', () => ({
-  useClosetStore: () => ({
-    items: [],
-    laundry: null,
-    isLoading: false,
-    fetchItems: jest.fn(),
-    fetchLaundry: jest.fn(),
-    wearItem: jest.fn(),
-    washItem: jest.fn(),
-    soilItem: jest.fn(),
-    washAll: jest.fn(),
-    createItem: jest.fn(),
-    updateItem: jest.fn(),
-    deleteItem: jest.fn(),
-  }),
+  useClosetStore: Object.assign(
+    () => ({
+      items: [],
+      laundry: null,
+      isLoading: false,
+      fetchItems: jest.fn(),
+      fetchLaundry: jest.fn(),
+      wearItem: jest.fn(),
+      washItem: jest.fn(),
+      soilItem: jest.fn(),
+      washAll: jest.fn(),
+      createItem: jest.fn(),
+      updateItem: jest.fn(),
+      deleteItem: jest.fn(),
+      replacePhoto: jest.fn(),
+      backfillCutouts: jest.fn(),
+    }),
+    {
+      getState: () => ({ items: [] }),
+    },
+  ),
+}));
+
+jest.mock('expo-image-picker', () => ({
+  requestCameraPermissionsAsync: jest.fn(),
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+  launchCameraAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
+  MediaTypeOptions: { Images: 'Images' },
 }));
 
 describe('ClosetScreen', () => {

@@ -63,3 +63,16 @@ class TripPackingPlan(BaseModel):
     summary: str
     weather_source: Optional[str] = None
     weather_note: Optional[str] = None
+
+
+class TripDayLock(BaseModel):
+    day: int = Field(ge=1)
+    top_id: Optional[int] = None
+    bottom_id: Optional[int] = None
+    shoes_id: Optional[int] = None
+    outerwear_id: Optional[int] = None
+
+
+class TripPackingReshuffleRequest(BaseModel):
+    day: int = Field(ge=1)
+    locked_days: List[TripDayLock] = Field(default_factory=list)

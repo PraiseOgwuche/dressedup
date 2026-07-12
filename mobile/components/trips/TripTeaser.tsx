@@ -10,7 +10,27 @@ type Props = {
   user: User | null;
 };
 
+function daysUntil(startDate?: string | null): number | null {
+  if (!startDate) return null;
+  const start = new Date(`${startDate}T12:00:00`);
+  if (Number.isNaN(start.getTime())) return null;
+  const today = new Date();
+  const todayNoon = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+  const diff = Math.round((start.getTime() - todayNoon.getTime()) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
 function formatTripDates(trip: TripPlan): string {
+  const until = daysUntil(trip.start_date);
+  if (until != null) {
+    if (until === 0) return 'Starts today';
+    if (until === 1) return 'Starts tomorrow';
+    if (until > 1 && until <= 14) return `Starts in ${until} days`;
+    if (until < 0 && trip.end_date) {
+      const endUntil = daysUntil(trip.end_date);
+      if (endUntil != null && endUntil >= 0) return 'Happening now';
+    }
+  }
   if (trip.start_date && trip.end_date) {
     return `${trip.start_date} → ${trip.end_date}`;
   }

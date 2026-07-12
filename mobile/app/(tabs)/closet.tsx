@@ -28,9 +28,20 @@ import { closetAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { useClosetStore } from '../../store/closetStore';
 import { ClosetItem, DraftItem } from '../../types';
+import {
+  CleanFilter,
+  ClosetSort,
+  filterAndSortCloset,
+  uniqueSorted,
+} from '../../utils/closetQuery';
 
 const LOW_CONFIDENCE = 0.8;
 const BATCH_LIMIT = 15;
+const SORT_OPTIONS: { key: ClosetSort; label: string }[] = [
+  { key: 'newest', label: 'Newest' },
+  { key: 'least_worn', label: 'Least worn' },
+  { key: 'needs_wash', label: 'Needs wash' },
+];
 
 type QueueEntry = { previewUri: string; imageUrl: string; thumbnailUrl: string; draft: DraftItem };
 
@@ -87,6 +98,8 @@ export default function ClosetScreen() {
     createItem,
     updateItem,
     deleteItem,
+    replacePhoto,
+    backfillCutouts,
     wearItem,
     washItem,
     soilItem,
@@ -95,6 +108,8 @@ export default function ClosetScreen() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isIngesting, setIsIngesting] = useState(false);
+  const [replacingPhoto, setReplacingPhoto] = useState(false);
+  const [busyItemId, setBusyItemId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
@@ -121,8 +136,15 @@ export default function ClosetScreen() {
   }>({});
 
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [cleanFilter, setCleanFilter] = useState<'all' | 'clean' | 'dirty'>('all');
+  const [cleanFilter, setCleanFilter] = useState<CleanFilter>('all');
+  const [colorFilter, setColorFilter] = useState('');
+  const [brandFilter, setBrandFilter] = useState('');
+  const [seasonFilter, setSeasonFilter] = useState('');
+  const [formalityFilter, setFormalityFilter] = useState('');
+  const [sort, setSort] = useState<ClosetSort>('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [improvingPhotos, setImprovingPhotos] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -161,21 +183,93 @@ export default function ClosetScreen() {
 
   const cleanCount = useMemo(() => items.filter((i) => i.is_clean).length, [items]);
   const dirtyCount = useMemo(() => items.filter((i) => !i.is_clean).length, [items]);
+  const reviewCount = useMemo(() => items.filter((i) => i.needs_review).length, [items]);
+  const colorOptions = useMemo(() => uniqueSorted(items.map((i) => i.color)), [items]);
+  const brandOptions = useMemo(() => uniqueSorted(items.map((i) => i.brand)), [items]);
 
-  const filteredItems = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return items.filter((item) => {
-      if (categoryFilter && item.category !== categoryFilter) return false;
-      if (cleanFilter === 'clean' && !item.is_clean) return false;
-      if (cleanFilter === 'dirty' && item.is_clean) return false;
-      if (!q) return true;
-      const haystack = [item.name, item.brand, item.category, item.subcategory, item.color]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [items, categoryFilter, cleanFilter, searchQuery]);
+  const filteredItems = useMemo(
+    () =>
+      filterAndSortCloset(items, {
+        searchQuery,
+        categoryFilter,
+        cleanFilter,
+        colorFilter,
+        brandFilter,
+        seasonFilter,
+        formalityFilter,
+        sort,
+      }),
+    [
+      items,
+      searchQuery,
+      categoryFilter,
+      cleanFilter,
+      colorFilter,
+      brandFilter,
+      seasonFilter,
+      formalityFilter,
+      sort,
+    ],
+  );
+
+  const needsCutoutCount = useMemo(
+    () =>
+      items.filter(
+        (i) =>
+          i.image_url &&
+          (!i.thumbnail_url || i.thumbnail_url === i.image_url || !i.thumbnail_url.includes('/cutouts/')),
+      ).length,
+    [items],
+  );
+
+  const handleImprovePhotos = () => {
+    Alert.alert(
+      'Improve photos',
+      needsCutoutCount
+        ? `Generate clean cutouts for up to 20 items that still show the original photo (${needsCutoutCount} candidates).`
+        : 'Your photos already look cleaned up. Run anyway?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Improve',
+          onPress: async () => {
+            setImprovingPhotos(true);
+            try {
+              const result = await backfillCutouts(20);
+              Alert.alert(
+                'Photos updated',
+                result.updated
+                  ? `Improved ${result.updated} photo${result.updated === 1 ? '' : 's'}${result.skipped ? ` · ${result.skipped} skipped` : ''}.`
+                  : `No new cutouts yet${result.skipped ? ` (${result.skipped} skipped)` : ''}.`,
+              );
+            } catch (error: any) {
+              Alert.alert('Error', getApiErrorMessage(error, 'Could not improve photos.'));
+            } finally {
+              setImprovingPhotos(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const clearExtraFilters = () => {
+    setColorFilter('');
+    setBrandFilter('');
+    setSeasonFilter('');
+    setFormalityFilter('');
+  };
+
+  const runQuickAction = async (itemId: number, action: () => Promise<void>, failure: string) => {
+    setBusyItemId(itemId);
+    try {
+      await action();
+    } catch (error: any) {
+      Alert.alert('Error', getApiErrorMessage(error, failure));
+    } finally {
+      setBusyItemId(null);
+    }
+  };
 
   const setField = (key: keyof FormState, value: string | boolean | string[]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -394,7 +488,7 @@ export default function ClosetScreen() {
         mimeType: garment.mimeType,
       });
       const entries: QueueEntry[] = result.entries.map((entry) => ({
-        previewUri: garment.uri,
+        previewUri: mediaUrl(entry.thumbnail_url || entry.image_url) || garment.uri,
         imageUrl: entry.image_url,
         thumbnailUrl: entry.thumbnail_url,
         draft: entry.draft,
@@ -592,12 +686,74 @@ export default function ClosetScreen() {
     ]);
   };
 
+  const handleReplacePhoto = async (fromCamera: boolean) => {
+    if (!editingId) return;
+    const asset = await pickImage(fromCamera);
+    if (!asset) return;
+    setReplacingPhoto(true);
+    try {
+      await replacePhoto(editingId, {
+        uri: asset.uri,
+        name: asset.fileName,
+        mimeType: asset.mimeType,
+      });
+      const refreshed = useClosetStore.getState().items.find((i) => i.id === editingId);
+      if (refreshed) {
+        setImageUrl(refreshed.image_url ?? undefined);
+        setThumbnailUrl(refreshed.thumbnail_url ?? undefined);
+        setImagePreview(mediaUrl(refreshed.thumbnail_url ?? refreshed.image_url) ?? asset.uri);
+      } else {
+        setImagePreview(asset.uri);
+      }
+    } catch (error: any) {
+      Alert.alert('Photo replace failed', getApiErrorMessage(error, 'Could not update that photo.'));
+    } finally {
+      setReplacingPhoto(false);
+    }
+  };
+
+  const openReplacePhotoMenu = () => {
+    Alert.alert('Replace photo', 'Choose a new photo for this item.', [
+      { text: 'Take photo', onPress: () => handleReplacePhoto(true) },
+      { text: 'Choose from library', onPress: () => handleReplacePhoto(false) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
   const renderItem = ({ item }: { item: ClosetItem }) => (
-    <ClosetGridCard item={item} onPress={() => openEdit(item)} />
+    <ClosetGridCard
+      item={item}
+      onPress={() => openEdit(item)}
+      busy={busyItemId === item.id}
+      onWear={() => runQuickAction(item.id, () => wearItem(item.id), 'Could not record wear.')}
+      onSoilOrWash={() =>
+        runQuickAction(
+          item.id,
+          () => (item.is_clean ? soilItem(item.id) : washItem(item.id)),
+          'Could not update laundry status.',
+        )
+      }
+      onMarkReviewed={() =>
+        runQuickAction(
+          item.id,
+          () => updateItem(item.id, { needs_review: false }),
+          'Could not clear review.',
+        )
+      }
+    />
   );
 
   const listHeader = items.length > 0 ? (
     <View style={styles.listHeader}>
+      {reviewCount > 0 && cleanFilter !== 'review' ? (
+        <Pressable style={styles.reviewBanner} onPress={() => setCleanFilter('review')}>
+          <Text style={styles.reviewBannerText}>
+            {reviewCount} item{reviewCount === 1 ? '' : 's'} need a quick look
+          </Text>
+          <Text style={styles.reviewBannerAction}>Review →</Text>
+        </Pressable>
+      ) : null}
+
       <View style={styles.statsRow}>
         <Pressable
           style={[styles.statPill, cleanFilter === 'all' && styles.statPillActive]}
@@ -620,6 +776,13 @@ export default function ClosetScreen() {
           <Text style={[styles.statValue, cleanFilter === 'dirty' && styles.statValueActive]}>{dirtyCount}</Text>
           <Text style={[styles.statLabel, cleanFilter === 'dirty' && styles.statLabelActive]}>Hamper</Text>
         </Pressable>
+        <Pressable
+          style={[styles.statPill, cleanFilter === 'review' && styles.statPillActive]}
+          onPress={() => setCleanFilter('review')}
+        >
+          <Text style={[styles.statValue, cleanFilter === 'review' && styles.statValueActive]}>{reviewCount}</Text>
+          <Text style={[styles.statLabel, cleanFilter === 'review' && styles.statLabelActive]}>Review</Text>
+        </Pressable>
       </View>
 
       <TextInput
@@ -630,6 +793,21 @@ export default function ClosetScreen() {
         placeholderTextColor={THEME.utility.textMuted}
         clearButtonMode="while-editing"
       />
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+        {SORT_OPTIONS.map((option) => {
+          const active = sort === option.key;
+          return (
+            <Pressable
+              key={option.key}
+              style={[styles.filterChip, active && styles.filterChipActive]}
+              onPress={() => setSort(option.key)}
+            >
+              <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{option.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
         {TAXONOMY.categories.map((cat) => {
@@ -645,6 +823,103 @@ export default function ClosetScreen() {
           );
         })}
       </ScrollView>
+
+      <Pressable style={styles.moreFiltersToggle} onPress={() => setShowMoreFilters((v) => !v)}>
+        <Text style={styles.moreFiltersText}>
+          {showMoreFilters ? 'Hide filters' : 'More filters'}
+          {(colorFilter || brandFilter || seasonFilter || formalityFilter) ? ' · on' : ''}
+        </Text>
+      </Pressable>
+
+      {needsCutoutCount > 0 ? (
+        <Pressable
+          style={styles.improvePhotosBtn}
+          onPress={handleImprovePhotos}
+          disabled={improvingPhotos}
+        >
+          <Text style={styles.improvePhotosText}>
+            {improvingPhotos ? 'Improving photos…' : `Improve ${needsCutoutCount} photos`}
+          </Text>
+        </Pressable>
+      ) : null}
+
+      {showMoreFilters ? (
+        <View style={styles.moreFilters}>
+          {colorOptions.length ? (
+            <>
+              <Text style={styles.filterSectionLabel}>Color</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+                {colorOptions.map((color) => {
+                  const active = colorFilter === color;
+                  return (
+                    <Pressable
+                      key={color}
+                      style={[styles.filterChip, active && styles.filterChipActive]}
+                      onPress={() => setColorFilter((prev) => (prev === color ? '' : color))}
+                    >
+                      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{color}</Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </>
+          ) : null}
+          {brandOptions.length ? (
+            <>
+              <Text style={styles.filterSectionLabel}>Brand</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+                {brandOptions.map((brand) => {
+                  const active = brandFilter === brand;
+                  return (
+                    <Pressable
+                      key={brand}
+                      style={[styles.filterChip, active && styles.filterChipActive]}
+                      onPress={() => setBrandFilter((prev) => (prev === brand ? '' : brand))}
+                    >
+                      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{brand}</Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </>
+          ) : null}
+          <Text style={styles.filterSectionLabel}>Season</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+            {TAXONOMY.seasons.map((season) => {
+              const active = seasonFilter === season;
+              return (
+                <Pressable
+                  key={season}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setSeasonFilter((prev) => (prev === season ? '' : season))}
+                >
+                  <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{season}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+          <Text style={styles.filterSectionLabel}>Formality</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+            {TAXONOMY.formality.map((level) => {
+              const active = formalityFilter === level;
+              return (
+                <Pressable
+                  key={level}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setFormalityFilter((prev) => (prev === level ? '' : level))}
+                >
+                  <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{level}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+          {(colorFilter || brandFilter || seasonFilter || formalityFilter) ? (
+            <Pressable onPress={clearExtraFilters}>
+              <Text style={styles.clearFilters}>Clear extra filters</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
 
       {laundry ? (
         <View style={[styles.laundryBanner, laundry.laundry_due && styles.laundryBannerDue]}>
@@ -732,6 +1007,15 @@ export default function ClosetScreen() {
             ) : null}
 
             {imagePreview ? <Image source={{ uri: imagePreview }} style={styles.preview} resizeMode="cover" /> : null}
+            {editingId ? (
+              <Button
+                title={replacingPhoto ? 'Updating photo…' : 'Replace photo'}
+                variant="outline"
+                onPress={openReplacePhotoMenu}
+                loading={replacingPhoto}
+                style={styles.replacePhotoBtn}
+              />
+            ) : null}
             {source !== 'manual' && !editingId ? (
               <Text style={styles.aiNote}>AI filled these in — fields marked ⚠ are worth a check.</Text>
             ) : null}
@@ -936,6 +1220,58 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: THEME.brand.ink, borderColor: THEME.brand.ink },
   filterChipText: { fontSize: 13, color: THEME.utility.text, textTransform: 'capitalize' },
   filterChipTextActive: { color: '#fff', fontWeight: '700' },
+  moreFiltersToggle: { marginBottom: 10, alignSelf: 'flex-start' },
+  moreFiltersText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: THEME.editorial.accentDark,
+  },
+  improvePhotosBtn: {
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: THEME.brand.sand,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  improvePhotosText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: THEME.brand.ink,
+  },
+  moreFilters: { gap: 4, marginBottom: 8 },
+  filterSectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+    color: THEME.utility.textMuted,
+    marginBottom: 4,
+  },
+  clearFilters: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: THEME.utility.textMuted,
+    marginBottom: 8,
+  },
+  reviewBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: '#FFF4E5',
+    borderWidth: 1,
+    borderColor: '#F0D9B5',
+  },
+  reviewBannerText: { flex: 1, fontSize: 13, fontWeight: '600', color: THEME.utility.text },
+  reviewBannerAction: { fontSize: 13, fontWeight: '800', color: THEME.editorial.accentDark },
+  replacePhotoBtn: { marginBottom: 12 },
   emptyBtn: { marginTop: 12, alignSelf: 'stretch' },
   laundryBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

@@ -51,6 +51,7 @@ class ClothingItemUpdate(BaseModel):
     thumbnail_url: Optional[str] = Field(default=None, max_length=500)
     is_clean: Optional[bool] = None
     times_worn: Optional[int] = Field(default=None, ge=0)
+    needs_review: Optional[bool] = None
 
 
 class ClothingItemResponse(ClothingItemBase):

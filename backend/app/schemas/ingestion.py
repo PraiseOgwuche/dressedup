@@ -3,6 +3,15 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class BoundingBox(BaseModel):
+    """Normalized garment box in the source photo (fractions of width/height)."""
+
+    x: float = Field(ge=0.0, le=1.0)
+    y: float = Field(ge=0.0, le=1.0)
+    w: float = Field(gt=0.0, le=1.0)
+    h: float = Field(gt=0.0, le=1.0)
+
+
 class DraftItem(BaseModel):
     """AI-proposed clothing item the user confirms or corrects before saving.
 
@@ -28,6 +37,9 @@ class DraftItem(BaseModel):
     source: str = "photo"
     confidence: dict[str, float] = Field(default_factory=dict)
     needs_review: bool = False
+
+    # Flat-lay localization — used to crop a per-item photo before cutout.
+    bbox: Optional[BoundingBox] = None
 
     # Receipt / purchase metadata (Phase F). Persisted in ClothingItem.ai_metadata on save.
     sku: Optional[str] = None
@@ -69,6 +81,12 @@ class MultiIngestResult(BaseModel):
 
     source_image_url: str
     entries: list[MultiIngestEntry]
+
+
+class CutoutBackfillResult(BaseModel):
+    updated: int
+    skipped: int
+    updated_ids: list[int] = Field(default_factory=list)
 
 
 class ReceiptIngestResult(BaseModel):

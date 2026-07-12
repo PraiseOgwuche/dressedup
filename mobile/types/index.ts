@@ -120,6 +120,7 @@ export interface DraftItem {
   source: string;
   confidence: Record<string, number>;
   needs_review: boolean;
+  bbox?: { x: number; y: number; w: number; h: number } | null;
   sku?: string | null;
   price?: number | null;
   purchase_date?: string | null;

@@ -107,13 +107,61 @@ class TripService:
             )
 
     @staticmethod
-    def packing_plan(db: Session, user_id: int, plan_id: int) -> dict:
+    def packing_plan(
+        db: Session,
+        user_id: int,
+        plan_id: int,
+        reshuffle_day: int | None = None,
+        locked_days: list | None = None,
+    ) -> dict:
         plan = TripService.get_plan(db, user_id, plan_id)
+        if reshuffle_day is not None and (reshuffle_day < 1 or reshuffle_day > plan.days):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"day must be between 1 and {plan.days}",
+            )
+
         forecast, weather_source, weather_note = TripService._load_forecast(plan)
 
+        locked_by_day: dict[int, object] = {}
+        for lock in locked_days or []:
+            locked_by_day[lock.day] = lock
+
+        closet = {
+            item.id: item
+            for item in db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
+        }
+
         used_ids: set[int] = set()
-        days_outfits: list[dict] = []
         packed_by_id: dict[int, ClothingItem] = {}
+
+        # Reserve pieces from locked days so reshuffled day cannot steal them.
+        for day, lock in locked_by_day.items():
+            if reshuffle_day is not None and day == reshuffle_day:
+                continue
+            for item_id in (
+                getattr(lock, "top_id", None),
+                getattr(lock, "bottom_id", None),
+                getattr(lock, "shoes_id", None),
+                getattr(lock, "outerwear_id", None),
+            ):
+                if item_id and item_id in closet:
+                    used_ids.add(item_id)
+                    packed_by_id[item_id] = closet[item_id]
+
+        avoid_for_reshuffle: set[int] = set()
+        if reshuffle_day is not None and reshuffle_day in locked_by_day:
+            lock = locked_by_day[reshuffle_day]
+            for item_id in (
+                getattr(lock, "top_id", None),
+                getattr(lock, "bottom_id", None),
+                getattr(lock, "shoes_id", None),
+                getattr(lock, "outerwear_id", None),
+            ):
+                if item_id:
+                    avoid_for_reshuffle.add(item_id)
+
+        days_outfits: list[dict] = []
         start, _ = WeatherService.trip_date_range(plan.start_date, plan.end_date, plan.days)
 
         for day in range(1, plan.days + 1):
@@ -128,29 +176,55 @@ class TripService:
                 weather_tag = plan.weather_tag or "mild"
                 weather_summary = None
 
-            suggestion = OutfitService.get_suggestion(
-                db=db,
-                user_id=user_id,
-                weather_tag=weather_tag,
-                occasion="travel",
-                include_alternative=False,
-                exclude_ids=used_ids,
+            use_lock = (
+                day in locked_by_day
+                and not (reshuffle_day is not None and day == reshuffle_day)
             )
-            chosen = [
-                suggestion[slot]
-                for slot in ("top", "bottom", "shoes", "outerwear")
-                if suggestion.get(slot) is not None
-            ]
-            for item in chosen:
-                used_ids.add(item.id)
-                packed_by_id[item.id] = item
+
+            if use_lock:
+                lock = locked_by_day[day]
+
+                def _locked(slot: str):
+                    item_id = getattr(lock, f"{slot}_id", None)
+                    return closet.get(item_id) if item_id else None
+
+                chosen_slots = {
+                    "top": _locked("top"),
+                    "bottom": _locked("bottom"),
+                    "shoes": _locked("shoes"),
+                    "outerwear": _locked("outerwear"),
+                }
+                rationale = None
+            else:
+                exclude = set(used_ids)
+                if reshuffle_day is not None and day == reshuffle_day:
+                    exclude |= avoid_for_reshuffle
+                suggestion = OutfitService.get_suggestion(
+                    db=db,
+                    user_id=user_id,
+                    weather_tag=weather_tag,
+                    occasion="travel",
+                    include_alternative=False,
+                    exclude_ids=exclude,
+                )
+                chosen_slots = {
+                    "top": suggestion.get("top"),
+                    "bottom": suggestion.get("bottom"),
+                    "shoes": suggestion.get("shoes"),
+                    "outerwear": suggestion.get("outerwear"),
+                }
+                rationale = suggestion.get("rationale")
+
+            for item in chosen_slots.values():
+                if item is not None:
+                    used_ids.add(item.id)
+                    packed_by_id[item.id] = item
 
             date_label = trip_date.strftime("%b %d") if trip_date else f"Day {day}"
             title = f"{date_label} — {plan.destination}"
             if weather_tag and day_weather:
                 title = f"{date_label} — {plan.destination} ({weather_tag})"
 
-            rationale = suggestion.get("rationale")
             if weather_summary:
                 rationale = f"Forecast: {weather_summary}. {rationale or ''}".strip()
 
@@ -162,10 +236,10 @@ class TripService:
                     "weather_tag": weather_tag,
                     "weather_summary": weather_summary,
                     "rationale": rationale,
-                    "top": suggestion.get("top"),
-                    "bottom": suggestion.get("bottom"),
-                    "shoes": suggestion.get("shoes"),
-                    "outerwear": suggestion.get("outerwear"),
+                    "top": chosen_slots["top"],
+                    "bottom": chosen_slots["bottom"],
+                    "shoes": chosen_slots["shoes"],
+                    "outerwear": chosen_slots["outerwear"],
                 }
             )
 

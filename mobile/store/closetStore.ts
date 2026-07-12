@@ -14,6 +14,8 @@ interface ClosetState {
   createItem: (payload: ClosetItemCreate) => Promise<void>;
   updateItem: (itemId: number, payload: Partial<ClosetItemCreate>) => Promise<void>;
   deleteItem: (itemId: number) => Promise<void>;
+  replacePhoto: (itemId: number, garment: { uri: string; name?: string | null; mimeType?: string | null }) => Promise<void>;
+  backfillCutouts: (limit?: number) => Promise<{ updated: number; skipped: number }>;
   wearItem: (itemId: number) => Promise<void>;
   washItem: (itemId: number) => Promise<void>;
   soilItem: (itemId: number) => Promise<void>;
@@ -89,6 +91,29 @@ export const useClosetStore = create<ClosetState>((set, get) => ({
       await get().fetchItems();
     } catch (error: any) {
       set({ error: getApiErrorMessage(error, 'Failed to delete item'), isLoading: false });
+      throw error;
+    }
+  },
+  replacePhoto: async (itemId, garment) => {
+    set({ error: null });
+    try {
+      await closetAPI.replacePhoto(itemId, garment);
+      await get().fetchItems();
+    } catch (error: any) {
+      set({ error: getApiErrorMessage(error, 'Failed to replace photo') });
+      throw error;
+    }
+  },
+  backfillCutouts: async (limit = 20) => {
+    set({ error: null });
+    try {
+      const result = await closetAPI.backfillCutouts(limit);
+      if (result.updated > 0) {
+        await get().fetchItems();
+      }
+      return { updated: result.updated, skipped: result.skipped };
+    } catch (error: any) {
+      set({ error: getApiErrorMessage(error, 'Failed to improve photos') });
       throw error;
     }
   },

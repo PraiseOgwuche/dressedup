@@ -106,3 +106,67 @@ def test_delete_trip_plan(client, auth_header):
 
     plans = client.get("/api/v1/trips/plans", headers=auth_header)
     assert all(p["id"] != plan_id for p in plans.json())
+
+
+def test_update_trip_plan_dates(client, auth_header):
+    create = client.post(
+        "/api/v1/trips/plans",
+        headers=auth_header,
+        json={"destination": "Berlin", "days": 2},
+    )
+    plan_id = create.json()["id"]
+
+    update = client.put(
+        f"/api/v1/trips/plans/{plan_id}",
+        headers=auth_header,
+        json={
+            "destination": "Munich",
+            "start_date": "2026-09-01",
+            "end_date": "2026-09-04",
+            "notes": "Oktoberfest",
+        },
+    )
+    assert update.status_code == 200
+    body = update.json()
+    assert body["destination"] == "Munich"
+    assert body["days"] == 4
+    assert body["start_date"] == "2026-09-01"
+    assert body["notes"] == "Oktoberfest"
+
+
+def test_reshuffle_trip_day_keeps_other_days(client, auth_header):
+    create = client.post(
+        "/api/v1/trips/plans",
+        headers=auth_header,
+        json={"destination": "Seoul", "days": 2, "weather_tag": "mild"},
+    )
+    plan_id = create.json()["id"]
+
+    packing = client.get(f"/api/v1/trips/plans/{plan_id}/packing", headers=auth_header)
+    assert packing.status_code == 200
+    original = packing.json()
+    day1 = original["days"][0]
+
+    locked = []
+    for day in original["days"]:
+        locked.append(
+            {
+                "day": day["day"],
+                "top_id": day["top"]["id"] if day.get("top") else None,
+                "bottom_id": day["bottom"]["id"] if day.get("bottom") else None,
+                "shoes_id": day["shoes"]["id"] if day.get("shoes") else None,
+                "outerwear_id": day["outerwear"]["id"] if day.get("outerwear") else None,
+            }
+        )
+
+    reshuffle = client.post(
+        f"/api/v1/trips/plans/{plan_id}/packing/reshuffle",
+        headers=auth_header,
+        json={"day": 2, "locked_days": locked},
+    )
+    assert reshuffle.status_code == 200
+    body = reshuffle.json()
+    assert body["days"][0]["day"] == 1
+    if day1.get("top"):
+        assert body["days"][0]["top"]["id"] == day1["top"]["id"]
+    assert len(body["days"]) == 2

@@ -15,7 +15,7 @@ import { useAuthStore } from '../../store/authStore';
 import { THEME, FONTS, SHADOW, utilityTitle } from '../../constants/theme';
 import { tripsAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
-import { hasPremiumAccess, TripPackingPlan, TripPlan } from '../../types';
+import { hasPremiumAccess, TripDayOutfit, TripPackingPlan, TripPlan } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { CreateTripModal } from '../../components/trips/CreateTripModal';
 import { TripPackingView } from '../../components/trips/TripPackingView';
@@ -27,6 +27,16 @@ function formatTripMeta(trip: TripPlan): string {
   return `${trip.days} day${trip.days === 1 ? '' : 's'}`;
 }
 
+function dayLocks(days: TripDayOutfit[]) {
+  return days.map((day) => ({
+    day: day.day,
+    top_id: day.top?.id ?? null,
+    bottom_id: day.bottom?.id ?? null,
+    shoes_id: day.shoes?.id ?? null,
+    outerwear_id: day.outerwear?.id ?? null,
+  }));
+}
+
 export default function TripsScreen() {
   const user = useAuthStore((state) => state.user);
   const premium = hasPremiumAccess(user);
@@ -34,9 +44,11 @@ export default function TripsScreen() {
   const [trips, setTrips] = useState<TripPlan[]>([]);
   const [loading, setLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingTrip, setEditingTrip] = useState<TripPlan | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [packing, setPacking] = useState<TripPackingPlan | null>(null);
   const [packingLoading, setPackingLoading] = useState(false);
+  const [reshufflingDay, setReshufflingDay] = useState<number | null>(null);
 
   const loadTrips = useCallback(async () => {
     if (!premium) {
@@ -78,6 +90,22 @@ export default function TripsScreen() {
     }
   };
 
+  const reshuffleDay = async (day: TripDayOutfit) => {
+    if (!packing || selectedId == null) return;
+    setReshufflingDay(day.day);
+    try {
+      const next = await tripsAPI.reshuffleDay(selectedId, {
+        day: day.day,
+        locked_days: dayLocks(packing.days),
+      });
+      setPacking(next);
+    } catch (error) {
+      Alert.alert('Shuffle failed', getApiErrorMessage(error, 'Could not reshuffle that day.'));
+    } finally {
+      setReshufflingDay(null);
+    }
+  };
+
   const deleteTrip = (trip: TripPlan) => {
     Alert.alert('Delete trip', `Remove ${trip.destination}?`, [
       { text: 'Cancel', style: 'cancel' },
@@ -109,6 +137,13 @@ export default function TripsScreen() {
     }
   };
 
+  const onTripSaved = async () => {
+    await loadTrips();
+    if (editingTrip && selectedId === editingTrip.id) {
+      await loadPacking(editingTrip.id);
+    }
+  };
+
   const renderTrip = ({ item }: { item: TripPlan }) => {
     const active = selectedId === item.id;
     return (
@@ -124,6 +159,15 @@ export default function TripsScreen() {
         <View style={styles.tripActions}>
           <Pressable style={styles.smallBtn} onPress={() => loadPacking(item.id)}>
             <Text style={styles.smallBtnText}>{packingLoading && active ? 'Loading…' : 'What to pack'}</Text>
+          </Pressable>
+          <Pressable
+            style={styles.smallBtnSecondary}
+            onPress={() => {
+              setEditingTrip(item);
+              setCreateOpen(true);
+            }}
+          >
+            <Text style={styles.smallBtnSecondaryText}>Edit</Text>
           </Pressable>
           <Pressable style={styles.smallBtn} onPress={() => toggleComplete(item)}>
             <Text style={styles.smallBtnText}>{item.is_completed ? 'Reopen' : 'Mark done'}</Text>
@@ -144,7 +188,14 @@ export default function TripsScreen() {
           Weather-aware outfits per day, plus one smart suitcase list from your closet.
         </Text>
         {premium ? (
-          <Button title="+ New trip" onPress={() => setCreateOpen(true)} style={styles.newBtn} />
+          <Button
+            title="+ New trip"
+            onPress={() => {
+              setEditingTrip(null);
+              setCreateOpen(true);
+            }}
+            style={styles.newBtn}
+          />
         ) : null}
       </View>
 
@@ -170,7 +221,13 @@ export default function TripsScreen() {
                 Add a destination and dates — we will dress you for each day and tell you exactly
                 what to pack once.
               </Text>
-              <Button title="Plan your first trip" onPress={() => setCreateOpen(true)} />
+              <Button
+                title="Plan your first trip"
+                onPress={() => {
+                  setEditingTrip(null);
+                  setCreateOpen(true);
+                }}
+              />
             </View>
           ) : (
             trips.map((item) => (
@@ -180,7 +237,11 @@ export default function TripsScreen() {
 
           {packing && selectedId === packing.trip.id ? (
             <View style={styles.packingSection}>
-              <TripPackingView plan={packing} />
+              <TripPackingView
+                plan={packing}
+                onReshuffleDay={reshuffleDay}
+                reshufflingDay={reshufflingDay}
+              />
             </View>
           ) : null}
         </ScrollView>
@@ -188,8 +249,12 @@ export default function TripsScreen() {
 
       <CreateTripModal
         visible={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreated={loadTrips}
+        trip={editingTrip}
+        onClose={() => {
+          setCreateOpen(false);
+          setEditingTrip(null);
+        }}
+        onSaved={onTripSaved}
       />
     </SafeAreaView>
   );
@@ -255,6 +320,15 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.brand.ink,
   },
   smallBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  smallBtnSecondary: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: THEME.utility.surfaceMuted,
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  smallBtnSecondaryText: { fontSize: 12, fontWeight: '700', color: THEME.brand.ink },
   smallBtnDanger: {
     paddingHorizontal: 12,
     paddingVertical: 8,

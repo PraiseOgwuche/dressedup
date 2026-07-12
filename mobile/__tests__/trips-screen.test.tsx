@@ -26,6 +26,7 @@ jest.mock('../services/api', () => ({
   tripsAPI: {
     listPlans: jest.fn().mockResolvedValue([]),
     getPacking: jest.fn(),
+    reshuffleDay: jest.fn(),
     createPlan: jest.fn(),
     updatePlan: jest.fn(),
     deletePlan: jest.fn(),

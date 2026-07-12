@@ -151,6 +151,20 @@ export const closetAPI = {
   remove: async (itemId: number): Promise<void> => {
     await api.delete(`/closet/items/${itemId}`);
   },
+  replacePhoto: async (itemId: number, garment: ImageUpload): Promise<ClosetItem> => {
+    const form = new FormData();
+    form.append('garment', toFilePart(garment, 'garment.jpg') as any);
+    const response = await api.post<ClosetItem>(`/closet/items/${itemId}/photo`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+  backfillCutouts: async (limit = 20): Promise<{ updated: number; skipped: number; updated_ids: number[] }> => {
+    const response = await api.post<{ updated: number; skipped: number; updated_ids: number[] }>(
+      `/closet/cutouts/backfill?limit=${limit}`,
+    );
+    return response.data;
+  },
   ingest: async (garment: ImageUpload, label?: ImageUpload | null): Promise<IngestResult> => {
     const form = new FormData();
     form.append('garment', toFilePart(garment, 'garment.jpg') as any);
@@ -496,11 +510,33 @@ export const tripsAPI = {
     const response = await api.get<TripPackingPlan>(`/trips/plans/${planId}/packing`);
     return response.data;
   },
+  reshuffleDay: async (
+    planId: number,
+    payload: {
+      day: number;
+      locked_days: Array<{
+        day: number;
+        top_id?: number | null;
+        bottom_id?: number | null;
+        shoes_id?: number | null;
+        outerwear_id?: number | null;
+      }>;
+    },
+  ): Promise<TripPackingPlan> => {
+    const response = await api.post<TripPackingPlan>(
+      `/trips/plans/${planId}/packing/reshuffle`,
+      payload,
+    );
+    return response.data;
+  },
   updatePlan: async (
     planId: number,
     payload: Partial<{
       destination: string;
       weather_tag: string | null;
+      start_date: string | null;
+      end_date: string | null;
+      days: number;
       is_completed: boolean;
       notes: string | null;
     }>,

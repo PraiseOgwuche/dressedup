@@ -10,6 +10,7 @@ original photo.
 import io
 import logging
 import threading
+from pathlib import Path
 from typing import Optional
 
 from PIL import Image
@@ -97,3 +98,61 @@ def remove_background(data: bytes) -> Optional[bytes]:
     except Exception:
         logger.exception("Background removal failed; keeping original image")
         return None
+
+
+def crop_normalized(
+    data: bytes,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    *,
+    padding: float = 0.04,
+) -> Optional[bytes]:
+    """Crop a JPEG region using normalized 0–1 box coords. Returns JPEG bytes or None."""
+    try:
+        image = Image.open(io.BytesIO(data)).convert("RGB")
+    except Exception:
+        return None
+
+    if image.width < 8 or image.height < 8:
+        return None
+
+    # Clamp + pad so tight vision boxes don't clip sleeves/hems.
+    x0 = max(0.0, min(1.0, x - padding))
+    y0 = max(0.0, min(1.0, y - padding))
+    x1 = max(0.0, min(1.0, x + w + padding))
+    y1 = max(0.0, min(1.0, y + h + padding))
+    if x1 - x0 < 0.05 or y1 - y0 < 0.05:
+        return None
+
+    left = int(x0 * image.width)
+    top = int(y0 * image.height)
+    right = max(left + 1, int(x1 * image.width))
+    bottom = max(top + 1, int(y1 * image.height))
+    cropped = image.crop((left, top, right, bottom))
+
+    buffer = io.BytesIO()
+    cropped.save(buffer, format="JPEG", quality=90)
+    return buffer.getvalue()
+
+
+def fetch_stored_image_bytes(url: str) -> Optional[bytes]:
+    """Resolve a stored image_url to raw bytes — local media path or HTTP(S)."""
+    if not url:
+        return None
+    if url.startswith(settings.MEDIA_URL_PREFIX):
+        relative = url[len(settings.MEDIA_URL_PREFIX) :].lstrip("/")
+        path = Path(settings.MEDIA_DIR) / relative
+        return path.read_bytes() if path.exists() else None
+    if url.startswith("http://") or url.startswith("https://"):
+        try:
+            import httpx
+
+            response = httpx.get(url, timeout=30, follow_redirects=True)
+            response.raise_for_status()
+            return response.content
+        except Exception:
+            logger.exception("Failed to fetch stored image %s", url)
+            return None
+    return None

@@ -14,7 +14,13 @@ from app.schemas.closet import (
     LaundrySummary,
     WashAllRequest,
 )
-from app.schemas.ingestion import BatchIngestResult, IngestResult, MultiIngestResult, ReceiptIngestResult
+from app.schemas.ingestion import (
+    BatchIngestResult,
+    CutoutBackfillResult,
+    IngestResult,
+    MultiIngestResult,
+    ReceiptIngestResult,
+)
 from app.services.closet_service import ClosetService
 from app.services.ingestion_service import IngestionService
 from app.utils.dependencies import get_current_user
@@ -134,6 +140,20 @@ def update_item(
     return ClosetService.update_item(db, current_user.id, item_id, payload)
 
 
+@router.post("/items/{item_id}/photo", response_model=ClothingItemResponse)
+async def replace_item_photo(
+    item_id: int,
+    garment: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Replace garment photo + cutout thumbnail (no AI re-scan)."""
+    garment_bytes, garment_ext = await _read_image(garment)
+    return ClosetService.replace_photo(
+        db, current_user.id, item_id, garment_bytes, garment_ext
+    )
+
+
 @router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_item(
     item_id: int,
@@ -141,6 +161,16 @@ def delete_item(
     current_user: User = Depends(get_current_user),
 ):
     ClosetService.delete_item(db, current_user.id, item_id)
+
+
+@router.post("/cutouts/backfill", response_model=CutoutBackfillResult)
+def backfill_cutouts(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate cutout thumbnails for items still showing the original photo."""
+    return ClosetService.backfill_cutouts(db, current_user.id, limit=limit)
 
 
 @router.get("/laundry/summary", response_model=LaundrySummary)

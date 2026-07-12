@@ -97,6 +97,72 @@ def test_ingest_multi_endpoint_returns_entries(client, auth_header):
     assert body["entries"][0]["draft"]["category"] in CATEGORIES
 
 
+def test_ingest_multi_crops_per_bbox(client, auth_header):
+    from io import BytesIO
+
+    from PIL import Image
+
+    # Tall RGB flat-lay so stub vertical bboxes produce distinct crops.
+    image = Image.new("RGB", (200, 600), color=(240, 240, 240))
+    for y0, color in ((0, (255, 0, 0)), (200, (0, 0, 255)), (400, (139, 69, 19))):
+        for y in range(y0, y0 + 200):
+            for x in range(200):
+                image.putpixel((x, y), color)
+    buf = BytesIO()
+    image.save(buf, format="JPEG")
+    jpeg = buf.getvalue()
+
+    response = client.post(
+        "/api/v1/closet/ingest/multi",
+        files={"garment": ("flatlay.jpg", jpeg, "image/jpeg")},
+        headers=auth_header,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    urls = [e["image_url"] for e in body["entries"]]
+    assert len(urls) >= 2
+    # Per-item crops should not all share the source flat-lay URL.
+    assert len(set(urls)) >= 2
+    assert all(e["draft"].get("bbox") for e in body["entries"])
+
+
+def test_crop_normalized_helper():
+    from io import BytesIO
+
+    from PIL import Image
+
+    from app.services.image_processing import crop_normalized
+
+    image = Image.new("RGB", (100, 100), color=(10, 20, 30))
+    buf = BytesIO()
+    image.save(buf, format="JPEG")
+    cropped = crop_normalized(buf.getvalue(), 0.1, 0.1, 0.4, 0.4, padding=0)
+    assert cropped is not None
+    out = Image.open(BytesIO(cropped))
+    assert out.size == (40, 40)
+
+
+def test_cutout_backfill_endpoint(client, auth_header):
+    create = client.post(
+        "/api/v1/closet/items",
+        json={
+            "name": "Needs cutout",
+            "category": "top",
+            "image_url": "/media/items/missing.jpg",
+            "thumbnail_url": "/media/items/missing.jpg",
+            "is_clean": True,
+        },
+        headers=auth_header,
+    )
+    assert create.status_code == 201
+
+    response = client.post("/api/v1/closet/cutouts/backfill?limit=5", headers=auth_header)
+    assert response.status_code == 200
+    body = response.json()
+    assert "updated" in body and "skipped" in body
+    # Missing file → skipped, not an error.
+    assert body["skipped"] >= 1
+
 def test_ingest_endpoint_rejects_non_image(client, auth_header):
     files = {"garment": ("notes.txt", b"hello", "text/plain")}
     response = client.post("/api/v1/closet/ingest", files=files, headers=auth_header)

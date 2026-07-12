@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.schemas.ingestion import DraftItem, ReceiptExtract
+from app.schemas.ingestion import BoundingBox, DraftItem, ReceiptExtract
 from app.services.vision.base import VisionProvider
 
 
@@ -66,6 +66,7 @@ class StubVisionProvider(VisionProvider):
         top.subcategory = "shirt"
         top.color = "white"
         top.color_hex = "#F5F5F5"
+        top.bbox = BoundingBox(x=0.08, y=0.04, w=0.84, h=0.28)
 
         bottom = DraftItem(
             name="Navy chinos",
@@ -81,6 +82,7 @@ class StubVisionProvider(VisionProvider):
             source="photo",
             confidence={"category": 0.91, "color": 0.88},
             needs_review=True,
+            bbox=BoundingBox(x=0.08, y=0.36, w=0.84, h=0.28),
         )
         belt = DraftItem(
             name="Brown leather belt",
@@ -96,6 +98,7 @@ class StubVisionProvider(VisionProvider):
             source="photo",
             confidence={"category": 0.85, "color": 0.8},
             needs_review=True,
+            bbox=BoundingBox(x=0.15, y=0.68, w=0.7, h=0.24),
         )
         return [top, bottom, belt]
 

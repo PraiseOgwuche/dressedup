@@ -51,3 +51,51 @@ def test_closet_crud_flow(client, auth_header):
     delete_response = client.delete(f"/api/v1/closet/items/{item_id}", headers=auth_header)
     assert delete_response.status_code == 204
 
+
+def test_clear_needs_review(client, auth_header):
+    create = client.post(
+        "/api/v1/closet/items",
+        json={
+            "name": "Review Jean",
+            "category": "bottom",
+            "needs_review": True,
+            "is_clean": True,
+        },
+        headers=auth_header,
+    )
+    assert create.status_code == 201
+    item_id = create.json()["id"]
+    assert create.json()["needs_review"] is True
+
+    update = client.put(
+        f"/api/v1/closet/items/{item_id}",
+        json={"needs_review": False},
+        headers=auth_header,
+    )
+    assert update.status_code == 200
+    assert update.json()["needs_review"] is False
+
+
+def test_replace_item_photo(client, auth_header):
+    create = client.post(
+        "/api/v1/closet/items",
+        json={"name": "Photo Tee", "category": "top", "is_clean": True},
+        headers=auth_header,
+    )
+    item_id = create.json()["id"]
+
+    # Minimal valid JPEG header bytes — storage accepts raw bytes.
+    jpeg = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xd9"
+    )
+    response = client.post(
+        f"/api/v1/closet/items/{item_id}/photo",
+        headers=auth_header,
+        files={"garment": ("tee.jpg", jpeg, "image/jpeg")},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["image_url"]
+    assert body["thumbnail_url"]
+

@@ -6,7 +6,7 @@ import anthropic
 from PIL import Image
 
 from app.config import settings
-from app.schemas.ingestion import DraftItem, ReceiptExtract
+from app.schemas.ingestion import BoundingBox, DraftItem, ReceiptExtract
 from app.services.vision.base import VisionProvider
 from app.taxonomy import (
     CATEGORIES,
@@ -72,14 +72,36 @@ _TOOL = {
     },
 }
 
-_ITEM_SCHEMA = _TOOL["input_schema"]
-
 _MULTI_SYSTEM_PROMPT = (
     "You are a wardrobe cataloging assistant. The photo may show several distinct "
     "clothing items (flat-lay on a bed, outfit pile, closet shelf). Identify every "
     "separate garment or accessory and catalog each one. Do not merge multiple items "
-    "into one entry. Only set brand/material/size when clearly visible."
+    "into one entry. For each item, also return a tight bounding box (bbox) as "
+    "normalized fractions of the full image (x,y = top-left; w,h = size; all 0–1). "
+    "Boxes may lightly overlap but should not cover the whole photo unless only one "
+    "item is present. Only set brand/material/size when clearly visible."
 )
+
+_BBOX_SCHEMA = {
+    "type": "object",
+    "description": "Normalized box around this garment in the source photo.",
+    "properties": {
+        "x": {"type": "number", "minimum": 0, "maximum": 1},
+        "y": {"type": "number", "minimum": 0, "maximum": 1},
+        "w": {"type": "number", "minimum": 0.05, "maximum": 1},
+        "h": {"type": "number", "minimum": 0.05, "maximum": 1},
+    },
+    "required": ["x", "y", "w", "h"],
+}
+
+_MULTI_ITEM_SCHEMA = {
+    "type": "object",
+    "properties": {
+        **_TOOL["input_schema"]["properties"],
+        "bbox": _BBOX_SCHEMA,
+    },
+    "required": ["name", "category", "bbox"],
+}
 
 _MULTI_TOOL = {
     "name": "save_clothing_items",
@@ -89,7 +111,7 @@ _MULTI_TOOL = {
         "properties": {
             "items": {
                 "type": "array",
-                "items": _ITEM_SCHEMA,
+                "items": _MULTI_ITEM_SCHEMA,
                 "description": "One entry per distinct garment or accessory in the image.",
             }
         },
@@ -308,6 +330,26 @@ class AnthropicVisionProvider(VisionProvider):
         return self._to_label_draft(data)
 
     @staticmethod
+    def _parse_bbox(raw) -> Optional[BoundingBox]:
+        if not isinstance(raw, dict):
+            return None
+        try:
+            box = BoundingBox(
+                x=float(raw["x"]),
+                y=float(raw["y"]),
+                w=float(raw["w"]),
+                h=float(raw["h"]),
+            )
+        except (KeyError, TypeError, ValueError):
+            return None
+        # Reject boxes that cover almost the whole frame — useless for cropping.
+        if box.w * box.h > 0.92:
+            return None
+        if box.x + box.w > 1.05 or box.y + box.h > 1.05:
+            return None
+        return box
+
+    @staticmethod
     def _to_draft(data: dict, has_label: bool) -> DraftItem:
         uncertain = set(data.get("uncertain_fields") or [])
         confidence = {
@@ -332,6 +374,7 @@ class AnthropicVisionProvider(VisionProvider):
             source="label_ocr" if has_label else "photo",
             confidence=confidence,
             needs_review=bool(uncertain) or not data.get("brand"),
+            bbox=AnthropicVisionProvider._parse_bbox(data.get("bbox")),
         )
 
     @staticmethod

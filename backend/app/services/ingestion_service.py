@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple
 
 from app.config import settings
 from app.schemas.ingestion import BatchIngestEntry, IngestResult, MultiIngestEntry, MultiIngestResult, ReceiptIngestResult
-from app.services.image_processing import remove_background
+from app.services.image_processing import crop_normalized, remove_background
 from app.services.storage import get_storage_provider
 from app.services.vision import get_vision_provider
 
@@ -52,8 +52,7 @@ class IngestionService:
         label_bytes: Optional[bytes] = None,
     ) -> MultiIngestResult:
         storage = get_storage_provider()
-        image_url = storage.save(garment_bytes, ext=garment_ext, subdir="items")
-        thumbnail_url = IngestionService._save_cutout(garment_bytes, storage, image_url)
+        source_image_url = storage.save(garment_bytes, ext=garment_ext, subdir="items")
 
         drafts = get_vision_provider().extract_multi_attributes(
             garment_image=garment_bytes,
@@ -62,16 +61,39 @@ class IngestionService:
         if not drafts:
             drafts = [get_vision_provider().extract_attributes(garment_bytes, label_bytes)]
 
-        entries = [
-            MultiIngestEntry(
-                index=i,
-                draft=draft,
-                image_url=image_url,
-                thumbnail_url=thumbnail_url,
+        entries: list[MultiIngestEntry] = []
+        for i, draft in enumerate(drafts[: settings.MAX_MULTI_ITEMS_PER_PHOTO]):
+            item_bytes = garment_bytes
+            item_ext = garment_ext
+            if draft.bbox is not None:
+                cropped = crop_normalized(
+                    garment_bytes,
+                    draft.bbox.x,
+                    draft.bbox.y,
+                    draft.bbox.w,
+                    draft.bbox.h,
+                )
+                if cropped is not None:
+                    item_bytes = cropped
+                    item_ext = "jpg"
+
+            if item_bytes is garment_bytes:
+                # No usable crop — fall back to the shared flat-lay photo.
+                image_url = source_image_url
+            else:
+                image_url = storage.save(item_bytes, ext=item_ext, subdir="items")
+
+            thumbnail_url = IngestionService._save_cutout(item_bytes, storage, image_url)
+            entries.append(
+                MultiIngestEntry(
+                    index=i,
+                    draft=draft,
+                    image_url=image_url,
+                    thumbnail_url=thumbnail_url,
+                )
             )
-            for i, draft in enumerate(drafts[: settings.MAX_MULTI_ITEMS_PER_PHOTO])
-        ]
-        return MultiIngestResult(source_image_url=image_url, entries=entries)
+
+        return MultiIngestResult(source_image_url=source_image_url, entries=entries)
 
     @staticmethod
     def ingest_many(payloads: List[BatchPayload]) -> List[BatchIngestEntry]:
