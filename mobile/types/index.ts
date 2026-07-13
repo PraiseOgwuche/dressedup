@@ -54,6 +54,7 @@ export interface ClosetItem {
   formality?: string | null;
   weather_tag?: string[] | null;
   seasons?: string[] | null;
+  tags?: string[] | null;
   image_url?: string | null;
   thumbnail_url?: string | null;
   is_clean: boolean;
@@ -66,6 +67,48 @@ export interface ClosetItem {
   source: string;
   needs_review: boolean;
   created_at: string;
+}
+
+export interface ClosetItemUsage {
+  feedback_count: number;
+  signal_count: number;
+  post_count: number;
+  looks_count: number;
+}
+
+export interface ClosetPairPreview {
+  title: string;
+  weather_tag?: string | null;
+  occasion?: string | null;
+  rationale?: string | null;
+  styling_note?: string | null;
+  top?: ClosetItem | null;
+  bottom?: ClosetItem | null;
+  shoes?: ClosetItem | null;
+  outerwear?: ClosetItem | null;
+}
+
+export interface ClosetItemContext {
+  item: ClosetItem;
+  slot?: string | null;
+  usage: ClosetItemUsage;
+  pair_preview?: ClosetPairPreview | null;
+}
+
+export interface ClosetGap {
+  category: string;
+  closet_count: number;
+  target: number;
+  title: string;
+  reason: string;
+}
+
+export interface ClosetGapsResponse {
+  by_category: Record<string, number>;
+  by_slot: Record<string, number>;
+  gaps: ClosetGap[];
+  summary: string;
+  total_items: number;
 }
 
 export interface LaundrySummary {
@@ -93,6 +136,7 @@ export interface ClosetItemCreate {
   formality?: string;
   weather_tag?: string[];
   seasons?: string[];
+  tags?: string[];
   image_url?: string;
   thumbnail_url?: string;
   is_clean: boolean;

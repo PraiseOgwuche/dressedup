@@ -12,6 +12,7 @@ describe('closetQuery', () => {
       color: 'navy',
       formality: 'casual',
       seasons: ['summer'],
+      tags: ['work'],
       is_clean: true,
       times_worn: 5,
       wears_since_wash: 2,
@@ -29,6 +30,7 @@ describe('closetQuery', () => {
       color: 'black',
       formality: 'casual',
       seasons: ['all-season'],
+      tags: ['weekend'],
       is_clean: false,
       times_worn: 1,
       wears_since_wash: 4,
@@ -47,6 +49,7 @@ describe('closetQuery', () => {
     brandFilter: '',
     seasonFilter: '',
     formalityFilter: '',
+    tagFilter: '',
     sort: 'newest' as ClosetSort,
   };
 
@@ -72,6 +75,11 @@ describe('closetQuery', () => {
       colorFilter: 'navy',
     });
     expect(result.map((i) => i.id)).toEqual([1]);
+  });
+
+  it('filters capsules/tags', () => {
+    const result = filterAndSortCloset(items, { ...base, tagFilter: 'weekend' });
+    expect(result.map((i) => i.id)).toEqual([2]);
   });
 
   it('uniqueSorted normalizes', () => {

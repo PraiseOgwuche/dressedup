@@ -8,6 +8,8 @@ from app.config import settings
 from app.database import get_db
 from app.models.user import User
 from app.schemas.closet import (
+    ClosetGapsResponse,
+    ClosetItemContext,
     ClothingItemCreate,
     ClothingItemResponse,
     ClothingItemUpdate,
@@ -50,6 +52,34 @@ def list_items(
     current_user: User = Depends(get_current_user),
 ):
     return ClosetService.list_items(db, current_user.id)
+
+
+@router.get("/items/{item_id}", response_model=ClothingItemResponse)
+def get_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return ClosetService.get_item(db, current_user.id, item_id)
+
+
+@router.get("/items/{item_id}/context", response_model=ClosetItemContext)
+def get_item_context(
+    item_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Wear history, look usage, and a pair-with preview for one closet piece."""
+    return ClosetService.item_context(db, current_user.id, item_id)
+
+
+@router.get("/gaps", response_model=ClosetGapsResponse)
+def closet_gaps(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Wardrobe balance + soft gaps (e.g. light on bottoms)."""
+    return ClosetService.wardrobe_gaps(db, current_user.id)
 
 
 @router.post("/items", response_model=ClothingItemResponse, status_code=status.HTTP_201_CREATED)

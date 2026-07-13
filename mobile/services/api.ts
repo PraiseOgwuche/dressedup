@@ -8,6 +8,8 @@ import {
   AuthResponse,
   ClosetItem,
   ClosetItemCreate,
+  ClosetItemContext,
+  ClosetGapsResponse,
   IngestResult,
   BatchIngestResult,
   MultiIngestResult,
@@ -150,6 +152,14 @@ export const closetAPI = {
   },
   remove: async (itemId: number): Promise<void> => {
     await api.delete(`/closet/items/${itemId}`);
+  },
+  getContext: async (itemId: number): Promise<ClosetItemContext> => {
+    const response = await api.get<ClosetItemContext>(`/closet/items/${itemId}/context`);
+    return response.data;
+  },
+  gaps: async (): Promise<ClosetGapsResponse> => {
+    const response = await api.get<ClosetGapsResponse>('/closet/gaps');
+    return response.data;
   },
   replacePhoto: async (itemId: number, garment: ImageUpload): Promise<ClosetItem> => {
     const form = new FormData();

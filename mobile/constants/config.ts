@@ -43,6 +43,7 @@ export const TAXONOMY = {
   trends: ['quiet-luxury', 'streetwear', 'minimalist', 'preppy', 'classic'],
   activities: ['work', 'gym', 'everyday', 'date', 'party', 'travel', 'outdoor'],
   weekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+  capsules: ['travel', 'work', 'date', 'weekend', 'gym'],
 };
 
 export const COLORS = {

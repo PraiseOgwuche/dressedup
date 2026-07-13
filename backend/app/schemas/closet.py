@@ -19,6 +19,7 @@ class ClothingItemBase(BaseModel):
     formality: Optional[str] = Field(default=None, max_length=40)
     weather_tag: Optional[list[str]] = None
     seasons: Optional[list[str]] = None
+    tags: Optional[list[str]] = None
     image_url: Optional[str] = Field(default=None, max_length=500)
     thumbnail_url: Optional[str] = Field(default=None, max_length=500)
     is_clean: bool = True
@@ -47,6 +48,7 @@ class ClothingItemUpdate(BaseModel):
     formality: Optional[str] = Field(default=None, max_length=40)
     weather_tag: Optional[list[str]] = None
     seasons: Optional[list[str]] = None
+    tags: Optional[list[str]] = None
     image_url: Optional[str] = Field(default=None, max_length=500)
     thumbnail_url: Optional[str] = Field(default=None, max_length=500)
     is_clean: Optional[bool] = None
@@ -69,6 +71,48 @@ class ClothingItemResponse(ClothingItemBase):
 
     class Config:
         from_attributes = True
+
+
+class ClosetItemUsage(BaseModel):
+    feedback_count: int = 0
+    signal_count: int = 0
+    post_count: int = 0
+    looks_count: int = 0
+
+
+class ClosetPairPreview(BaseModel):
+    title: str
+    weather_tag: Optional[str] = None
+    occasion: Optional[str] = None
+    rationale: Optional[str] = None
+    styling_note: Optional[str] = None
+    top: Optional[ClothingItemResponse] = None
+    bottom: Optional[ClothingItemResponse] = None
+    shoes: Optional[ClothingItemResponse] = None
+    outerwear: Optional[ClothingItemResponse] = None
+
+
+class ClosetItemContext(BaseModel):
+    item: ClothingItemResponse
+    slot: Optional[str] = None
+    usage: ClosetItemUsage
+    pair_preview: Optional[ClosetPairPreview] = None
+
+
+class ClosetGap(BaseModel):
+    category: str
+    closet_count: int
+    target: int = 2
+    title: str
+    reason: str
+
+
+class ClosetGapsResponse(BaseModel):
+    by_category: dict[str, int]
+    by_slot: dict[str, int]
+    gaps: list[ClosetGap]
+    summary: str
+    total_items: int
 
 
 class WashAllRequest(BaseModel):

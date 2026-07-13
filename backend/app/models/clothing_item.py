@@ -32,6 +32,8 @@ class ClothingItem(Base):
     formality = Column(String, nullable=True)
     weather_tag = Column(JSON, nullable=True)
     seasons = Column(JSON, nullable=True)
+    # Soft capsules / groupings (travel, work, date…) — not outfit-matching taxonomy.
+    tags = Column(JSON, nullable=True)
 
     # Media
     image_url = Column(String, nullable=True)

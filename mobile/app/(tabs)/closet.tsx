@@ -24,10 +24,11 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ChipSelect } from '../../components/ui/ChipSelect';
 import { ClosetGridCard } from '../../components/closet/ClosetGridCard';
+import { ClosetItemDetailSheet } from '../../components/closet/ClosetItemDetailSheet';
 import { closetAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
 import { useClosetStore } from '../../store/closetStore';
-import { ClosetItem, DraftItem } from '../../types';
+import { ClosetGapsResponse, ClosetItem, DraftItem } from '../../types';
 import {
   CleanFilter,
   ClosetSort,
@@ -68,6 +69,7 @@ type FormState = {
   occasion: string[];
   weatherTag: string[];
   seasons: string[];
+  tags: string[];
   isClean: boolean;
 };
 
@@ -85,6 +87,7 @@ const EMPTY_FORM: FormState = {
   occasion: [],
   weatherTag: [],
   seasons: [],
+  tags: [],
   isClean: true,
 };
 
@@ -141,15 +144,22 @@ export default function ClosetScreen() {
   const [brandFilter, setBrandFilter] = useState('');
   const [seasonFilter, setSeasonFilter] = useState('');
   const [formalityFilter, setFormalityFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
   const [sort, setSort] = useState<ClosetSort>('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [improvingPhotos, setImprovingPhotos] = useState(false);
+  const [detailItem, setDetailItem] = useState<ClosetItem | null>(null);
+  const [gaps, setGaps] = useState<ClosetGapsResponse | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       fetchItems();
       fetchLaundry();
+      closetAPI
+        .gaps()
+        .then(setGaps)
+        .catch(() => setGaps(null));
     }, [fetchItems, fetchLaundry]),
   );
 
@@ -197,6 +207,7 @@ export default function ClosetScreen() {
         brandFilter,
         seasonFilter,
         formalityFilter,
+        tagFilter,
         sort,
       }),
     [
@@ -208,6 +219,7 @@ export default function ClosetScreen() {
       brandFilter,
       seasonFilter,
       formalityFilter,
+      tagFilter,
       sort,
     ],
   );
@@ -258,6 +270,7 @@ export default function ClosetScreen() {
     setBrandFilter('');
     setSeasonFilter('');
     setFormalityFilter('');
+    setTagFilter('');
   };
 
   const runQuickAction = async (itemId: number, action: () => Promise<void>, failure: string) => {
@@ -279,7 +292,7 @@ export default function ClosetScreen() {
     setForm((prev) => ({ ...prev, [key]: prev[key] === value ? '' : value }));
 
   // Multi-select chips (occasion / weather / seasons): toggle membership.
-  const toggleMulti = (key: 'occasion' | 'weatherTag' | 'seasons', value: string) =>
+  const toggleMulti = (key: 'occasion' | 'weatherTag' | 'seasons' | 'tags', value: string) =>
     setForm((prev) => {
       const current = prev[key];
       return {
@@ -330,6 +343,7 @@ export default function ClosetScreen() {
       occasion: draft.occasion ?? [],
       weatherTag: draft.weather_tag ?? [],
       seasons: draft.seasons ?? [],
+      tags: [],
       isClean: true,
     });
     setColorHex(draft.color_hex ?? undefined);
@@ -599,12 +613,14 @@ export default function ClosetScreen() {
       occasion: item.occasion ?? [],
       weatherTag: item.weather_tag ?? [],
       seasons: item.seasons ?? [],
+      tags: item.tags ?? [],
       isClean: item.is_clean,
     });
     setColorHex(item.color_hex ?? undefined);
     setImageUrl(item.image_url ?? undefined);
     setThumbnailUrl(item.thumbnail_url ?? undefined);
     setImagePreview(mediaUrl(item.image_url));
+    setDetailItem(null);
     setIsFormOpen(true);
   };
 
@@ -637,6 +653,7 @@ export default function ClosetScreen() {
       occasion: form.occasion.length ? form.occasion : undefined,
       weather_tag: form.weatherTag.length ? form.weatherTag : undefined,
       seasons: form.seasons.length ? form.seasons : undefined,
+      tags: form.tags,
       is_clean: form.isClean,
       image_url: imageUrl,
       thumbnail_url: thumbnailUrl,
@@ -723,7 +740,7 @@ export default function ClosetScreen() {
   const renderItem = ({ item }: { item: ClosetItem }) => (
     <ClosetGridCard
       item={item}
-      onPress={() => openEdit(item)}
+      onPress={() => setDetailItem(item)}
       busy={busyItemId === item.id}
       onWear={() => runQuickAction(item.id, () => wearItem(item.id), 'Could not record wear.')}
       onSoilOrWash={() =>
@@ -745,6 +762,27 @@ export default function ClosetScreen() {
 
   const listHeader = items.length > 0 ? (
     <View style={styles.listHeader}>
+      {gaps ? (
+        <View style={styles.gapsCard}>
+          <Text style={styles.gapsKicker}>Wardrobe balance</Text>
+          <Text style={styles.gapsSummary}>{gaps.summary}</Text>
+          <View style={styles.gapsSlots}>
+            {['top', 'bottom', 'shoes', 'outerwear'].map((slot) => (
+              <View key={slot} style={styles.gapSlot}>
+                <Text style={styles.gapSlotValue}>{gaps.by_slot[slot] ?? 0}</Text>
+                <Text style={styles.gapSlotLabel}>{slot}</Text>
+              </View>
+            ))}
+          </View>
+          {gaps.gaps[0] ? (
+            <Text style={styles.gapsHint}>
+              {gaps.gaps[0].title}: {gaps.gaps[0].closet_count}/{gaps.gaps[0].target} ·{' '}
+              {gaps.gaps[0].reason}
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
+
       {reviewCount > 0 && cleanFilter !== 'review' ? (
         <Pressable style={styles.reviewBanner} onPress={() => setCleanFilter('review')}>
           <Text style={styles.reviewBannerText}>
@@ -810,6 +848,21 @@ export default function ClosetScreen() {
       </ScrollView>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
+        {TAXONOMY.capsules.map((capsule) => {
+          const active = tagFilter === capsule;
+          return (
+            <Pressable
+              key={capsule}
+              style={[styles.filterChip, active && styles.filterChipActive]}
+              onPress={() => setTagFilter((prev) => (prev === capsule ? '' : capsule))}
+            >
+              <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{capsule}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChips}>
         {TAXONOMY.categories.map((cat) => {
           const active = categoryFilter === cat;
           return (
@@ -827,7 +880,7 @@ export default function ClosetScreen() {
       <Pressable style={styles.moreFiltersToggle} onPress={() => setShowMoreFilters((v) => !v)}>
         <Text style={styles.moreFiltersText}>
           {showMoreFilters ? 'Hide filters' : 'More filters'}
-          {(colorFilter || brandFilter || seasonFilter || formalityFilter) ? ' · on' : ''}
+          {(colorFilter || brandFilter || seasonFilter || formalityFilter || tagFilter) ? ' · on' : ''}
         </Text>
       </Pressable>
 
@@ -913,7 +966,7 @@ export default function ClosetScreen() {
               );
             })}
           </ScrollView>
-          {(colorFilter || brandFilter || seasonFilter || formalityFilter) ? (
+          {(colorFilter || brandFilter || seasonFilter || formalityFilter || tagFilter) ? (
             <Pressable onPress={clearExtraFilters}>
               <Text style={styles.clearFilters}>Clear extra filters</Text>
             </Pressable>
@@ -988,6 +1041,29 @@ export default function ClosetScreen() {
           <Text style={styles.overlayText}>Finding items in your photo…</Text>
         </View>
       ) : null}
+
+      <ClosetItemDetailSheet
+        visible={Boolean(detailItem)}
+        item={detailItem}
+        onClose={() => setDetailItem(null)}
+        onEdit={(item) => openEdit(item)}
+        onWear={async (item) => {
+          await wearItem(item.id);
+          const refreshed = useClosetStore.getState().items.find((i) => i.id === item.id);
+          if (refreshed) setDetailItem(refreshed);
+        }}
+        onSoilOrWash={async (item) => {
+          if (item.is_clean) await soilItem(item.id);
+          else await washItem(item.id);
+          const refreshed = useClosetStore.getState().items.find((i) => i.id === item.id);
+          if (refreshed) setDetailItem(refreshed);
+        }}
+        onTagsChange={async (item, tags) => {
+          await updateItem(item.id, { tags });
+          const refreshed = useClosetStore.getState().items.find((i) => i.id === item.id);
+          if (refreshed) setDetailItem(refreshed);
+        }}
+      />
 
       <Modal visible={isFormOpen} animationType="slide" onRequestClose={handleCancel}>
         <SafeAreaView style={styles.modalContainer}>
@@ -1117,6 +1193,14 @@ export default function ClosetScreen() {
               onSelect={(v) => toggleMulti('seasons', v)}
               multiple
             />
+            <ChipSelect
+              label="Capsules"
+              hint="Soft groups — Travel, Work, Date, and more."
+              options={TAXONOMY.capsules}
+              selected={form.tags}
+              onSelect={(v) => toggleMulti('tags', v)}
+              multiple
+            />
 
             <View style={styles.switchRow}>
               <Text style={styles.switchLabel}>Is clean</Text>
@@ -1175,6 +1259,41 @@ const styles = StyleSheet.create({
   },
   addFabText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   listHeader: { paddingBottom: 8 },
+  gapsCard: {
+    backgroundColor: THEME.brand.sand,
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 12,
+    gap: 8,
+    ...SHADOW.soft,
+  },
+  gapsKicker: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: THEME.editorial.accentDark,
+  },
+  gapsSummary: { fontSize: 14, lineHeight: 20, color: THEME.utility.text, fontWeight: '600' },
+  gapsSlots: { flexDirection: 'row', gap: 8 },
+  gapSlot: {
+    flex: 1,
+    backgroundColor: THEME.utility.surface,
+    borderRadius: 12,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: THEME.utility.border,
+  },
+  gapSlotValue: { fontFamily: FONTS.sans, fontSize: 16, fontWeight: '800', color: THEME.utility.text },
+  gapSlotLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: THEME.utility.textMuted,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  gapsHint: { fontSize: 12, lineHeight: 17, color: THEME.utility.textMuted },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
   statPill: {
     flex: 1,

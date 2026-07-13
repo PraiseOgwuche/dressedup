@@ -11,6 +11,7 @@ export type ClosetQuery = {
   brandFilter: string;
   seasonFilter: string;
   formalityFilter: string;
+  tagFilter: string;
   sort: ClosetSort;
 };
 
@@ -35,12 +36,24 @@ export function filterAndSortCloset(items: ClosetItem[], query: ClosetQuery): Cl
     if (query.colorFilter && (item.color ?? '').toLowerCase() !== query.colorFilter) return false;
     if (query.brandFilter && (item.brand ?? '').toLowerCase() !== query.brandFilter) return false;
     if (query.formalityFilter && (item.formality ?? '') !== query.formalityFilter) return false;
+    if (query.tagFilter) {
+      const tags = (item.tags ?? []).map((t) => t.toLowerCase());
+      if (!tags.includes(query.tagFilter.toLowerCase())) return false;
+    }
     if (query.seasonFilter) {
       const seasons = item.seasons ?? [];
       if (!seasons.includes(query.seasonFilter) && !seasons.includes('all-season')) return false;
     }
     if (!q) return true;
-    const haystack = [item.name, item.brand, item.category, item.subcategory, item.color, item.formality]
+    const haystack = [
+      item.name,
+      item.brand,
+      item.category,
+      item.subcategory,
+      item.color,
+      item.formality,
+      ...(item.tags ?? []),
+    ]
       .filter(Boolean)
       .join(' ')
       .toLowerCase();

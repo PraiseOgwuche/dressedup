@@ -99,3 +99,38 @@ def test_replace_item_photo(client, auth_header):
     assert body["image_url"]
     assert body["thumbnail_url"]
 
+
+def test_closet_item_context_and_gaps(client, auth_header):
+    top = client.post(
+        "/api/v1/closet/items",
+        json={"name": "Blue Tee", "category": "top", "is_clean": True, "tags": ["work"]},
+        headers=auth_header,
+    )
+    assert top.status_code == 201
+    top_id = top.json()["id"]
+    assert top.json()["tags"] == ["work"]
+
+    bottom = client.post(
+        "/api/v1/closet/items",
+        json={"name": "Jeans", "category": "bottom", "is_clean": True, "tags": ["weekend"]},
+        headers=auth_header,
+    )
+    assert bottom.status_code == 201
+
+    context = client.get(f"/api/v1/closet/items/{top_id}/context", headers=auth_header)
+    assert context.status_code == 200
+    body = context.json()
+    assert body["item"]["id"] == top_id
+    assert body["slot"] == "top"
+    assert "usage" in body
+    assert body["pair_preview"] is not None
+    assert body["pair_preview"]["bottom"]["id"] == bottom.json()["id"]
+
+    gaps = client.get("/api/v1/closet/gaps", headers=auth_header)
+    assert gaps.status_code == 200
+    gap_body = gaps.json()
+    assert gap_body["total_items"] >= 2
+    assert gap_body["by_slot"]["top"] >= 1
+    assert gap_body["by_slot"]["bottom"] >= 1
+    assert gap_body["summary"]
+

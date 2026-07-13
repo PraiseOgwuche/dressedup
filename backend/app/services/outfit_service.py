@@ -449,3 +449,96 @@ class OutfitService:
             return remaining[:limit]
 
         return ranked(tops, 2) + ranked(bottoms, 1) + ranked(shoes, 1)
+
+    @classmethod
+    def slot_for_item(cls, item: ClothingItem) -> Optional[str]:
+        cat = (item.category or "").lower()
+        sub = (item.subcategory or "").lower()
+        if cat in cls.TOP_CATEGORIES or sub in cls.TOP_SUBCATEGORIES:
+            return "top"
+        if cat in cls.BOTTOM_CATEGORIES or sub in cls.BOTTOM_SUBCATEGORIES:
+            return "bottom"
+        if cat in cls.SHOE_CATEGORIES:
+            return "shoes"
+        if cat in cls.OUTERWEAR_CATEGORIES:
+            return "outerwear"
+        if cat == "dress":
+            return "top"
+        return None
+
+    @classmethod
+    def suggest_around_item(
+        cls,
+        db: Session,
+        user_id: int,
+        item_id: int,
+        weather_tag: Optional[str] = None,
+        occasion: Optional[str] = None,
+    ) -> Optional[dict]:
+        """Build an outfit with this piece locked — does not record a swap signal."""
+        item = cls._get_owned(db, user_id, item_id)
+        if item is None:
+            return None
+        slot = cls.slot_for_item(item)
+        if slot is None:
+            return None
+
+        items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
+        context = cls._context(weather_tag, occasion)
+        exclude_ids = {item.id}
+
+        tops = cls._candidates(
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
+        )
+        bottoms = cls._candidates(
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES
+        )
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
+
+        locked_top = item if slot == "top" else None
+        locked_bottom = item if slot == "bottom" else None
+        locked_shoes = item if slot == "shoes" else None
+        locked_outerwear = item if slot == "outerwear" else None
+
+        top_opts = [locked_top] if locked_top else (tops or [None])
+        bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+        shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
+
+        best = cls._best_combo(db, user_id, top_opts, bottom_opts, shoe_opts, context)
+        chosen_top = locked_top or best["top"]
+        chosen_bottom = locked_bottom or best["bottom"]
+        chosen_shoes = locked_shoes or best["shoes"]
+        anchor = chosen_top or chosen_bottom or chosen_shoes
+        chosen_outerwear = locked_outerwear or cls._best_outerwear(
+            db, user_id, outerwear, anchor, context, weather_tag
+        )
+
+        if not any([chosen_top, chosen_bottom, chosen_shoes]):
+            return None
+
+        rationale = cls._rationale_for(
+            db,
+            user_id,
+            [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+            context,
+        )
+        if rationale:
+            rationale = f"Built around your {item.name}. {rationale}"
+
+        return cls._attach_styling_note(
+            db,
+            user_id,
+            {
+                "title": f"Pairs with {item.name}",
+                "weather_tag": weather_tag,
+                "occasion": occasion,
+                "trend": None,
+                "rationale": rationale,
+                "top": chosen_top,
+                "bottom": chosen_bottom,
+                "shoes": chosen_shoes,
+                "outerwear": chosen_outerwear,
+                "alternatives": [],
+            },
+        )
