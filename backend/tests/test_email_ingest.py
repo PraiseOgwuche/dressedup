@@ -48,7 +48,34 @@ def test_simulate_email_ingest_creates_review_items(client, auth_header, monkeyp
     items = client.get("/api/v1/closet/items", headers=auth_header).json()
     email_items = [item for item in items if item["source"] == "email"]
     assert email_items
-    assert email_items[0]["needs_review"] is True
+    # Stub receipt lines are high-confidence — silent add, no review badge.
+    assert email_items[0]["needs_review"] is False
+
+
+def test_email_flag_review_helper():
+    from app.schemas.ingestion import DraftItem
+    from app.services.email_ingest_service import EmailIngestService
+
+    solid = DraftItem(
+        name="Tee",
+        category="top",
+        brand="Uniqlo",
+        confidence={"brand": 0.96, "category": 0.95},
+        needs_review=False,
+    )
+    assert EmailIngestService._should_flag_review(solid) is False
+
+    shaky = DraftItem(
+        name="Mystery",
+        category="top",
+        color="black",
+        confidence={"color": 0.4},
+        needs_review=False,
+    )
+    assert EmailIngestService._should_flag_review(shaky) is True
+
+    forced = DraftItem(name="X", category="top", needs_review=True)
+    assert EmailIngestService._should_flag_review(forced) is True
 
 
 def test_mailgun_webhook_creates_items(client, auth_header, monkeypatch):

@@ -204,7 +204,7 @@ export default function ProfileScreen() {
       await Promise.all([fetchItems(), loadEmailIngest()]);
       Alert.alert(
         'Import complete',
-        `Added ${importResult.items_created} item(s) to your closet for review.`,
+        `Added ${importResult.items_created} item(s) to your closet. Uncertain ones get a Review badge.`,
       );
     } catch (error: any) {
       Alert.alert('Import failed', getApiErrorMessage(error, 'Could not process that image.'));
@@ -263,8 +263,8 @@ export default function ProfileScreen() {
                 {emailIngest.address}
               </Text>
               <Text style={styles.emailTip}>
-                Forward order confirmations or receipt emails here. New items land in Closet with a
-                Review badge.
+                Forward order confirmations or receipt emails here. Confident items land quietly;
+                uncertain ones get a Review badge in Closet.
               </Text>
             </>
           ) : null}

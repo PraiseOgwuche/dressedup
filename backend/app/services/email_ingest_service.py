@@ -34,7 +34,7 @@ class EmailIngestService:
         if enabled:
             instructions = (
                 "Forward order confirmations or receipt emails to your address below. "
-                "We'll pull apparel line items into your closet for review."
+                "Confident apparel lines are added quietly; uncertain ones get a Review badge."
             )
         elif not settings.EMAIL_INGEST_DOMAIN:
             instructions = "Email import is not configured on this server yet."
@@ -214,9 +214,26 @@ class EmailIngestService:
             thumbnail_url=thumbnail_url,
             source="email",
             confidence=draft.confidence or None,
-            needs_review=True,
+            needs_review=EmailIngestService._should_flag_review(draft),
             ai_metadata=ai_metadata or None,
         )
+
+    @staticmethod
+    def _should_flag_review(draft: DraftItem) -> bool:
+        """Only send high-confidence email items to the review inbox when unsure."""
+        if draft.needs_review:
+            return True
+        if not (draft.name and draft.category):
+            return True
+        confidence = draft.confidence or {}
+        for field in ("name", "category", "brand", "color", "material", "size", "product_name"):
+            value = getattr(draft, field, None)
+            if not value:
+                continue
+            score = confidence.get(field)
+            if score is not None and score < 0.8:
+                return True
+        return False
 
     @staticmethod
     def _is_image(content_type: str, filename: str) -> bool:

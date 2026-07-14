@@ -35,8 +35,14 @@ import {
   filterAndSortCloset,
   uniqueSorted,
 } from '../../utils/closetQuery';
+import {
+  ConfirmField,
+  draftLooksSolid,
+  fieldsNeedingCheck,
+  formatAcceptedSummary,
+  shouldUseSmartConfirm,
+} from '../../utils/confirmFields';
 
-const LOW_CONFIDENCE = 0.8;
 const BATCH_LIMIT = 15;
 const SORT_OPTIONS: { key: ClosetSort; label: string }[] = [
   { key: 'newest', label: 'Newest' },
@@ -151,6 +157,7 @@ export default function ClosetScreen() {
   const [improvingPhotos, setImprovingPhotos] = useState(false);
   const [detailItem, setDetailItem] = useState<ClosetItem | null>(null);
   const [gaps, setGaps] = useState<ClosetGapsResponse | null>(null);
+  const [showAllFields, setShowAllFields] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -303,10 +310,53 @@ export default function ClosetScreen() {
       };
     });
 
-  const lowConf = (field: string) =>
-    source !== 'manual' && (confidence[field] === undefined || confidence[field] < LOW_CONFIDENCE);
+  const lowConf = (field: string) => {
+    if (source === 'manual') return false;
+    const score = confidence[field];
+    if (typeof score === 'number') return score < 0.8;
+    return false;
+  };
 
   const label = (text: string, field: string) => (lowConf(field) ? `${text}  ⚠ check` : text);
+
+  const confirmValues = useMemo(
+    () => ({
+      name: form.name,
+      category: form.category,
+      subcategory: form.subcategory,
+      brand: form.brand,
+      product_name: form.productName,
+      color: form.color,
+      material: form.material,
+      size: form.size,
+      pattern: form.pattern,
+      formality: form.formality,
+      occasion: form.occasion,
+      weather_tag: form.weatherTag,
+      seasons: form.seasons,
+    }),
+    [form],
+  );
+
+  const smartConfirm = shouldUseSmartConfirm(source, Boolean(editingId));
+  const checkFields = useMemo(
+    () => (smartConfirm ? fieldsNeedingCheck(confidence, confirmValues, source) : []),
+    [smartConfirm, confidence, confirmValues, source],
+  );
+  const acceptedSummary = useMemo(
+    () => (smartConfirm ? formatAcceptedSummary(confirmValues, checkFields) : ''),
+    [smartConfirm, confirmValues, checkFields],
+  );
+  const looksSolid = useMemo(
+    () => (smartConfirm ? draftLooksSolid(confidence, confirmValues, source) : false),
+    [smartConfirm, confidence, confirmValues, source],
+  );
+
+  const showField = (field: ConfirmField) => {
+    if (!smartConfirm || showAllFields) return true;
+    if (field === 'name' || field === 'category') return true;
+    return checkFields.includes(field);
+  };
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
@@ -319,6 +369,7 @@ export default function ClosetScreen() {
     setColorHex(undefined);
     setReceiptContext({});
     setReceiptMeta({});
+    setShowAllFields(false);
   };
 
   const applyDraft = (
@@ -1093,7 +1144,21 @@ export default function ClosetScreen() {
               />
             ) : null}
             {source !== 'manual' && !editingId ? (
-              <Text style={styles.aiNote}>AI filled these in — fields marked ⚠ are worth a check.</Text>
+              <View style={styles.smartConfirmBanner}>
+                <Text style={styles.aiNote}>
+                  {looksSolid
+                    ? 'Looks solid — save as-is, or expand to tweak.'
+                    : checkFields.length
+                      ? `Check ${checkFields.length} field${checkFields.length === 1 ? '' : 's'} marked ⚠ — everything else was accepted.`
+                      : 'AI filled these in — fields marked ⚠ are worth a check.'}
+                </Text>
+                {acceptedSummary ? <Text style={styles.acceptedSummary}>{acceptedSummary}</Text> : null}
+                <Pressable onPress={() => setShowAllFields((v) => !v)}>
+                  <Text style={styles.showAllLink}>
+                    {showAllFields ? 'Show only what needs a check' : 'Show all details'}
+                  </Text>
+                </Pressable>
+              </View>
             ) : null}
 
             {editingItem ? (
@@ -1125,14 +1190,18 @@ export default function ClosetScreen() {
               </View>
             ) : null}
 
-            <Input label={label('Name', 'name')} value={form.name} onChangeText={(v) => setField('name', v)} placeholder="Black crewneck tee" />
-            <ChipSelect
-              label={label('Category', 'category')}
-              options={TAXONOMY.categories}
-              selected={form.category}
-              onSelect={(v) => selectOne('category', v)}
-            />
-            {TAXONOMY.subcategories[form.category]?.length ? (
+            {showField('name') ? (
+              <Input label={label('Name', 'name')} value={form.name} onChangeText={(v) => setField('name', v)} placeholder="Black crewneck tee" />
+            ) : null}
+            {showField('category') ? (
+              <ChipSelect
+                label={label('Category', 'category')}
+                options={TAXONOMY.categories}
+                selected={form.category}
+                onSelect={(v) => selectOne('category', v)}
+              />
+            ) : null}
+            {showField('subcategory') && TAXONOMY.subcategories[form.category]?.length ? (
               <ChipSelect
                 label={label('Subcategory', 'subcategory')}
                 options={TAXONOMY.subcategories[form.category]}
@@ -1140,13 +1209,17 @@ export default function ClosetScreen() {
                 onSelect={(v) => selectOne('subcategory', v)}
               />
             ) : null}
-            <Input label={label('Brand', 'brand')} value={form.brand} onChangeText={(v) => setField('brand', v)} placeholder="Uniqlo" />
-            <Input
-              label={label('Product name', 'product_name')}
-              value={form.productName}
-              onChangeText={(v) => setField('productName', v)}
-              placeholder="Slim Fit Chino Pants"
-            />
+            {showField('brand') ? (
+              <Input label={label('Brand', 'brand')} value={form.brand} onChangeText={(v) => setField('brand', v)} placeholder="Uniqlo" />
+            ) : null}
+            {showField('product_name') ? (
+              <Input
+                label={label('Product name', 'product_name')}
+                value={form.productName}
+                onChangeText={(v) => setField('productName', v)}
+                placeholder="Slim Fit Chino Pants"
+              />
+            ) : null}
             {receiptMeta.price != null || receiptMeta.sku ? (
               <Text style={styles.receiptHint}>
                 {receiptMeta.price != null ? `$${receiptMeta.price.toFixed(2)}` : ''}
@@ -1154,58 +1227,78 @@ export default function ClosetScreen() {
                 {receiptMeta.sku ? `SKU ${receiptMeta.sku}` : ''}
               </Text>
             ) : null}
-            <Input label={label('Color', 'color')} value={form.color} onChangeText={(v) => setField('color', v)} placeholder="black" />
-            <Input label={label('Material', 'material')} value={form.material} onChangeText={(v) => setField('material', v)} placeholder="100% cotton" />
-            <Input label={label('Size', 'size')} value={form.size} onChangeText={(v) => setField('size', v)} placeholder="M" />
-            <ChipSelect
-              label={label('Pattern', 'pattern')}
-              options={TAXONOMY.patterns}
-              selected={form.pattern}
-              onSelect={(v) => selectOne('pattern', v)}
-            />
-            <ChipSelect
-              label={label('Formality', 'formality')}
-              options={TAXONOMY.formality}
-              selected={form.formality}
-              onSelect={(v) => selectOne('formality', v)}
-            />
-            <ChipSelect
-              label={label('Occasion', 'occasion')}
-              hint="Pick all that apply."
-              options={TAXONOMY.occasions}
-              selected={form.occasion}
-              onSelect={(v) => toggleMulti('occasion', v)}
-              multiple
-            />
-            <ChipSelect
-              label={label('Weather', 'weather_tag')}
-              hint="Pick all that apply."
-              options={TAXONOMY.weather}
-              selected={form.weatherTag}
-              onSelect={(v) => toggleMulti('weatherTag', v)}
-              multiple
-            />
-            <ChipSelect
-              label={label('Seasons', 'seasons')}
-              hint="Pick all that apply — used to match outfits to the weather."
-              options={TAXONOMY.seasons}
-              selected={form.seasons}
-              onSelect={(v) => toggleMulti('seasons', v)}
-              multiple
-            />
-            <ChipSelect
-              label="Capsules"
-              hint="Soft groups — Travel, Work, Date, and more."
-              options={TAXONOMY.capsules}
-              selected={form.tags}
-              onSelect={(v) => toggleMulti('tags', v)}
-              multiple
-            />
+            {showField('color') ? (
+              <Input label={label('Color', 'color')} value={form.color} onChangeText={(v) => setField('color', v)} placeholder="black" />
+            ) : null}
+            {showField('material') ? (
+              <Input label={label('Material', 'material')} value={form.material} onChangeText={(v) => setField('material', v)} placeholder="100% cotton" />
+            ) : null}
+            {showField('size') ? (
+              <Input label={label('Size', 'size')} value={form.size} onChangeText={(v) => setField('size', v)} placeholder="M" />
+            ) : null}
+            {showField('pattern') ? (
+              <ChipSelect
+                label={label('Pattern', 'pattern')}
+                options={TAXONOMY.patterns}
+                selected={form.pattern}
+                onSelect={(v) => selectOne('pattern', v)}
+              />
+            ) : null}
+            {showField('formality') ? (
+              <ChipSelect
+                label={label('Formality', 'formality')}
+                options={TAXONOMY.formality}
+                selected={form.formality}
+                onSelect={(v) => selectOne('formality', v)}
+              />
+            ) : null}
+            {showField('occasion') ? (
+              <ChipSelect
+                label={label('Occasion', 'occasion')}
+                hint="Pick all that apply."
+                options={TAXONOMY.occasions}
+                selected={form.occasion}
+                onSelect={(v) => toggleMulti('occasion', v)}
+                multiple
+              />
+            ) : null}
+            {showField('weather_tag') ? (
+              <ChipSelect
+                label={label('Weather', 'weather_tag')}
+                hint="Pick all that apply."
+                options={TAXONOMY.weather}
+                selected={form.weatherTag}
+                onSelect={(v) => toggleMulti('weatherTag', v)}
+                multiple
+              />
+            ) : null}
+            {showField('seasons') ? (
+              <ChipSelect
+                label={label('Seasons', 'seasons')}
+                hint="Pick all that apply — used to match outfits to the weather."
+                options={TAXONOMY.seasons}
+                selected={form.seasons}
+                onSelect={(v) => toggleMulti('seasons', v)}
+                multiple
+              />
+            ) : null}
+            {!smartConfirm || showAllFields ? (
+              <ChipSelect
+                label="Capsules"
+                hint="Soft groups — Travel, Work, Date, and more."
+                options={TAXONOMY.capsules}
+                selected={form.tags}
+                onSelect={(v) => toggleMulti('tags', v)}
+                multiple
+              />
+            ) : null}
 
-            <View style={styles.switchRow}>
-              <Text style={styles.switchLabel}>Is clean</Text>
-              <Switch value={form.isClean} onValueChange={(v) => setField('isClean', v)} />
-            </View>
+            {(!smartConfirm || showAllFields) ? (
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Is clean</Text>
+                <Switch value={form.isClean} onValueChange={(v) => setField('isClean', v)} />
+              </View>
+            ) : null}
 
             <View style={styles.modalActions}>
               <Button
@@ -1217,8 +1310,18 @@ export default function ClosetScreen() {
               <Button
                 title={
                   inQueue
-                    ? queueIndex < queue.length - 1 ? 'Save & Next' : 'Save & Finish'
-                    : editingId ? 'Save Changes' : 'Save to Closet'
+                    ? queueIndex < queue.length - 1
+                      ? looksSolid
+                        ? 'Looks good · Next'
+                        : 'Save & Next'
+                      : looksSolid
+                        ? 'Looks good · Finish'
+                        : 'Save & Finish'
+                    : editingId
+                      ? 'Save Changes'
+                      : looksSolid
+                        ? 'Looks good — Save'
+                        : 'Save to Closet'
                 }
                 onPress={handleSave}
                 style={styles.modalAction}
@@ -1433,7 +1536,20 @@ const styles = StyleSheet.create({
   modalContent: { padding: 22, paddingBottom: 40 },
   modalTitle: { ...utilityTitle(24), marginBottom: 16 },
   preview: { width: '100%', height: 220, borderRadius: 16, marginBottom: 12, backgroundColor: THEME.editorial.pill },
-  aiNote: { fontSize: 13, color: THEME.utility.textMuted, marginBottom: 12 },
+  aiNote: { fontSize: 13, color: THEME.utility.textMuted },
+  smartConfirmBanner: {
+    gap: 8,
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: THEME.utility.surfaceMuted,
+  },
+  acceptedSummary: { fontSize: 12, lineHeight: 17, color: THEME.utility.text, fontWeight: '600' },
+  showAllLink: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: THEME.editorial.accentDark,
+  },
   receiptHint: { fontSize: 13, color: THEME.utility.textMuted, marginBottom: 12, marginTop: -4 },
   queueProgress: { fontSize: 13, color: THEME.brand.ink, fontWeight: '700', marginBottom: 12 },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, marginBottom: 20 },
