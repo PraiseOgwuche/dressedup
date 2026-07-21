@@ -13,6 +13,7 @@ from app.models.clothing_item import ClothingItem
 from app.models.outfit_feedback import SIGNAL_DISLIKE, SIGNAL_LIKE, SIGNAL_WORE, OutfitFeedback
 from app.models.style_signal import StyleSignal
 from app.services.style_signal_service import StyleSignalService
+from app.services.taste_service import TasteService
 from app.shop.catalog import load_catalog
 from app.taxonomy import FORMALITY_LEVELS
 
@@ -267,5 +268,14 @@ class PreferenceService:
             notes.append("fits your go-to categories")
         elif shop_color_weights and color_bonus > 0.15:
             notes.append("aligned with shop picks you've explored")
+
+        # Phase 8: embedding taste centroids refine structured prefs when ready.
+        taste, taste_notes = TasteService.score_outfit(db, user_id, garments)
+        if taste != 0.0:
+            # Taste is additive but capped — never fully overrides rule-based prefs.
+            total = clamp(total * 0.78 + taste * 0.22)
+            for note in taste_notes:
+                if note not in notes:
+                    notes.append(note)
 
         return total, notes

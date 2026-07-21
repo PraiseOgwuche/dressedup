@@ -22,6 +22,7 @@ from app.services import retrieval_service
 from app.services.preference_service import PreferenceService
 from app.services.style_signal_service import StyleSignalService
 from app.services.stylist_service import StylistService
+from app.services.taste_service import TasteService
 
 _SLOT_CAP = 10
 _VARIETY_MARGIN = 0.12
@@ -139,13 +140,23 @@ class OutfitService:
         return pool[:_SLOT_CAP]
 
     @staticmethod
-    def _retrieval_query(items: List[ClothingItem], *anchors: Optional[ClothingItem]):
-        """Vector the hybrid retriever should match against, or None when off."""
+    def _retrieval_query(
+        db: Session,
+        user_id: int,
+        items: List[ClothingItem],
+        *anchors: Optional[ClothingItem],
+    ):
+        """Vector the hybrid retriever should match against, or None when off.
+
+        Locked anchors win when present. Otherwise blend the closet centroid
+        with the user's positive taste centroid (Phase 8) as confidence grows.
+        """
         if not settings.OUTFIT_EMBEDDINGS_ENABLED:
             return None
-        return retrieval_service.anchor_query(
-            anchors, retrieval_service.closet_centroid(items)
+        fallback = TasteService.retrieval_query(
+            db, user_id, retrieval_service.closet_centroid(items)
         )
+        return retrieval_service.anchor_query(anchors, fallback)
 
     @classmethod
     def _get_owned(
@@ -197,7 +208,7 @@ class OutfitService:
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion, trend)
-        query = cls._retrieval_query(items)
+        query = cls._retrieval_query(db, user_id, items)
 
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
@@ -305,7 +316,7 @@ class OutfitService:
             exclude_ids.add(locked_for_slot[swap_slot].id)
 
         query = cls._retrieval_query(
-            items, locked_top, locked_bottom, locked_shoes, locked_outerwear, locked_dress
+            db, user_id, items, locked_top, locked_bottom, locked_shoes, locked_outerwear, locked_dress
         )
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
@@ -552,7 +563,7 @@ class OutfitService:
         closet is too small to do better).
         """
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
-        query = cls._retrieval_query(items)
+        query = cls._retrieval_query(db, user_id, items)
 
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, None, cls.TOP_SUBCATEGORIES, query
@@ -763,7 +774,7 @@ class OutfitService:
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion)
         exclude_ids = {item.id}
-        query = cls._retrieval_query(items, item)
+        query = cls._retrieval_query(db, user_id, items, item)
 
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
