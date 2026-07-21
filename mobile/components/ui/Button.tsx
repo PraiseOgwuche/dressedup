@@ -46,7 +46,12 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator color={spinnerColor} />
       ) : (
-        <Text style={[styles.text, styles[`${variant}Text` as keyof typeof styles]]}>
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          style={[styles.text, styles[`${variant}Text` as keyof typeof styles]]}
+        >
           {title}
         </Text>
       )}
@@ -81,7 +86,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.brand.white,
     borderWidth: 1.5,
     borderColor: INK,
-    marginTop: 10,
   },
   disabled: {
     opacity: 0.45,
