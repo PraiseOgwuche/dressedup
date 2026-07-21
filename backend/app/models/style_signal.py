@@ -17,6 +17,7 @@ class StyleSignal(Base):
     bottom_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     shoes_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     outerwear_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
+    dress_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     swap_slot = Column(String(16), nullable=True)
     replaced_item_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     product_id = Column(String(64), nullable=True)

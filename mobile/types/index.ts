@@ -216,6 +216,10 @@ export interface OutfitSuggestion {
   bottom?: ClosetItem | null;
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
+  dress?: ClosetItem | null;
+  bag?: ClosetItem | null;
+  accessory?: ClosetItem | null;
+  headwear?: ClosetItem | null;
   alternatives: ClosetItem[];
 }
 
@@ -232,7 +236,7 @@ export interface OutfitAskResponse {
   suggestion: OutfitSuggestion;
 }
 
-export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear';
+export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear' | 'dress';
 
 export interface OutfitSwapOptions {
   swapSlot: OutfitSlotKey;
@@ -240,6 +244,7 @@ export interface OutfitSwapOptions {
   bottomId?: number | null;
   shoesId?: number | null;
   outerwearId?: number | null;
+  dressId?: number | null;
 }
 
 export interface OutfitFeedbackPayload {
@@ -247,6 +252,7 @@ export interface OutfitFeedbackPayload {
   bottom_id?: number | null;
   shoes_id?: number | null;
   outerwear_id?: number | null;
+  dress_id?: number | null;
   signal: 'like' | 'dislike' | 'wore';
   occasion?: string | null;
   weather_tag?: string | null;
@@ -262,6 +268,7 @@ export interface PlanActivity {
   bottom?: ClosetItem | null;
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
+  dress?: ClosetItem | null;
   packing_list: ClosetItem[];
 }
 

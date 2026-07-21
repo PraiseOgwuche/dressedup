@@ -23,6 +23,10 @@ class OutfitSuggestion(BaseModel):
     bottom: Optional[ClothingItemResponse] = None
     shoes: Optional[ClothingItemResponse] = None
     outerwear: Optional[ClothingItemResponse] = None
+    dress: Optional[ClothingItemResponse] = None
+    bag: Optional[ClothingItemResponse] = None
+    accessory: Optional[ClothingItemResponse] = None
+    headwear: Optional[ClothingItemResponse] = None
     alternatives: List[ClothingItemResponse] = []
 
 
@@ -36,6 +40,7 @@ class PlanActivity(BaseModel):
     bottom: Optional[ClothingItemResponse] = None
     shoes: Optional[ClothingItemResponse] = None
     outerwear: Optional[ClothingItemResponse] = None
+    dress: Optional[ClothingItemResponse] = None
     packing_list: List[ClothingItemResponse] = []
 
 
@@ -73,6 +78,7 @@ class OutfitFeedbackCreate(BaseModel):
     bottom_id: Optional[int] = None
     shoes_id: Optional[int] = None
     outerwear_id: Optional[int] = None
+    dress_id: Optional[int] = None
     signal: str  # like | dislike | wore
     occasion: Optional[str] = None
     weather_tag: Optional[str] = None

@@ -19,6 +19,7 @@ class OutfitFeedback(Base):
     bottom_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     shoes_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     outerwear_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
+    dress_id = Column(Integer, ForeignKey("clothing_items.id"), nullable=True)
     signal = Column(Integer, nullable=False)
     occasion = Column(String, nullable=True)
     weather_tag = Column(String, nullable=True)

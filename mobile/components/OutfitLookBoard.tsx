@@ -31,6 +31,7 @@ const SLOT_EMOJI: Record<string, string> = {
   bottom: '👖',
   shoes: '👟',
   outerwear: '🧥',
+  dress: '👗',
 };
 
 function SlotTile({
@@ -93,35 +94,60 @@ export function OutfitLookBoard({ slots, swappingSlot, onSwapSlot, compact }: Pr
   const bottom = slots.find((s) => s.key === 'bottom') ?? { key: 'bottom' as const, label: 'Bottom', item: null };
   const shoes = slots.find((s) => s.key === 'shoes') ?? { key: 'shoes' as const, label: 'Shoes', item: null };
   const outer = slots.find((s) => s.key === 'outerwear');
+  const dress = slots.find((s) => s.key === 'dress');
 
   const swap = (key: OutfitSlotKey) => (onSwapSlot ? () => onSwapSlot(key) : undefined);
 
   return (
     <View style={[styles.board, compact && styles.boardCompact]}>
       <View style={[styles.mainRow, compact && styles.mainRowCompact]}>
-        <SlotTile
-          slot={top}
-          style={styles.topTile}
-          imageStyle={[styles.topImage, compact && styles.topImageCompact]}
-          swapping={swappingSlot === 'top'}
-          onPress={swap('top')}
-        />
-        <View style={styles.sideStack}>
-          <SlotTile
-            slot={bottom}
-            style={styles.sideTile}
-            imageStyle={[styles.sideImage, compact && styles.sideImageCompact]}
-            swapping={swappingSlot === 'bottom'}
-            onPress={swap('bottom')}
-          />
-          <SlotTile
-            slot={shoes}
-            style={styles.sideTile}
-            imageStyle={[styles.sideImage, compact && styles.sideImageCompact]}
-            swapping={swappingSlot === 'shoes'}
-            onPress={swap('shoes')}
-          />
-        </View>
+        {dress?.item ? (
+          // A dress covers top+bottom: hero tile is the dress, shoes beside it.
+          <>
+            <SlotTile
+              slot={dress}
+              style={styles.topTile}
+              imageStyle={[styles.topImage, compact && styles.topImageCompact]}
+              swapping={swappingSlot === 'dress'}
+              onPress={swap('dress')}
+            />
+            <View style={styles.sideStack}>
+              <SlotTile
+                slot={shoes}
+                style={styles.sideTile}
+                imageStyle={[styles.sideImage, compact && styles.sideImageCompact]}
+                swapping={swappingSlot === 'shoes'}
+                onPress={swap('shoes')}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <SlotTile
+              slot={top}
+              style={styles.topTile}
+              imageStyle={[styles.topImage, compact && styles.topImageCompact]}
+              swapping={swappingSlot === 'top'}
+              onPress={swap('top')}
+            />
+            <View style={styles.sideStack}>
+              <SlotTile
+                slot={bottom}
+                style={styles.sideTile}
+                imageStyle={[styles.sideImage, compact && styles.sideImageCompact]}
+                swapping={swappingSlot === 'bottom'}
+                onPress={swap('bottom')}
+              />
+              <SlotTile
+                slot={shoes}
+                style={styles.sideTile}
+                imageStyle={[styles.sideImage, compact && styles.sideImageCompact]}
+                swapping={swappingSlot === 'shoes'}
+                onPress={swap('shoes')}
+              />
+            </View>
+          </>
+        )}
       </View>
       {outer?.item || onSwapSlot ? (
         <SlotTile

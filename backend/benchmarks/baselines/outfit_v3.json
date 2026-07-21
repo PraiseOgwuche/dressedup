@@ -17,8 +17,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.867916,
-        "latency_p95_ms": 1.411542,
+        "latency_p50_ms": 1.201625,
+        "latency_p95_ms": 2.158667,
         "run_count": 20,
         "score_max": 0.436,
         "score_mean": 0.436,
@@ -27,30 +27,30 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-": 20
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-",
-        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-"
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -70,12 +70,16 @@
           },
           "seed": 20260720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Indigo Straight Jeans",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "White Leather Sneakers",
             "top": "White Cotton Tee"
           },
-          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-"
+          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -94,12 +98,16 @@
           },
           "seed": 20260721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Indigo Straight Jeans",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "White Leather Sneakers",
             "top": "White Cotton Tee"
           },
-          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-"
+          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -118,12 +126,16 @@
           },
           "seed": 20260722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Indigo Straight Jeans",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "White Leather Sneakers",
             "top": "White Cotton Tee"
           },
-          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-"
+          "signature": "top:White Cotton Tee|bottom:Indigo Straight Jeans|shoes:White Leather Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -153,8 +165,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.932167,
-        "latency_p95_ms": 1.391541,
+        "latency_p50_ms": 1.318667,
+        "latency_p95_ms": 1.924208,
         "run_count": 20,
         "score_max": 0.5895,
         "score_mean": 0.5895,
@@ -163,7 +175,7 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-": 20
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [
         {
@@ -185,26 +197,26 @@
         }
       ],
       "run_signatures": [
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-",
-        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-"
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -224,12 +236,16 @@
           },
           "seed": 20270720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Leather Loafers",
             "top": "White Oxford Shirt"
           },
-          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-"
+          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -248,12 +264,16 @@
           },
           "seed": 20270721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Leather Loafers",
             "top": "White Oxford Shirt"
           },
-          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-"
+          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -272,12 +292,16 @@
           },
           "seed": 20270722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Leather Loafers",
             "top": "White Oxford Shirt"
           },
-          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-"
+          "signature": "top:White Oxford Shirt|bottom:Navy Wool Trousers|shoes:Black Leather Loafers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -308,8 +332,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 1.183917,
-        "latency_p95_ms": 1.420125,
+        "latency_p50_ms": 1.611125,
+        "latency_p95_ms": 2.033208,
         "run_count": 20,
         "score_max": 0.545667,
         "score_mean": 0.545667,
@@ -318,30 +342,30 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat": 20
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat",
-        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat"
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -361,12 +385,16 @@
           },
           "seed": 20280720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Charcoal Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": "Navy Wool Overcoat",
             "shoes": "Black Weatherproof Boots",
             "top": "Cream Merino Sweater"
           },
-          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat"
+          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -385,12 +413,16 @@
           },
           "seed": 20280721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Charcoal Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": "Navy Wool Overcoat",
             "shoes": "Black Weatherproof Boots",
             "top": "Cream Merino Sweater"
           },
-          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat"
+          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -409,12 +441,16 @@
           },
           "seed": 20280722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Charcoal Wool Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": "Navy Wool Overcoat",
             "shoes": "Black Weatherproof Boots",
             "top": "Cream Merino Sweater"
           },
-          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat"
+          "signature": "top:Cream Merino Sweater|bottom:Charcoal Wool Trousers|shoes:Black Weatherproof Boots|outerwear:Navy Wool Overcoat|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -445,8 +481,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.855125,
-        "latency_p95_ms": 1.285167,
+        "latency_p50_ms": 1.175666,
+        "latency_p95_ms": 1.64175,
         "run_count": 20,
         "score_max": 0.300667,
         "score_mean": 0.300667,
@@ -455,30 +491,30 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-": 20
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-",
-        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-"
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -498,12 +534,16 @@
           },
           "seed": 20290720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Cotton Chino Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Canvas Low Tops",
             "top": "Linen Camp Shirt"
           },
-          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-"
+          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -522,12 +562,16 @@
           },
           "seed": 20290721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Cotton Chino Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Canvas Low Tops",
             "top": "Linen Camp Shirt"
           },
-          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-"
+          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -546,12 +590,16 @@
           },
           "seed": 20290722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Cotton Chino Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Canvas Low Tops",
             "top": "Linen Camp Shirt"
           },
-          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-"
+          "signature": "top:Linen Camp Shirt|bottom:Cotton Chino Shorts|shoes:Canvas Low Tops|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -581,8 +629,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.882375,
-        "latency_p95_ms": 1.410916,
+        "latency_p50_ms": 1.1785,
+        "latency_p95_ms": 1.616584,
         "run_count": 20,
         "score_max": 0.428667,
         "score_mean": 0.428667,
@@ -591,30 +639,30 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-": 20
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-",
-        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-"
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -634,12 +682,16 @@
           },
           "seed": 20300720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Grey Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Brown Derby Shoes",
             "top": "Clean Blue Oxford"
           },
-          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-"
+          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -658,12 +710,16 @@
           },
           "seed": 20300721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Grey Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Brown Derby Shoes",
             "top": "Clean Blue Oxford"
           },
-          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-"
+          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -682,12 +738,16 @@
           },
           "seed": 20300722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Grey Trousers",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Brown Derby Shoes",
             "top": "Clean Blue Oxford"
           },
-          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-"
+          "signature": "top:Clean Blue Oxford|bottom:Grey Trousers|shoes:Brown Derby Shoes|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -717,8 +777,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.893542,
-        "latency_p95_ms": 1.384542,
+        "latency_p50_ms": 1.160958,
+        "latency_p95_ms": 1.51125,
         "run_count": 20,
         "score_max": 0.1785,
         "score_mean": 0.1785,
@@ -727,7 +787,7 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-": 20
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [
         {
@@ -749,26 +809,26 @@
         }
       ],
       "run_signatures": [
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-",
-        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-"
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -788,12 +848,16 @@
           },
           "seed": 20310720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Training Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Cross Trainers",
             "top": "Moisture Wick Training Tee"
           },
-          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-"
+          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -812,12 +876,16 @@
           },
           "seed": 20310721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Training Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Cross Trainers",
             "top": "Moisture Wick Training Tee"
           },
-          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-"
+          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -836,12 +904,16 @@
           },
           "seed": 20310722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Training Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Cross Trainers",
             "top": "Moisture Wick Training Tee"
           },
-          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-"
+          "signature": "top:Moisture Wick Training Tee|bottom:Training Shorts|shoes:Cross Trainers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -871,8 +943,8 @@
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 1.880042,
-        "latency_p95_ms": 2.452291,
+        "latency_p50_ms": 2.193792,
+        "latency_p95_ms": 2.755667,
         "run_count": 20,
         "score_max": 0.444,
         "score_mean": 0.4164,
@@ -881,9 +953,9 @@
         "unique_outfit_rate": 0.15
       },
       "outfit_counts": {
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-": 6,
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-": 5,
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-": 9
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 6,
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 5,
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 9
       },
       "ranking_probes": [
         {
@@ -905,26 +977,26 @@
         }
       ],
       "run_signatures": [
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-",
-        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-"
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Red Striped Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Green Plaid Trousers|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -944,12 +1016,16 @@
           },
           "seed": 20320720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Chinos",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Minimal Sneakers",
             "top": "White Poplin Shirt"
           },
-          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-"
+          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -968,12 +1044,16 @@
           },
           "seed": 20320721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Chinos",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Minimal Sneakers",
             "top": "White Poplin Shirt"
           },
-          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-"
+          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -992,12 +1072,16 @@
           },
           "seed": 20320722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Navy Chinos",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Black Minimal Sneakers",
             "top": "White Poplin Shirt"
           },
-          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-"
+          "signature": "top:White Poplin Shirt|bottom:Navy Chinos|shoes:Black Minimal Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -1032,8 +1116,8 @@
         "context_mismatch_run_count": 20,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.821375,
-        "latency_p95_ms": 1.233458,
+        "latency_p50_ms": 1.149375,
+        "latency_p95_ms": 1.796666,
         "run_count": 20,
         "score_max": -0.0015,
         "score_mean": -0.0015,
@@ -1042,30 +1126,30 @@
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-": 20
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-",
-        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-"
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -1092,12 +1176,16 @@
           },
           "seed": 20330720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Beach Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Beach Sandals",
             "top": "Beach Linen Shirt"
           },
-          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-"
+          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [
@@ -1123,12 +1211,16 @@
           },
           "seed": 20330721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Beach Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Beach Sandals",
             "top": "Beach Linen Shirt"
           },
-          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-"
+          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [
@@ -1154,12 +1246,16 @@
           },
           "seed": 20330722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": "Beach Shorts",
+            "dress": null,
+            "headwear": null,
             "outerwear": null,
             "shoes": "Beach Sandals",
             "top": "Beach Linen Shirt"
           },
-          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-"
+          "signature": "top:Beach Linen Shirt|bottom:Beach Shorts|shoes:Beach Sandals|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
         }
       ],
       "selected_item_counts": {
@@ -1173,58 +1269,56 @@
       ]
     },
     {
-      "case_id": "dress-only-unsupported",
+      "case_id": "dress-only-supported",
       "context": {
         "occasion": "date",
         "trend": null,
         "weather_tag": "mild"
       },
-      "description": "Records the current v3 full-body garment coverage gap.",
+      "description": "Full-body garment closets produce a dress + shoes outfit (Phase 6).",
       "expectation_miss_counts": {},
       "hard_violation_counts": {},
       "item_count": 2,
-      "known_debts": [
-        "full_body_garment_not_generated"
-      ],
+      "known_debts": [],
       "metrics": {
         "consecutive_repeat_rate": 1.0,
         "context_mismatch_run_count": 0,
         "expectation_miss_count": 0,
         "hard_violation_count": 0,
-        "latency_p50_ms": 0.195333,
-        "latency_p95_ms": 0.368,
+        "latency_p50_ms": 0.998708,
+        "latency_p95_ms": 1.626042,
         "run_count": 20,
-        "score_max": 0.0,
-        "score_mean": 0.0,
-        "score_min": 0.0,
+        "score_max": 0.412,
+        "score_mean": 0.412,
+        "score_min": 0.412,
         "unique_outfit_count": 1,
         "unique_outfit_rate": 0.05
       },
       "outfit_counts": {
-        "top:-|bottom:-|shoes:-|outerwear:-": 20
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-": 20
       },
       "ranking_probes": [],
       "run_signatures": [
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-",
-        "top:-|bottom:-|shoes:-|outerwear:-"
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-"
       ],
       "sample_runs": [
         {
@@ -1233,23 +1327,27 @@
           "hard_violations": [],
           "run": 0,
           "score": {
-            "color": 0.0,
-            "footwear": 0.0,
-            "formality": 0.0,
-            "occasion": 0.0,
-            "pattern": 0.0,
+            "color": 0.55,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
             "personalization": 0.0,
             "season": 0.0,
-            "total": 0.0
+            "total": 0.412
           },
           "seed": 20340720,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": null,
+            "dress": "Black Midi Dress",
+            "headwear": null,
             "outerwear": null,
-            "shoes": null,
+            "shoes": "Black Slingback Heels",
             "top": null
           },
-          "signature": "top:-|bottom:-|shoes:-|outerwear:-"
+          "signature": "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -1257,23 +1355,27 @@
           "hard_violations": [],
           "run": 1,
           "score": {
-            "color": 0.0,
-            "footwear": 0.0,
-            "formality": 0.0,
-            "occasion": 0.0,
-            "pattern": 0.0,
+            "color": 0.55,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
             "personalization": 0.0,
             "season": 0.0,
-            "total": 0.0
+            "total": 0.412
           },
           "seed": 20340721,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": null,
+            "dress": "Black Midi Dress",
+            "headwear": null,
             "outerwear": null,
-            "shoes": null,
+            "shoes": "Black Slingback Heels",
             "top": null
           },
-          "signature": "top:-|bottom:-|shoes:-|outerwear:-"
+          "signature": "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-"
         },
         {
           "context_mismatches": [],
@@ -1281,35 +1383,191 @@
           "hard_violations": [],
           "run": 2,
           "score": {
-            "color": 0.0,
-            "footwear": 0.0,
-            "formality": 0.0,
-            "occasion": 0.0,
-            "pattern": 0.0,
+            "color": 0.55,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
             "personalization": 0.0,
             "season": 0.0,
-            "total": 0.0
+            "total": 0.412
           },
           "seed": 20340722,
           "selected": {
+            "accessory": null,
+            "bag": null,
             "bottom": null,
+            "dress": "Black Midi Dress",
+            "headwear": null,
             "outerwear": null,
-            "shoes": null,
+            "shoes": "Black Slingback Heels",
             "top": null
           },
-          "signature": "top:-|bottom:-|shoes:-|outerwear:-"
+          "signature": "top:-|bottom:-|shoes:Black Slingback Heels|outerwear:-|dress:Black Midi Dress|bag:-|accessory:-|headwear:-"
         }
       ],
-      "selected_item_counts": {},
+      "selected_item_counts": {
+        "Black Midi Dress": 20,
+        "Black Slingback Heels": 20
+      },
       "tags": [
-        "known-debt",
         "dress",
         "slot-coverage"
       ]
+    },
+    {
+      "case_id": "dress-never-mixed-with-separates",
+      "context": {
+        "occasion": "brunch",
+        "trend": null,
+        "weather_tag": "hot"
+      },
+      "description": "A dress must replace top+bottom even when separates score well.",
+      "expectation_miss_counts": {},
+      "hard_violation_counts": {},
+      "item_count": 4,
+      "known_debts": [],
+      "metrics": {
+        "consecutive_repeat_rate": 0.578947,
+        "context_mismatch_run_count": 0,
+        "expectation_miss_count": 0,
+        "hard_violation_count": 0,
+        "latency_p50_ms": 1.458709,
+        "latency_p95_ms": 1.795,
+        "run_count": 20,
+        "score_max": 0.471667,
+        "score_mean": 0.44625,
+        "score_min": 0.37,
+        "unique_outfit_count": 2,
+        "unique_outfit_rate": 0.1
+      },
+      "outfit_counts": {
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-": 5,
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-": 15
+      },
+      "ranking_probes": [],
+      "run_signatures": [
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-",
+        "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
+      ],
+      "sample_runs": [
+        {
+          "context_mismatches": [],
+          "expectation_misses": [],
+          "hard_violations": [],
+          "run": 0,
+          "score": {
+            "color": 0.75,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
+            "personalization": 0.0,
+            "season": 0.0,
+            "total": 0.471667
+          },
+          "seed": 20350720,
+          "selected": {
+            "accessory": null,
+            "bag": null,
+            "bottom": "Tan Chino Shorts",
+            "dress": null,
+            "headwear": null,
+            "outerwear": null,
+            "shoes": "White Court Sneakers",
+            "top": "White Linen Shirt"
+          },
+          "signature": "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
+        },
+        {
+          "context_mismatches": [],
+          "expectation_misses": [],
+          "hard_violations": [],
+          "run": 1,
+          "score": {
+            "color": 0.75,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
+            "personalization": 0.0,
+            "season": 0.0,
+            "total": 0.471667
+          },
+          "seed": 20350721,
+          "selected": {
+            "accessory": null,
+            "bag": null,
+            "bottom": "Tan Chino Shorts",
+            "dress": null,
+            "headwear": null,
+            "outerwear": null,
+            "shoes": "White Court Sneakers",
+            "top": "White Linen Shirt"
+          },
+          "signature": "top:White Linen Shirt|bottom:Tan Chino Shorts|shoes:White Court Sneakers|outerwear:-|dress:-|bag:-|accessory:-|headwear:-"
+        },
+        {
+          "context_mismatches": [],
+          "expectation_misses": [],
+          "hard_violations": [],
+          "run": 2,
+          "score": {
+            "color": 0.55,
+            "footwear": 0.5,
+            "formality": 0.8,
+            "occasion": 0.6,
+            "pattern": 0.3,
+            "personalization": 0.0,
+            "season": 0.0,
+            "total": 0.37
+          },
+          "seed": 20350722,
+          "selected": {
+            "accessory": null,
+            "bag": null,
+            "bottom": null,
+            "dress": "Floral Sundress",
+            "headwear": null,
+            "outerwear": null,
+            "shoes": "White Court Sneakers",
+            "top": null
+          },
+          "signature": "top:-|bottom:-|shoes:White Court Sneakers|outerwear:-|dress:Floral Sundress|bag:-|accessory:-|headwear:-"
+        }
+      ],
+      "selected_item_counts": {
+        "Floral Sundress": 5,
+        "Tan Chino Shorts": 15,
+        "White Court Sneakers": 20,
+        "White Linen Shirt": 15
+      },
+      "tags": [
+        "dress",
+        "slot-exclusion"
+      ]
     }
   ],
-  "deterministic_fingerprint": "b195718ca95d127535bbfe30a70c4c58a8d9e955400caa4b486a2307320bbe34",
-  "engine_version": "outfit-v3",
+  "deterministic_fingerprint": "c1b193dc343c8c7fc38d58e3fb6f0bb51f3caa2306b70f9d332bc9ee8e56b6fe",
+  "engine_version": "outfit-v4-structure",
   "fixture_manifest": [
     {
       "case_id": "tiny-casual-complete",
@@ -1396,20 +1654,27 @@
       ]
     },
     {
-      "case_id": "dress-only-unsupported",
-      "description": "Records the current v3 full-body garment coverage gap.",
+      "case_id": "dress-only-supported",
+      "description": "Full-body garment closets produce a dress + shoes outfit (Phase 6).",
       "item_count": 2,
-      "known_debts": [
-        "full_body_garment_not_generated"
-      ],
+      "known_debts": [],
       "tags": [
-        "known-debt",
         "dress",
         "slot-coverage"
       ]
+    },
+    {
+      "case_id": "dress-never-mixed-with-separates",
+      "description": "A dress must replace top+bottom even when separates score well.",
+      "item_count": 4,
+      "known_debts": [],
+      "tags": [
+        "dress",
+        "slot-exclusion"
+      ]
     }
   ],
-  "generated_at": "2026-07-21T04:09:49.194643+00:00",
+  "generated_at": "2026-07-21T06:11:37.977561+00:00",
   "limitations": [
     "Automated metrics do not measure subjective fashion quality.",
     "Fixture image URLs are stable placeholders because v3 does not inspect pixels at suggestion time.",
@@ -1417,22 +1682,21 @@
     "Known-debt cases document existing v3 behavior; they do not make that behavior acceptable for v4."
   ],
   "runs_per_case": 20,
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "seed": 20260720,
   "summary": {
-    "case_count": 9,
+    "case_count": 10,
     "context_mismatch_run_count": 20,
     "hard_constraint_pass_rate": 1.0,
     "hard_constraint_violation_count": 0,
     "known_debts": [
-      "full_body_garment_not_generated",
       "soft_occasion_fallback",
       "soft_weather_fallback"
     ],
     "ranking_probe_count": 3,
     "ranking_probe_pass_count": 2,
     "selection_expectation_miss_count": 0,
-    "total_runs": 180,
-    "worst_case_latency_p95_ms": 2.452291
+    "total_runs": 200,
+    "worst_case_latency_p95_ms": 2.755667
   }
 }

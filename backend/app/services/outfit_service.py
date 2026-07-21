@@ -31,9 +31,16 @@ class OutfitService:
     BOTTOM_CATEGORIES = {"bottom", "pants", "jeans", "shorts", "skirt"}
     SHOE_CATEGORIES = {"shoes", "sneakers", "heels", "boots", "sandals", "footwear"}
     OUTERWEAR_CATEGORIES = {"jacket", "coat", "hoodie", "outerwear"}
+    # Full-body garments replace top+bottom — never combined with either.
+    DRESS_CATEGORIES = {"dress", "jumpsuit"}
+    # Optional finishing slots — attached only when they don't hurt the look.
+    BAG_CATEGORIES = {"bag"}
+    ACCESSORY_CATEGORIES = {"accessory", "jewelry"}
+    HEADWEAR_CATEGORIES = {"headwear", "hat"}
 
     TOP_SUBCATEGORIES = {"sports-bra", "athletic-top", "tracksuit"}
     BOTTOM_SUBCATEGORIES = {"athletic-shorts"}
+    ACCESSORY_SLOTS = ("bag", "accessory", "headwear")
 
     @classmethod
     def _context(
@@ -84,6 +91,7 @@ class OutfitService:
             bottom=payload.get("bottom"),
             shoes=payload.get("shoes"),
             outerwear=payload.get("outerwear"),
+            dress=payload.get("dress"),
             occasion=payload.get("occasion"),
             weather_tag=payload.get("weather_tag"),
             trend=payload.get("trend"),
@@ -167,6 +175,7 @@ class OutfitService:
         bottom_id: Optional[int] = None,
         shoes_id: Optional[int] = None,
         outerwear_id: Optional[int] = None,
+        dress_id: Optional[int] = None,
         trend: Optional[str] = None,
     ):
         if swap_slot:
@@ -182,6 +191,7 @@ class OutfitService:
                 bottom_id=bottom_id,
                 shoes_id=shoes_id,
                 outerwear_id=outerwear_id,
+                dress_id=dress_id,
             )
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
@@ -196,17 +206,19 @@ class OutfitService:
         )
         shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
         outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        dresses = cls._candidates(items, cls.DRESS_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
 
-        best = cls._best_combo(db, user_id, tops, bottoms, shoes, context)
+        best = cls._best_combo(db, user_id, tops, bottoms, shoes, context, dresses=dresses)
 
+        chosen_dress = best["dress"]
         chosen_top = best["top"]
         chosen_bottom = best["bottom"]
         chosen_shoes = best["shoes"]
-        anchor = chosen_top or chosen_bottom or chosen_shoes
+        anchor = chosen_dress or chosen_top or chosen_bottom or chosen_shoes
 
         chosen_outerwear = cls._best_outerwear(
             db, user_id, outerwear, anchor, context, weather_tag,
-            ensemble=[chosen_top, chosen_bottom, chosen_shoes],
+            ensemble=[chosen_dress, chosen_top, chosen_bottom, chosen_shoes],
         )
 
         alternatives: List[ClothingItem] = []
@@ -219,32 +231,37 @@ class OutfitService:
                 tops=tops,
                 bottoms=bottoms,
                 shoes=shoes,
-                chosen={chosen_top, chosen_bottom, chosen_shoes},
+                chosen={chosen_dress, chosen_top, chosen_bottom, chosen_shoes},
             )
 
         rationale = cls._rationale_for(
             db,
             user_id,
-            [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+            [chosen_dress, chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
             context,
         )
 
-        return cls._attach_styling_note(
-            db,
-            user_id,
-            {
+        payload = {
             "title": "Today's outfit suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
             "trend": trend,
             "rationale": rationale,
+            "dress": chosen_dress,
             "top": chosen_top,
             "bottom": chosen_bottom,
             "shoes": chosen_shoes,
             "outerwear": chosen_outerwear,
             "alternatives": alternatives,
-            },
+        }
+        payload = cls._attach_accessories(
+            db,
+            user_id,
+            payload,
+            cls._accessory_pools(items, weather_tag, occasion, exclude_ids, query),
+            context,
         )
+        return cls._attach_styling_note(db, user_id, payload)
 
     @classmethod
     def _swap_piece(
@@ -259,9 +276,10 @@ class OutfitService:
         bottom_id: Optional[int],
         shoes_id: Optional[int],
         outerwear_id: Optional[int],
+        dress_id: Optional[int] = None,
         trend: Optional[str] = None,
     ):
-        valid_slots = {"top", "bottom", "shoes", "outerwear"}
+        valid_slots = {"top", "bottom", "shoes", "outerwear", "dress"}
         if swap_slot not in valid_slots:
             raise ValueError(f"Invalid swap_slot: {swap_slot}")
 
@@ -269,22 +287,24 @@ class OutfitService:
         locked_bottom = cls._get_owned(db, user_id, bottom_id)
         locked_shoes = cls._get_owned(db, user_id, shoes_id)
         locked_outerwear = cls._get_owned(db, user_id, outerwear_id)
+        locked_dress = cls._get_owned(db, user_id, dress_id)
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion, trend)
 
+        locked_for_slot = {
+            "top": locked_top,
+            "bottom": locked_bottom,
+            "shoes": locked_shoes,
+            "outerwear": locked_outerwear,
+            "dress": locked_dress,
+        }
         exclude_ids: set[int] = set()
-        if swap_slot == "top" and locked_top:
-            exclude_ids.add(locked_top.id)
-        elif swap_slot == "bottom" and locked_bottom:
-            exclude_ids.add(locked_bottom.id)
-        elif swap_slot == "shoes" and locked_shoes:
-            exclude_ids.add(locked_shoes.id)
-        elif swap_slot == "outerwear" and locked_outerwear:
-            exclude_ids.add(locked_outerwear.id)
+        if locked_for_slot.get(swap_slot):
+            exclude_ids.add(locked_for_slot[swap_slot].id)
 
         query = cls._retrieval_query(
-            items, locked_top, locked_bottom, locked_shoes, locked_outerwear
+            items, locked_top, locked_bottom, locked_shoes, locked_outerwear, locked_dress
         )
         tops = cls._candidates(
             items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
@@ -294,6 +314,7 @@ class OutfitService:
         )
         shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
         outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        dresses = cls._candidates(items, cls.DRESS_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
 
         if swap_slot == "top":
             top_opts = tops
@@ -312,15 +333,21 @@ class OutfitService:
             bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
             shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
 
+        chosen_dress: Optional[ClothingItem] = None
         if swap_slot == "outerwear":
             chosen_top = locked_top
             chosen_bottom = locked_bottom
             chosen_shoes = locked_shoes
-            anchor = chosen_top or chosen_bottom or chosen_shoes
+            chosen_dress = locked_dress
+            anchor = chosen_dress or chosen_top or chosen_bottom or chosen_shoes
             pool = [o for o in outerwear if not locked_outerwear or o.id != locked_outerwear.id]
             if pool and anchor:
                 if settings.OUTFIT_EMBEDDINGS_ENABLED:
-                    kept = [g for g in (chosen_top, chosen_bottom, chosen_shoes) if g is not None]
+                    kept = [
+                        g
+                        for g in (chosen_dress, chosen_top, chosen_bottom, chosen_shoes)
+                        if g is not None
+                    ]
                     chosen_outerwear = max(
                         pool, key=lambda ow: cls._score(db, user_id, [*kept, ow], context)
                     )
@@ -331,17 +358,38 @@ class OutfitService:
             else:
                 chosen_outerwear = pool[0] if pool else locked_outerwear
         else:
-            best = cls._best_combo(db, user_id, top_opts, bottom_opts, shoe_opts, context)
-            chosen_top = best["top"] if swap_slot == "top" else (locked_top or best["top"])
-            chosen_bottom = best["bottom"] if swap_slot == "bottom" else (locked_bottom or best["bottom"])
+            if swap_slot == "dress":
+                # Swapping the dress: other dresses compete with separates.
+                dress_opts = dresses
+                top_opts = tops or [None]
+                bottom_opts = bottoms or [None]
+                shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
+            elif locked_dress:
+                # A dress anchors the look — only the swapped slot may change.
+                dress_opts = [locked_dress]
+                top_opts = [None]
+                bottom_opts = [None]
+            else:
+                dress_opts = []
+
+            best = cls._best_combo(
+                db, user_id, top_opts, bottom_opts, shoe_opts, context, dresses=dress_opts
+            )
+            chosen_dress = best["dress"]
+            if chosen_dress is not None:
+                chosen_top = None
+                chosen_bottom = None
+            else:
+                chosen_top = best["top"] if swap_slot == "top" else (locked_top or best["top"])
+                chosen_bottom = best["bottom"] if swap_slot == "bottom" else (locked_bottom or best["bottom"])
             chosen_shoes = best["shoes"] if swap_slot == "shoes" else (locked_shoes or best["shoes"])
-            anchor = chosen_top or chosen_bottom or chosen_shoes
+            anchor = chosen_dress or chosen_top or chosen_bottom or chosen_shoes
             if locked_outerwear and swap_slot != "outerwear":
                 chosen_outerwear = locked_outerwear
             else:
                 chosen_outerwear = cls._best_outerwear(
                     db, user_id, outerwear, anchor, context, weather_tag,
-                    ensemble=[chosen_top, chosen_bottom, chosen_shoes],
+                    ensemble=[chosen_dress, chosen_top, chosen_bottom, chosen_shoes],
                 )
 
         slot_labels = {
@@ -349,6 +397,7 @@ class OutfitService:
             "bottom": "bottom",
             "shoes": "shoes",
             "outerwear": "layer",
+            "dress": "dress",
         }
         swapped = slot_labels[swap_slot]
 
@@ -362,24 +411,19 @@ class OutfitService:
                 tops=tops,
                 bottoms=bottoms,
                 shoes=shoes,
-                chosen={chosen_top, chosen_bottom, chosen_shoes},
+                chosen={chosen_dress, chosen_top, chosen_bottom, chosen_shoes},
             )
 
         rationale = cls._rationale_for(
             db,
             user_id,
-            [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+            [chosen_dress, chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
             context,
         )
         if rationale:
             rationale = f"Swapped the {swapped} — kept the rest. {rationale}"
 
-        replaced_item = {
-            "top": locked_top,
-            "bottom": locked_bottom,
-            "shoes": locked_shoes,
-            "outerwear": locked_outerwear,
-        }[swap_slot]
+        replaced_item = locked_for_slot[swap_slot]
 
         StyleSignalService.record(
             db,
@@ -389,28 +433,34 @@ class OutfitService:
             bottom_id=chosen_bottom.id if chosen_bottom else None,
             shoes_id=chosen_shoes.id if chosen_shoes else None,
             outerwear_id=chosen_outerwear.id if chosen_outerwear else None,
+            dress_id=chosen_dress.id if chosen_dress else None,
             swap_slot=swap_slot,
             replaced_item_id=replaced_item.id if replaced_item else None,
             occasion=occasion,
             weather_tag=weather_tag,
         )
 
-        return cls._attach_styling_note(
-            db,
-            user_id,
-            {
+        payload = {
             "title": f"New {swapped} suggestion",
             "weather_tag": weather_tag,
             "occasion": occasion,
             "trend": trend,
             "rationale": rationale,
+            "dress": chosen_dress,
             "top": chosen_top,
             "bottom": chosen_bottom,
             "shoes": chosen_shoes,
             "outerwear": chosen_outerwear,
             "alternatives": alternatives,
-            },
+        }
+        payload = cls._attach_accessories(
+            db,
+            user_id,
+            payload,
+            cls._accessory_pools(items, weather_tag, occasion, exclude_ids, query),
+            context,
         )
+        return cls._attach_styling_note(db, user_id, payload)
 
     @classmethod
     def _best_combo(
@@ -421,10 +471,12 @@ class OutfitService:
         bottoms: List[ClothingItem],
         shoes: List[ClothingItem],
         context: MatchContext,
+        dresses: Optional[List[ClothingItem]] = None,
     ) -> dict:
         top_opts = tops or [None]
         bottom_opts = bottoms or [None]
         shoe_opts = shoes or [None]
+        empty = {"top": None, "bottom": None, "shoes": None, "dress": None}
 
         scored = []
         for top in top_opts:
@@ -433,14 +485,72 @@ class OutfitService:
                     continue
                 for shoe in shoe_opts:
                     score = cls._score(db, user_id, [top, bottom, shoe], context)
-                    scored.append((score, {"top": top, "bottom": bottom, "shoes": shoe}))
+                    scored.append(
+                        (score, {**empty, "top": top, "bottom": bottom, "shoes": shoe})
+                    )
+
+        # Full-body garments compete as an alternative combo family: a dress
+        # replaces top+bottom, never mixes with either (slot exclusion rule).
+        for dress in dresses or []:
+            for shoe in shoe_opts:
+                score = cls._score(db, user_id, [dress, shoe], context)
+                scored.append((score, {**empty, "dress": dress, "shoes": shoe}))
 
         if not scored:
-            return {"top": None, "bottom": None, "shoes": None}
+            return dict(empty)
 
         best_score = max(score for score, _ in scored)
         near_best = [combo for score, combo in scored if score >= best_score - _VARIETY_MARGIN]
         return random.choice(near_best)
+
+    @classmethod
+    def _accessory_pools(
+        cls,
+        items: List[ClothingItem],
+        weather_tag: Optional[str],
+        occasion: Optional[str],
+        exclude_ids: Optional[set],
+        query,
+    ) -> dict[str, List[ClothingItem]]:
+        return {
+            "bag": cls._candidates(items, cls.BAG_CATEGORIES, weather_tag, occasion, exclude_ids, query=query),
+            "accessory": cls._candidates(items, cls.ACCESSORY_CATEGORIES, weather_tag, occasion, exclude_ids, query=query),
+            "headwear": cls._candidates(items, cls.HEADWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query),
+        }
+
+    @classmethod
+    def _attach_accessories(
+        cls,
+        db: Session,
+        user_id: int,
+        payload: dict,
+        pools: dict[str, List[ClothingItem]],
+        context: MatchContext,
+    ) -> dict:
+        """Add each finishing piece only when it improves the scored look —
+        a complete outfit never *requires* accessories."""
+        ensemble = [
+            payload.get(slot)
+            for slot in ("dress", "top", "bottom", "shoes", "outerwear")
+            if payload.get(slot) is not None
+        ]
+        if not ensemble:
+            for slot in cls.ACCESSORY_SLOTS:
+                payload[slot] = None
+            return payload
+
+        base_score = cls._score(db, user_id, ensemble, context)
+        for slot in cls.ACCESSORY_SLOTS:
+            chosen = None
+            pool = pools.get(slot) or []
+            if pool:
+                best = max(pool, key=lambda a: cls._score(db, user_id, [*ensemble, a], context))
+                if cls._score(db, user_id, [*ensemble, best], context) > base_score:
+                    chosen = best
+                    ensemble.append(best)
+                    base_score = cls._score(db, user_id, ensemble, context)
+            payload[slot] = chosen
+        return payload
 
     @classmethod
     def _best_outerwear(
@@ -499,8 +609,14 @@ class OutfitService:
             return "shoes"
         if cat in cls.OUTERWEAR_CATEGORIES:
             return "outerwear"
-        if cat == "dress":
-            return "top"
+        if cat in cls.DRESS_CATEGORIES or sub == "jumpsuit":
+            return "dress"
+        if cat in cls.BAG_CATEGORIES:
+            return "bag"
+        if cat in cls.ACCESSORY_CATEGORIES:
+            return "accessory"
+        if cat in cls.HEADWEAR_CATEGORIES:
+            return "headwear"
         return None
 
     @classmethod
@@ -538,46 +654,63 @@ class OutfitService:
         locked_bottom = item if slot == "bottom" else None
         locked_shoes = item if slot == "shoes" else None
         locked_outerwear = item if slot == "outerwear" else None
+        locked_dress = item if slot == "dress" else None
+        locked_accessory = item if slot in cls.ACCESSORY_SLOTS else None
 
-        top_opts = [locked_top] if locked_top else (tops or [None])
-        bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+        if locked_dress:
+            top_opts, bottom_opts = [None], [None]
+            dress_opts: List[ClothingItem] = [locked_dress]
+        else:
+            top_opts = [locked_top] if locked_top else (tops or [None])
+            bottom_opts = [locked_bottom] if locked_bottom else (bottoms or [None])
+            dress_opts = []
         shoe_opts = [locked_shoes] if locked_shoes else (shoes or [None])
 
-        best = cls._best_combo(db, user_id, top_opts, bottom_opts, shoe_opts, context)
-        chosen_top = locked_top or best["top"]
-        chosen_bottom = locked_bottom or best["bottom"]
+        best = cls._best_combo(
+            db, user_id, top_opts, bottom_opts, shoe_opts, context, dresses=dress_opts
+        )
+        chosen_dress = locked_dress or best["dress"]
+        chosen_top = None if chosen_dress else (locked_top or best["top"])
+        chosen_bottom = None if chosen_dress else (locked_bottom or best["bottom"])
         chosen_shoes = locked_shoes or best["shoes"]
-        anchor = chosen_top or chosen_bottom or chosen_shoes
+        anchor = chosen_dress or chosen_top or chosen_bottom or chosen_shoes
         chosen_outerwear = locked_outerwear or cls._best_outerwear(
             db, user_id, outerwear, anchor, context, weather_tag,
-            ensemble=[chosen_top, chosen_bottom, chosen_shoes],
+            ensemble=[chosen_dress, chosen_top, chosen_bottom, chosen_shoes],
         )
 
-        if not any([chosen_top, chosen_bottom, chosen_shoes]):
+        if not any([chosen_dress, chosen_top, chosen_bottom, chosen_shoes]):
             return None
 
         rationale = cls._rationale_for(
             db,
             user_id,
-            [chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+            [chosen_dress, chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
             context,
         )
         if rationale:
             rationale = f"Built around your {item.name}. {rationale}"
 
-        return cls._attach_styling_note(
+        payload = {
+            "title": f"Pairs with {item.name}",
+            "weather_tag": weather_tag,
+            "occasion": occasion,
+            "trend": None,
+            "rationale": rationale,
+            "dress": chosen_dress,
+            "top": chosen_top,
+            "bottom": chosen_bottom,
+            "shoes": chosen_shoes,
+            "outerwear": chosen_outerwear,
+            "alternatives": [],
+        }
+        payload = cls._attach_accessories(
             db,
             user_id,
-            {
-                "title": f"Pairs with {item.name}",
-                "weather_tag": weather_tag,
-                "occasion": occasion,
-                "trend": None,
-                "rationale": rationale,
-                "top": chosen_top,
-                "bottom": chosen_bottom,
-                "shoes": chosen_shoes,
-                "outerwear": chosen_outerwear,
-                "alternatives": [],
-            },
+            payload,
+            cls._accessory_pools(items, weather_tag, occasion, exclude_ids, query),
+            context,
         )
+        if locked_accessory is not None:
+            payload[slot] = locked_accessory
+        return cls._attach_styling_note(db, user_id, payload)

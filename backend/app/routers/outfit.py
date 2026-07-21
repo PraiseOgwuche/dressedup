@@ -37,14 +37,15 @@ def get_outfit_suggestion(
     bottom_id: int | None = None,
     shoes_id: int | None = None,
     outerwear_id: int | None = None,
+    dress_id: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Swap one piece: pass current outfit ids + swap_slot (top|bottom|shoes|outerwear)."""
-    if swap_slot is not None and swap_slot not in {"top", "bottom", "shoes", "outerwear"}:
+    """Swap one piece: pass current outfit ids + swap_slot (top|bottom|shoes|outerwear|dress)."""
+    if swap_slot is not None and swap_slot not in {"top", "bottom", "shoes", "outerwear", "dress"}:
         raise HTTPException(
             status_code=400,
-            detail="swap_slot must be top, bottom, shoes, or outerwear",
+            detail="swap_slot must be top, bottom, shoes, outerwear, or dress",
         )
     try:
         return OutfitService.get_suggestion(
@@ -58,6 +59,7 @@ def get_outfit_suggestion(
             bottom_id=bottom_id,
             shoes_id=shoes_id,
             outerwear_id=outerwear_id,
+            dress_id=dress_id,
             trend=trend,
         )
     except ValueError as exc:
@@ -155,6 +157,7 @@ def record_outfit_feedback(
         bottom_id=payload.bottom_id,
         shoes_id=payload.shoes_id,
         outerwear_id=payload.outerwear_id,
+        dress_id=payload.dress_id,
         signal=payload.signal,
         occasion=payload.occasion,
         weather_tag=payload.weather_tag,

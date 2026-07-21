@@ -57,11 +57,13 @@ export default function HomeScreen() {
     bottom?: ClosetItem | null;
     shoes?: ClosetItem | null;
     outerwear?: ClosetItem | null;
+    dress?: ClosetItem | null;
   }) => ({
     top_id: outfit.top?.id ?? null,
     bottom_id: outfit.bottom?.id ?? null,
     shoes_id: outfit.shoes?.id ?? null,
     outerwear_id: outfit.outerwear?.id ?? null,
+    dress_id: outfit.dress?.id ?? null,
     occasion: occasion || null,
     weather_tag: weatherTag || null,
   });
@@ -72,10 +74,11 @@ export default function HomeScreen() {
       bottom?: ClosetItem | null;
       shoes?: ClosetItem | null;
       outerwear?: ClosetItem | null;
+      dress?: ClosetItem | null;
     },
     signal: 'like' | 'dislike' | 'wore',
   ) => {
-    if (!outfit.top && !outfit.bottom && !outfit.shoes) return;
+    if (!outfit.top && !outfit.bottom && !outfit.shoes && !outfit.dress) return;
     setFeedbackLoading(true);
     try {
       await outfitAPI.feedback({ ...outfitFeedbackPayload(outfit), signal });
@@ -205,7 +208,16 @@ export default function HomeScreen() {
   };
 
   const handleWoreSuggestion = async () => {
-    const ids = [suggestion?.top, suggestion?.bottom, suggestion?.shoes, suggestion?.outerwear]
+    const ids = [
+      suggestion?.top,
+      suggestion?.bottom,
+      suggestion?.shoes,
+      suggestion?.outerwear,
+      suggestion?.dress,
+      suggestion?.bag,
+      suggestion?.accessory,
+      suggestion?.headwear,
+    ]
       .filter((i): i is ClosetItem => !!i)
       .map((i) => i.id);
     if (!ids.length) return;
@@ -218,6 +230,7 @@ export default function HomeScreen() {
           bottom: suggestion?.bottom,
           shoes: suggestion?.shoes,
           outerwear: suggestion?.outerwear,
+          dress: suggestion?.dress,
         },
         'wore',
       );
@@ -235,7 +248,7 @@ export default function HomeScreen() {
   };
 
   const handleWoreActivity = async (activity: PlanActivity) => {
-    const ids = [activity.top, activity.bottom, activity.shoes, activity.outerwear]
+    const ids = [activity.top, activity.bottom, activity.shoes, activity.outerwear, activity.dress]
       .filter((i): i is ClosetItem => !!i)
       .map((i) => i.id);
     if (!ids.length) return;
@@ -248,6 +261,7 @@ export default function HomeScreen() {
           bottom: activity.bottom,
           shoes: activity.shoes,
           outerwear: activity.outerwear,
+          dress: activity.dress,
         },
         'wore',
       );
@@ -277,6 +291,7 @@ export default function HomeScreen() {
           bottomId: suggestion.bottom?.id,
           shoesId: suggestion.shoes?.id,
           outerwearId: suggestion.outerwear?.id,
+          dressId: suggestion.dress?.id,
         },
         trend || undefined,
       );
@@ -322,6 +337,10 @@ export default function HomeScreen() {
               bottom={suggestion?.bottom}
               shoes={suggestion?.shoes}
               outerwear={suggestion?.outerwear}
+              dress={suggestion?.dress}
+              bag={suggestion?.bag}
+              accessory={suggestion?.accessory}
+              headwear={suggestion?.headwear}
               rationale={suggestion?.rationale}
               stylingNote={suggestion?.styling_note}
               interpretation={askInterpretation}
@@ -338,6 +357,7 @@ export default function HomeScreen() {
                           bottom: suggestion.bottom,
                           shoes: suggestion.shoes,
                           outerwear: suggestion.outerwear,
+                          dress: suggestion.dress,
                         },
                         'like',
                       )
@@ -352,6 +372,7 @@ export default function HomeScreen() {
                           bottom: suggestion.bottom,
                           shoes: suggestion.shoes,
                           outerwear: suggestion.outerwear,
+                          dress: suggestion.dress,
                         },
                         'dislike',
                       )
@@ -411,6 +432,7 @@ export default function HomeScreen() {
                 bottom={activity.bottom}
                 shoes={activity.shoes}
                 outerwear={activity.outerwear}
+                dress={activity.dress}
                 packingList={activity.mode === 'pack' ? activity.packing_list : undefined}
                 onWore={activity.mode === 'wear' ? () => handleWoreActivity(activity) : undefined}
                 woreLoading={wearingActivity === activity.activity}

@@ -73,17 +73,21 @@ pairwise review:
 The rollout target is at least 65% preference for v4 over v3, without any
 regression in hard constraints.
 
-## Frozen v3 baseline
+## Frozen baseline (v4 structure, Phase 6)
 
-Default run (`9` cases × `20` seeds):
+Default run (`10` cases × `20` seeds):
 
-- hard-constraint pass rate: **100%**
+- hard-constraint pass rate: **100%** (now includes `dress_combined_with_separates`)
 - ranking probes: **2 / 3**
-- explicit context-mismatch runs: **20 / 180**
-- known debts:
-  - dress/full-body garments are not generated
+- dresses/jumpsuits generate as full-body outfits (`dress-only-supported`,
+  `dress-never-mixed-with-separates`)
+- remaining known debts:
   - weather fallback is silent when nothing matches
   - occasion fallback is silent when nothing matches
   - workout activewear loses its controlled ranking probe by `0.0175`
+
+The original v3 fingerprint (`b195718ca95d…`) was retired deliberately in
+Phase 6 when full-body garments became supported; the schema bumped to 1.1
+and engine version to `outfit-v4-structure`.
 
 These debts are observations, not accepted v4 behavior.

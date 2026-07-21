@@ -193,6 +193,7 @@ class TripService:
                     "bottom": _locked("bottom"),
                     "shoes": _locked("shoes"),
                     "outerwear": _locked("outerwear"),
+                    "dress": None,
                 }
                 rationale = None
             else:
@@ -212,6 +213,7 @@ class TripService:
                     "bottom": suggestion.get("bottom"),
                     "shoes": suggestion.get("shoes"),
                     "outerwear": suggestion.get("outerwear"),
+                    "dress": suggestion.get("dress"),
                 }
                 rationale = suggestion.get("rationale")
 
@@ -240,6 +242,7 @@ class TripService:
                     "bottom": chosen_slots["bottom"],
                     "shoes": chosen_slots["shoes"],
                     "outerwear": chosen_slots["outerwear"],
+                    "dress": chosen_slots.get("dress"),
                 }
             )
 

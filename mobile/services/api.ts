@@ -292,6 +292,7 @@ export const outfitAPI = {
               bottom_id: swap.bottomId ?? undefined,
               shoes_id: swap.shoesId ?? undefined,
               outerwear_id: swap.outerwearId ?? undefined,
+              dress_id: swap.dressId ?? undefined,
             }
           : {}),
       },

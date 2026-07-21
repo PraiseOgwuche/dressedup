@@ -49,7 +49,7 @@ class PlanService:
 
             chosen = [
                 suggestion[slot]
-                for slot in ("top", "bottom", "shoes", "outerwear")
+                for slot in ("dress", "top", "bottom", "shoes", "outerwear", "bag", "accessory", "headwear")
                 if suggestion.get(slot) is not None
             ]
             for item in chosen:
@@ -67,6 +67,7 @@ class PlanService:
                     "bottom": suggestion.get("bottom"),
                     "shoes": suggestion.get("shoes"),
                     "outerwear": suggestion.get("outerwear"),
+                    "dress": suggestion.get("dress"),
                     "packing_list": chosen if mode == "pack" else [],
                 }
             )

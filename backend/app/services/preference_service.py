@@ -45,6 +45,7 @@ class PreferenceService:
         bottom_id: Optional[int],
         shoes_id: Optional[int],
         outerwear_id: Optional[int] = None,
+        dress_id: Optional[int] = None,
         signal: str,
         occasion: Optional[str] = None,
         weather_tag: Optional[str] = None,
@@ -55,6 +56,7 @@ class PreferenceService:
             bottom_id=bottom_id,
             shoes_id=shoes_id,
             outerwear_id=outerwear_id,
+            dress_id=dress_id,
             signal=PreferenceService.signal_value(signal),
             occasion=occasion,
             weather_tag=weather_tag,
@@ -69,6 +71,7 @@ class PreferenceService:
             bottom_id=bottom_id,
             shoes_id=shoes_id,
             outerwear_id=outerwear_id,
+            dress_id=dress_id,
             occasion=occasion,
             weather_tag=weather_tag,
             commit=False,
@@ -86,6 +89,7 @@ class PreferenceService:
                 signal.bottom_id,
                 signal.shoes_id,
                 signal.outerwear_id,
+                signal.dress_id,
             )
             if i
         ]

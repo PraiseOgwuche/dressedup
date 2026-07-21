@@ -48,7 +48,7 @@ def plan_notification_text(plan: dict) -> tuple[str, str]:
 
     names = [
         name
-        for slot in ("top", "bottom", "shoes")
+        for slot in ("dress", "top", "bottom", "shoes")
         for name in [_item_name(wear.get(slot))]
         if name
     ]

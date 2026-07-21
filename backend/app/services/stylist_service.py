@@ -126,6 +126,7 @@ class StylistService:
         bottom,
         shoes,
         outerwear,
+        dress=None,
         occasion: Optional[str],
         weather_tag: Optional[str],
         trend: Optional[str],
@@ -137,6 +138,7 @@ class StylistService:
             "bottom": cls._serialize_garment(bottom),
             "shoes": cls._serialize_garment(shoes),
             "outerwear": cls._serialize_garment(outerwear),
+            "dress": cls._serialize_garment(dress),
         }
         context = {
             "occasion": occasion,

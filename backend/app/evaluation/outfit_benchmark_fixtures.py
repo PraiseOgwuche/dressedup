@@ -329,8 +329,8 @@ FIXTURES: tuple[BenchmarkCase, ...] = (
         tags=("known-debt", "context-fallback"),
     ),
     BenchmarkCase(
-        case_id="dress-only-unsupported",
-        description="Records the current v3 full-body garment coverage gap.",
+        case_id="dress-only-supported",
+        description="Full-body garment closets produce a dress + shoes outfit (Phase 6).",
         items=(
             ItemSpec(
                 "Black Midi Dress",
@@ -344,8 +344,30 @@ FIXTURES: tuple[BenchmarkCase, ...] = (
         ),
         weather_tag="mild",
         occasion="date",
-        known_debts=("full_body_garment_not_generated",),
-        tags=("known-debt", "dress", "slot-coverage"),
+        required_slots=("dress", "shoes"),
+        required_names=("Black Midi Dress", "Black Slingback Heels"),
+        tags=("dress", "slot-coverage"),
+    ),
+    BenchmarkCase(
+        case_id="dress-never-mixed-with-separates",
+        description="A dress must replace top+bottom even when separates score well.",
+        items=(
+            ItemSpec(
+                "Floral Sundress",
+                "dress",
+                "midi",
+                color="yellow",
+                occasion=["brunch", "date"],
+                weather_tag=["hot", "mild"],
+            ),
+            ItemSpec("White Linen Shirt", "top", color="white", weather_tag=["hot"]),
+            ItemSpec("Tan Chino Shorts", "bottom", "shorts", color="tan", weather_tag=["hot"]),
+            ItemSpec("White Court Sneakers", "footwear", "sneakers", color="white"),
+        ),
+        weather_tag="hot",
+        occasion="brunch",
+        required_slots=("shoes",),
+        tags=("dress", "slot-exclusion"),
     ),
 )
 

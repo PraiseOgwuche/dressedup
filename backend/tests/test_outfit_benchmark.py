@@ -46,11 +46,19 @@ def test_known_v3_context_and_slot_debts_are_visible(report):
     assert fallback["metrics"]["context_mismatch_run_count"] == 5
     assert "soft_weather_fallback" in fallback["known_debts"]
 
-    dress = _case(report, "dress-only-unsupported")
-    assert "full_body_garment_not_generated" in dress["known_debts"]
-    assert set(dress["run_signatures"]) == {
-        "top:-|bottom:-|shoes:-|outerwear:-"
-    }
+
+def test_dress_closets_generate_full_body_outfits(report):
+    dress = _case(report, "dress-only-supported")
+    assert dress["hard_violation_counts"] == {}
+    assert dress["expectation_miss_counts"] == {}
+    for signature in dress["run_signatures"]:
+        assert "dress:Black Midi Dress" in signature
+        assert "top:-" in signature and "bottom:-" in signature
+
+
+def test_dress_never_combined_with_separates(report):
+    case = _case(report, "dress-never-mixed-with-separates")
+    assert "dress_combined_with_separates" not in case["hard_violation_counts"]
 
 
 def test_ranking_probes_report_direction_and_margin(report):

@@ -10,15 +10,17 @@ const SLOT_EMOJI: Record<string, string> = {
   Bottom: '👖',
   Shoes: '👟',
   Outerwear: '🧥',
+  Dress: '👗',
 };
 
-export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear';
+export type OutfitSlotKey = 'top' | 'bottom' | 'shoes' | 'outerwear' | 'dress';
 
 const SLOT_KEY: Record<string, OutfitSlotKey> = {
   Top: 'top',
   Bottom: 'bottom',
   Shoes: 'shoes',
   Outerwear: 'outerwear',
+  Dress: 'dress',
 };
 
 interface OutfitCardProps {
@@ -30,6 +32,7 @@ interface OutfitCardProps {
   bottom?: ClosetItem | null;
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
+  dress?: ClosetItem | null;
   alternatives?: ClosetItem[];
   packingList?: ClosetItem[];
   onWore?: () => void;
@@ -50,6 +53,7 @@ export function OutfitCard({
   bottom,
   shoes,
   outerwear,
+  dress,
   alternatives,
   packingList,
   onWore,
@@ -60,13 +64,19 @@ export function OutfitCard({
   onSwapSlot,
   swappingSlot,
 }: OutfitCardProps) {
-  const slots: { label: string; item?: ClosetItem | null }[] = [
-    { label: 'Top', item: top },
-    { label: 'Bottom', item: bottom },
-    { label: 'Shoes', item: shoes },
-    { label: 'Outerwear', item: outerwear },
-  ];
-  const hasOutfit = !!(top || bottom || shoes);
+  const slots: { label: string; item?: ClosetItem | null }[] = dress
+    ? [
+        { label: 'Dress', item: dress },
+        { label: 'Shoes', item: shoes },
+        { label: 'Outerwear', item: outerwear },
+      ]
+    : [
+        { label: 'Top', item: top },
+        { label: 'Bottom', item: bottom },
+        { label: 'Shoes', item: shoes },
+        { label: 'Outerwear', item: outerwear },
+      ];
+  const hasOutfit = !!(top || bottom || shoes || dress);
 
   return (
     <View style={[styles.card, variant === 'utility' && styles.cardUtility]}>

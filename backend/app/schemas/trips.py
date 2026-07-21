@@ -54,6 +54,7 @@ class TripDayOutfit(BaseModel):
     bottom: Optional[ClothingItemResponse] = None
     shoes: Optional[ClothingItemResponse] = None
     outerwear: Optional[ClothingItemResponse] = None
+    dress: Optional[ClothingItemResponse] = None
 
 
 class TripPackingPlan(BaseModel):

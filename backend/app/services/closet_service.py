@@ -118,6 +118,7 @@ class ClosetService:
                     OutfitFeedback.bottom_id == item_id,
                     OutfitFeedback.shoes_id == item_id,
                     OutfitFeedback.outerwear_id == item_id,
+                    OutfitFeedback.dress_id == item_id,
                 )
             )
             .count()
@@ -131,6 +132,7 @@ class ClosetService:
                     StyleSignal.bottom_id == item_id,
                     StyleSignal.shoes_id == item_id,
                     StyleSignal.outerwear_id == item_id,
+                    StyleSignal.dress_id == item_id,
                     StyleSignal.replaced_item_id == item_id,
                 )
             )

@@ -22,6 +22,10 @@ interface OutfitHeroProps {
   bottom?: ClosetItem | null;
   shoes?: ClosetItem | null;
   outerwear?: ClosetItem | null;
+  dress?: ClosetItem | null;
+  bag?: ClosetItem | null;
+  accessory?: ClosetItem | null;
+  headwear?: ClosetItem | null;
   rationale?: string | null;
   stylingNote?: string | null;
   interpretation?: string | null;
@@ -48,6 +52,10 @@ export function OutfitHero({
   bottom,
   shoes,
   outerwear,
+  dress,
+  bag,
+  accessory,
+  headwear,
   rationale,
   stylingNote,
   interpretation,
@@ -64,12 +72,24 @@ export function OutfitHero({
   const [avatarFailed, setAvatarFailed] = useState(false);
   const use3dAvatar = AVATAR_3D_ENABLED && !avatarFailed;
 
-  const slots = [
-    { key: 'top' as const, label: 'Top', item: top },
-    { key: 'bottom' as const, label: 'Bottom', item: bottom },
-    { key: 'shoes' as const, label: 'Shoes', item: shoes },
-    { key: 'outerwear' as const, label: 'Layer', item: outerwear },
-  ];
+  const slots = dress
+    ? [
+        { key: 'dress' as const, label: 'Dress', item: dress },
+        { key: 'shoes' as const, label: 'Shoes', item: shoes },
+        { key: 'outerwear' as const, label: 'Layer', item: outerwear },
+      ]
+    : [
+        { key: 'top' as const, label: 'Top', item: top },
+        { key: 'bottom' as const, label: 'Bottom', item: bottom },
+        { key: 'shoes' as const, label: 'Shoes', item: shoes },
+        { key: 'outerwear' as const, label: 'Layer', item: outerwear },
+      ];
+
+  const finishing = [
+    { key: 'bag', label: 'Bag', item: bag },
+    { key: 'accessory', label: 'Accessory', item: accessory },
+    { key: 'headwear', label: 'Headwear', item: headwear },
+  ].filter((p) => p.item);
 
   const pieces = slots.filter((p) => p.item);
   const hasOutfit = pieces.length > 0;
@@ -140,7 +160,7 @@ export function OutfitHero({
           {use3dAvatar ? (
             <>
               <OutfitAvatarViewer
-                topUri={mediaUrl(top?.thumbnail_url ?? top?.image_url)}
+                topUri={mediaUrl((dress ?? top)?.thumbnail_url ?? (dress ?? top)?.image_url)}
                 bottomUri={mediaUrl(bottom?.thumbnail_url ?? bottom?.image_url)}
                 shoesUri={mediaUrl(shoes?.thumbnail_url ?? shoes?.image_url)}
                 outerUri={mediaUrl(outerwear?.thumbnail_url ?? outerwear?.image_url)}
@@ -175,6 +195,27 @@ export function OutfitHero({
           <Text style={styles.emptySub}>Add closet items or tap shuffle below.</Text>
         </View>
       )}
+
+      {finishing.length > 0 && !loading ? (
+        <View style={styles.finishingRow}>
+          {finishing.map(({ key, label, item }) => {
+            const uri = mediaUrl(item?.thumbnail_url ?? item?.image_url);
+            return (
+              <View key={key} style={styles.finishingChip}>
+                {uri ? (
+                  <Image source={{ uri }} style={styles.finishingImage} resizeMode="cover" />
+                ) : null}
+                <View style={styles.finishingText}>
+                  <Text style={styles.finishingLabel}>{label}</Text>
+                  <Text style={styles.finishingName} numberOfLines={1}>
+                    {item?.name}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      ) : null}
 
       {!!styleNote && (
         <View style={styles.rationalePill}>
@@ -281,6 +322,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swapText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  finishingRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  finishingChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: THEME.editorial.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: THEME.editorial.border,
+    padding: 6,
+  },
+  finishingImage: { width: 36, height: 36, borderRadius: 8 },
+  finishingText: { flex: 1 },
+  finishingLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: THEME.editorial.textMuted,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  finishingName: { fontSize: 12, fontWeight: '600', color: THEME.editorial.text },
   rationalePill: {
     marginTop: 16,
     backgroundColor: THEME.editorial.pill,

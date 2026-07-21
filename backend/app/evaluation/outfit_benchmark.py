@@ -39,11 +39,11 @@ from app.services.outfit_service import OutfitService
 from app.services.preference_service import PreferenceService
 from app.services.stylist_service import StylistService
 
-BENCHMARK_SCHEMA_VERSION = "1.0"
-ENGINE_VERSION = "outfit-v3"
+BENCHMARK_SCHEMA_VERSION = "1.1"
+ENGINE_VERSION = "outfit-v4-structure"
 DEFAULT_SEED = 20260720
 DEFAULT_RUNS_PER_CASE = 20
-SLOTS = ("top", "bottom", "shoes", "outerwear")
+SLOTS = ("top", "bottom", "shoes", "outerwear", "dress", "bag", "accessory", "headwear")
 
 
 def _percentile(values: list[float], percentile: float) -> float:
@@ -156,6 +156,10 @@ def _hard_violations(case: BenchmarkCase, payload: dict[str, Any]) -> list[str]:
             violations.append(f"forbidden_item_selected:{name}")
     if case.outerwear == "forbidden" and payload.get("outerwear") is not None:
         violations.append("outerwear_selected_when_forbidden")
+    if payload.get("dress") is not None and (
+        payload.get("top") is not None or payload.get("bottom") is not None
+    ):
+        violations.append("dress_combined_with_separates")
     return violations
 
 
