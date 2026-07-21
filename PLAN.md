@@ -26,6 +26,22 @@
 | Deploy + durable media | ✅ S3 provider | Set `STORAGE_PROVIDER=s3` on Render; local disk for dev |
 | **Shop v1** | ✅ | Curated catalog + virtual outfit-count scoring (`app/shop/catalog.yaml`) |
 
+## Outfit Engine v4
+
+| Phase | Status | Notes |
+|-------|--------|-------|
+| 0 Baseline benchmark | ✅ | Deterministic v3 fixtures, constraints/ranking/diversity/latency metrics, frozen JSON report |
+| 1 Vector foundation | Planned | pgvector schema + embedding metadata + feature flag |
+| 2 Self-hosted FashionCLIP | Planned | ONNX image encoder, memory/latency validation |
+| 3 Ingestion + backfill | Planned | Embed new and existing garment cutouts |
+| 4 Hybrid retrieval | Planned | Context filters + pgvector candidate retrieval |
+| 5 Hybrid scoring | Planned | Visual coherence as a calibrated signal, joint outerwear scoring |
+| 6 Rich outfit structure | Planned | Dresses, jumpsuits, bags, accessories |
+| 7 Distinct directions | Planned | Multiple intentionally different styling profiles |
+| 8 Vector personalization | Planned | Taste centroids from wears/likes/dislikes/swaps |
+| 9 Language styling | Planned | Structured prompt interpretation, real closet IDs only |
+| 10 Evaluation + rollout | Planned | v3/v4 ablation, blind review, feature-flag rollout |
+
 ## Parked
 
 3D closet view, on-device segmentation, trained recommender.

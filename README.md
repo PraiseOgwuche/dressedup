@@ -40,6 +40,10 @@ Phone and Mac on the same Wi‑Fi. IP: `ipconfig getifaddr en0`.
 
 **Tests:** `cd backend && pytest` · `cd mobile && npm test`
 
+**Outfit benchmark:** `cd backend && python scripts/run_outfit_benchmark.py`.
+The frozen v3 baseline and evaluation contract live in
+[`backend/benchmarks/`](./backend/benchmarks/).
+
 ## Deploy (Render + Neon)
 
 1. Push this repo to GitHub.
