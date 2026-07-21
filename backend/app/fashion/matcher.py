@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Optional
 from app.config import settings
 from app.fashion.color_harmony import outfit_color_score
 from app.fashion.context import MatchContext
+from app.fashion.direction_profiles import score_direction
 from app.fashion.visual_coherence import score_visual_coherence
 from app.fashion.style_rules import (
     needs_outerwear,
@@ -47,6 +48,11 @@ _W_FRESH = 0.02
 # choices, they never override a hard clash.
 _W_VISUAL = 0.10
 
+# Phase 7: styling direction affinity. Strong enough to genuinely reorder
+# choices between directions, but below the ~0.5 combined mass of the hard
+# harmony signals so a direction never justifies a clashing outfit.
+_W_DIRECTION = 0.30
+
 # Layer 2 — learned preferences can move the needle but not override hard clashes.
 _W_PERSONAL = 0.35
 
@@ -68,6 +74,7 @@ class ScoreBreakdown:
     weather_materials: float = 0.0
     freshness: float = 0.0
     visual: float = 0.0
+    direction: float = 0.0
     personalization: float = 0.0
     highlights: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -175,6 +182,11 @@ class FashionMatcher:
             breakdown.highlights.extend(visual_hi)
             breakdown.warnings.extend(visual_warn)
 
+        if context.direction:
+            direction_raw, direction_hi = score_direction(garments, context.direction)
+            breakdown.direction = direction_raw
+            breakdown.highlights.extend(direction_hi)
+
         if personal_notes:
             breakdown.highlights.extend(personal_notes)
 
@@ -193,6 +205,7 @@ class FashionMatcher:
             + _W_WEATHER_MAT * breakdown.weather_materials
             + _W_FRESH * breakdown.freshness
             + _W_VISUAL * breakdown.visual
+            + _W_DIRECTION * breakdown.direction
             + _W_PERSONAL * personalization
         )
         return breakdown

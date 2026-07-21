@@ -37,7 +37,7 @@
 | 4 Hybrid retrieval | ✅ | Slot pools = freshness + visual-similarity + exploration quotas (query = locked anchors else closet centroid); v3 path byte-identical when flag off |
 | 5 Hybrid scoring | ✅ | Signal 14: sweet-band coherence curve (peak cos 0.65, near-duplicates penalized), weight capped at 0.10; outerwear scored against the full outfit |
 | 6 Rich outfit structure | ✅ | Dresses/jumpsuits replace top+bottom (hard exclusion rule), bags/jewelry/headwear attach only when they improve the look; `0018` migration, new benchmark baseline |
-| 7 Distinct directions | Planned | Multiple intentionally different styling profiles |
+| 7 Distinct directions | ✅ | Classic/Expressive/Relaxed scoring profiles (`direction_profiles.py`, weight 0.30), `GET /outfits/directions` returns 3 looks sharing ≤1 piece; home-screen direction picker |
 | 8 Vector personalization | Planned | Taste centroids from wears/likes/dislikes/swaps |
 | 9 Language styling | Planned | Structured prompt interpretation, real closet IDs only |
 | 10 Evaluation + rollout | Planned | v3/v4 ablation, blind review, feature-flag rollout |

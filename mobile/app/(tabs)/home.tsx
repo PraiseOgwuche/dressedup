@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   TextInput,
+  TouchableOpacity,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +18,14 @@ import { TAXONOMY } from '../../constants/config';
 import { THEME, FONTS, editorialTitle, sectionLabel } from '../../constants/theme';
 import { closetAPI, outfitAPI, socialAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../services/errors';
-import { ClosetItem, OutfitSuggestion, DailyPlan, PlanActivity, OutfitSharePayload } from '../../types';
+import {
+  ClosetItem,
+  OutfitSuggestion,
+  OutfitDirection,
+  DailyPlan,
+  PlanActivity,
+  OutfitSharePayload,
+} from '../../types';
 import { Button } from '../../components/ui/Button';
 import { ChipSelect } from '../../components/ui/ChipSelect';
 import { CollapsibleSection } from '../../components/ui/CollapsibleSection';
@@ -27,6 +35,12 @@ import { ShareFitModal } from '../../components/ShareFitModal';
 import { TripTeaser } from '../../components/trips/TripTeaser';
 
 const firstName = (full?: string) => (full?.trim().split(/\s+/)[0] || 'there');
+
+const DIRECTION_CHIPS: { id: OutfitDirection['direction']; label: string }[] = [
+  { id: 'classic', label: 'Classic' },
+  { id: 'expressive', label: 'Expressive' },
+  { id: 'relaxed', label: 'Relaxed' },
+];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -50,6 +64,9 @@ export default function HomeScreen() {
   const [askInterpretation, setAskInterpretation] = useState<string | null>(null);
   const [shareOutfit, setShareOutfit] = useState<OutfitSharePayload | null>(null);
   const [shareVisible, setShareVisible] = useState(false);
+  const [directions, setDirections] = useState<OutfitDirection[] | null>(null);
+  const [directionsLoading, setDirectionsLoading] = useState(false);
+  const [activeDirection, setActiveDirection] = useState<OutfitDirection['direction'] | null>(null);
   const { sendMyPlan, consumePendingPlan, loading: routineLoading } = useRoutineStore();
 
   const outfitFeedbackPayload = (outfit: {
@@ -102,12 +119,42 @@ export default function HomeScreen() {
         trend || undefined,
       );
       setSuggestion(response);
+      setActiveDirection(null);
     } catch {
       Alert.alert('Unable to load', 'Could not fetch outfit suggestions yet.');
     } finally {
       setIsLoading(false);
     }
   }, [occasion, weatherTag, trend]);
+
+  // Direction looks depend on occasion/weather — drop the cache when they change.
+  useEffect(() => {
+    setDirections(null);
+    setActiveDirection(null);
+  }, [occasion, weatherTag]);
+
+  const handleDirection = async (id: OutfitDirection['direction']) => {
+    let available = directions;
+    if (!available) {
+      setDirectionsLoading(true);
+      try {
+        const response = await outfitAPI.getDirections(occasion || undefined, weatherTag || undefined);
+        available = response.directions;
+        setDirections(available);
+      } catch {
+        Alert.alert('Unable to load', 'Could not build styling directions yet.');
+        return;
+      } finally {
+        setDirectionsLoading(false);
+      }
+    }
+    const chosen = available?.find((d) => d.direction === id);
+    if (chosen) {
+      setSuggestion(chosen);
+      setActiveDirection(id);
+      setAskInterpretation(null);
+    }
+  };
 
   const handleAsk = async () => {
     const query = askQuery.trim();
@@ -384,6 +431,40 @@ export default function HomeScreen() {
             />
           )}
 
+          {items.length > 0 ? (
+            <View style={styles.directionsBlock}>
+              <Text style={styles.directionsLabel}>Three directions</Text>
+              <View style={styles.directionsRow}>
+                {DIRECTION_CHIPS.map((chip) => {
+                  const active = activeDirection === chip.id;
+                  return (
+                    <TouchableOpacity
+                      key={chip.id}
+                      style={[styles.directionChip, active && styles.directionChipActive]}
+                      onPress={() => handleDirection(chip.id)}
+                      disabled={directionsLoading}
+                      activeOpacity={0.8}
+                    >
+                      <Text
+                        style={[styles.directionChipText, active && styles.directionChipTextActive]}
+                        numberOfLines={1}
+                      >
+                        {chip.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {activeDirection ? (
+                <Text style={styles.directionTagline}>
+                  {directions?.find((d) => d.direction === activeDirection)?.tagline}
+                </Text>
+              ) : directionsLoading ? (
+                <Text style={styles.directionTagline}>Styling three points of view…</Text>
+              ) : null}
+            </View>
+          ) : null}
+
           {laundry?.laundry_due ? (
             <Text style={styles.laundryHint}>🧺 {laundry.message}</Text>
           ) : null}
@@ -518,6 +599,43 @@ const styles = StyleSheet.create({
     color: THEME.editorial.textMuted,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  directionsBlock: { marginTop: 18 },
+  directionsLabel: {
+    ...sectionLabel(),
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  directionsRow: { flexDirection: 'row', gap: 8 },
+  directionChip: {
+    flex: 1,
+    backgroundColor: THEME.editorial.pill,
+    borderWidth: 1,
+    borderColor: THEME.editorial.border,
+    borderRadius: 999,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  directionChipActive: {
+    backgroundColor: THEME.editorial.accentDark,
+    borderColor: THEME.editorial.accentDark,
+  },
+  directionChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    color: THEME.editorial.text,
+    fontFamily: FONTS.sans,
+  },
+  directionChipTextActive: {
+    color: THEME.editorial.background,
+  },
+  directionTagline: {
+    fontSize: 12,
+    color: THEME.editorial.textMuted,
+    textAlign: 'center',
+    marginTop: 10,
+    letterSpacing: 0.3,
   },
   laundryHint: {
     fontSize: 13,

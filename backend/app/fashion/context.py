@@ -12,3 +12,6 @@ class MatchContext:
     occasion: Optional[str] = None
     trend: Optional[str] = None
     target_seasons: set[str] = field(default_factory=set)
+    # Phase 7 styling direction ("classic" | "expressive" | "relaxed").
+    # None means the default engine path — direction scoring is skipped.
+    direction: Optional[str] = None

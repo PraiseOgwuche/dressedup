@@ -223,6 +223,18 @@ export interface OutfitSuggestion {
   alternatives: ClosetItem[];
 }
 
+export interface OutfitDirection extends OutfitSuggestion {
+  direction: 'classic' | 'expressive' | 'relaxed';
+  label: string;
+  tagline: string;
+}
+
+export interface OutfitDirectionsResponse {
+  weather_tag?: string | null;
+  occasion?: string | null;
+  directions: OutfitDirection[];
+}
+
 export interface ParsedOutfitIntent {
   occasion?: string | null;
   weather_tag?: string | null;

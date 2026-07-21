@@ -9,6 +9,7 @@ from app.schemas.outfit import (
     DailyRoutineUpdate,
     OutfitAskRequest,
     OutfitAskResponse,
+    OutfitDirectionsResponse,
     OutfitFeedbackCreate,
     OutfitFeedbackResponse,
     OutfitSuggestion,
@@ -64,6 +65,26 @@ def get_outfit_suggestion(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/directions", response_model=OutfitDirectionsResponse)
+def get_outfit_directions(
+    occasion: str | None = None,
+    weather_tag: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Three intentionally different looks: Classic, Expressive, Relaxed.
+
+    Each direction uses its own scoring profile — these are styled points of
+    view, not random alternatives.
+    """
+    return OutfitService.get_directions(
+        db=db,
+        user_id=current_user.id,
+        weather_tag=weather_tag,
+        occasion=occasion,
+    )
 
 
 @router.get("/trends", response_model=list[TrendOption])

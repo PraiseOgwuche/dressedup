@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.fashion import FashionMatcher, MatchContext
+from app.fashion.direction_profiles import DIRECTION_META, DIRECTIONS
 from app.fashion.style_rules import needs_outerwear, weather_seasons
 from app.models.clothing_item import ClothingItem
 from app.services import retrieval_service
@@ -502,6 +503,129 @@ class OutfitService:
         best_score = max(score for score, _ in scored)
         near_best = [combo for score, combo in scored if score >= best_score - _VARIETY_MARGIN]
         return random.choice(near_best)
+
+    @classmethod
+    def _scored_combos(
+        cls,
+        db: Session,
+        user_id: int,
+        tops: List[ClothingItem],
+        bottoms: List[ClothingItem],
+        shoes: List[ClothingItem],
+        dresses: List[ClothingItem],
+        context: MatchContext,
+    ) -> list[tuple[float, dict]]:
+        """Every candidate combo with its score, best first. Deterministic."""
+        empty = {"top": None, "bottom": None, "shoes": None, "dress": None}
+        scored: list[tuple[float, dict]] = []
+        for top in tops or [None]:
+            for bottom in bottoms or [None]:
+                if top is None and bottom is None:
+                    continue
+                for shoe in shoes or [None]:
+                    score = cls._score(db, user_id, [top, bottom, shoe], context)
+                    scored.append((score, {**empty, "top": top, "bottom": bottom, "shoes": shoe}))
+        for dress in dresses:
+            for shoe in shoes or [None]:
+                score = cls._score(db, user_id, [dress, shoe], context)
+                scored.append((score, {**empty, "dress": dress, "shoes": shoe}))
+        scored.sort(key=lambda pair: -pair[0])
+        return scored
+
+    @staticmethod
+    def _combo_ids(combo: dict) -> set[int]:
+        return {g.id for g in combo.values() if g is not None}
+
+    @classmethod
+    def get_directions(
+        cls,
+        db: Session,
+        user_id: int,
+        weather_tag: Optional[str],
+        occasion: Optional[str],
+    ) -> dict:
+        """Three intentionally different looks — one per styling direction.
+
+        Each direction rescores the same candidate pools with its own profile,
+        and later directions avoid combos that overlap an earlier pick by more
+        than one piece (so results are never one-item substitutions unless the
+        closet is too small to do better).
+        """
+        items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
+        query = cls._retrieval_query(items)
+
+        tops = cls._candidates(
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, None, cls.TOP_SUBCATEGORIES, query
+        )
+        bottoms = cls._candidates(
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, None, cls.BOTTOM_SUBCATEGORIES, query
+        )
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, None, query=query)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, None, query=query)
+        dresses = cls._candidates(items, cls.DRESS_CATEGORIES, weather_tag, occasion, None, query=query)
+        accessory_pools = cls._accessory_pools(items, weather_tag, occasion, None, query)
+
+        directions: list[dict] = []
+        prior_picks: list[set[int]] = []
+
+        for direction in DIRECTIONS:
+            context = cls._context(weather_tag, occasion)
+            context.direction = direction
+
+            scored = cls._scored_combos(db, user_id, tops, bottoms, shoes, dresses, context)
+            if not scored:
+                continue
+
+            # Strictest overlap bar first (≤1 shared piece with every earlier
+            # direction), relaxing only when the closet leaves no choice.
+            chosen_combo = None
+            for max_shared in (1, 2, 99):
+                for _, combo in scored:
+                    ids = cls._combo_ids(combo)
+                    if all(len(ids & prior) <= max_shared for prior in prior_picks):
+                        chosen_combo = combo
+                        break
+                if chosen_combo is not None:
+                    break
+
+            chosen_dress = chosen_combo["dress"]
+            chosen_top = chosen_combo["top"]
+            chosen_bottom = chosen_combo["bottom"]
+            chosen_shoes = chosen_combo["shoes"]
+            anchor = chosen_dress or chosen_top or chosen_bottom or chosen_shoes
+            chosen_outerwear = cls._best_outerwear(
+                db, user_id, outerwear, anchor, context, weather_tag,
+                ensemble=[chosen_dress, chosen_top, chosen_bottom, chosen_shoes],
+            )
+
+            rationale = cls._rationale_for(
+                db,
+                user_id,
+                [chosen_dress, chosen_top, chosen_bottom, chosen_shoes, chosen_outerwear],
+                context,
+            )
+
+            payload = {
+                "direction": direction,
+                "label": DIRECTION_META[direction]["label"],
+                "tagline": DIRECTION_META[direction]["tagline"],
+                "title": f"{DIRECTION_META[direction]['label']} look",
+                "weather_tag": weather_tag,
+                "occasion": occasion,
+                "trend": None,
+                "rationale": rationale,
+                "dress": chosen_dress,
+                "top": chosen_top,
+                "bottom": chosen_bottom,
+                "shoes": chosen_shoes,
+                "outerwear": chosen_outerwear,
+                "alternatives": [],
+            }
+            payload = cls._attach_accessories(db, user_id, payload, accessory_pools, context)
+            directions.append(payload)
+            prior_picks.append(cls._combo_ids(chosen_combo))
+
+        return {"weather_tag": weather_tag, "occasion": occasion, "directions": directions}
 
     @classmethod
     def _accessory_pools(

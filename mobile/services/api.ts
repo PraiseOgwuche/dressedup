@@ -15,6 +15,7 @@ import {
   MultiIngestResult,
   ReceiptIngestResult,
   LaundrySummary,
+  OutfitDirectionsResponse,
   OutfitSuggestion,
   OutfitAskResponse,
   SocialPost,
@@ -296,6 +297,16 @@ export const outfitAPI = {
             }
           : {}),
       },
+    });
+    return response.data;
+  },
+  getDirections: async (
+    occasion?: string,
+    weatherTag?: string,
+  ): Promise<OutfitDirectionsResponse> => {
+    const response = await api.get<OutfitDirectionsResponse>('/outfits/directions', {
+      params: { occasion, weather_tag: weatherTag },
+      timeout: 60000,
     });
     return response.data;
   },

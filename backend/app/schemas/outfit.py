@@ -30,6 +30,20 @@ class OutfitSuggestion(BaseModel):
     alternatives: List[ClothingItemResponse] = []
 
 
+class OutfitDirection(OutfitSuggestion):
+    """One of the three Phase 7 styling directions (classic/expressive/relaxed)."""
+
+    direction: str
+    label: str
+    tagline: str
+
+
+class OutfitDirectionsResponse(BaseModel):
+    weather_tag: Optional[str] = None
+    occasion: Optional[str] = None
+    directions: List[OutfitDirection] = []
+
+
 class PlanActivity(BaseModel):
     activity: str
     occasion: str
