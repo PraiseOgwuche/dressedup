@@ -77,7 +77,7 @@ export function TripPackingView({ plan, onReshuffleDay, reshufflingDay = null }:
 const styles = StyleSheet.create({
   wrap: { gap: 14 },
   summaryCard: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     borderRadius: 18,
     padding: 16,
     gap: 6,

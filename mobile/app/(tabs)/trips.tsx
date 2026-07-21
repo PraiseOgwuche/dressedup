@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     ...SHADOW.soft,
   },
-  tripCardActive: { borderColor: THEME.brand.ink },
+  tripCardActive: { borderColor: THEME.brand.accent },
   tripHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
   },
   smallBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   smallBtnSecondary: {

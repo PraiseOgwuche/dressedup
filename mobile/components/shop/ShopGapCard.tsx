@@ -63,7 +63,7 @@ export function ShopGapCard({ gap, onPreview }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   unlockBadge: {
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 14,
     paddingHorizontal: 10,
     paddingVertical: 8,

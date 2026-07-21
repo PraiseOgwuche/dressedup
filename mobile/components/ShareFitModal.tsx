@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   occasionHint: {
     fontSize: 12,
     fontWeight: '600',
-    color: THEME.brand.goldDark,
+    color: THEME.brand.accent,
     textTransform: 'capitalize',
   },
   photoWrap: {

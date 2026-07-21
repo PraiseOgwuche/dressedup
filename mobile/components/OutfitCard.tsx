@@ -257,11 +257,11 @@ const styles = StyleSheet.create({
   swapBtnText: { fontSize: 12, fontWeight: '700', color: THEME.brand.ink },
   packSection: {
     marginTop: 14,
-    backgroundColor: '#FFF8EE',
+    backgroundColor: THEME.utility.surfaceMuted,
     borderRadius: 12,
     padding: 12,
   },
-  packHeading: { fontSize: 13, fontWeight: '800', color: '#9A6400', marginBottom: 6 },
+  packHeading: { fontSize: 13, fontWeight: '800', color: THEME.brand.accent, marginBottom: 6 },
   packItem: { fontSize: 14, color: COLORS.text, marginTop: 2 },
   altSection: { marginTop: 16 },
   altHeading: { fontSize: 13, fontWeight: '700', color: COLORS.textLight, marginBottom: 8 },

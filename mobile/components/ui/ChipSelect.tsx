@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: THEME.editorial.pill,
   },
-  chipActive: { backgroundColor: THEME.brand.ink },
+  chipActive: { backgroundColor: THEME.brand.accent },
   chipText: { fontSize: 14, color: THEME.utility.text, textTransform: 'capitalize' },
   chipTextActive: { color: '#fff', fontWeight: '700' },
 });

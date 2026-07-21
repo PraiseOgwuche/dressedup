@@ -31,10 +31,10 @@ function RotatingOutfit({
   bottomSubcategory,
   shoesSubcategory,
   outerSubcategory,
-  topColor = '#B8956B',
-  bottomColor = '#5B6B7A',
-  shoesColor = '#6B6560',
-  outerColor = '#8A7355',
+  topColor = '#6B7686',
+  bottomColor = '#3E4A5A',
+  shoesColor = '#2A2E35',
+  outerColor = '#54606E',
   paused = false,
 }: MannequinSceneProps) {
   const group = useRef<THREE.Group>(null);

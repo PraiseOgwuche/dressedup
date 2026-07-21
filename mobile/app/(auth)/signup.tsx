@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { THEME, utilityTitle, editorialTitle } from '../../constants/theme';
+import { THEME, utilityTitle, brandWordmark } from '../../constants/theme';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    ...editorialTitle(36),
+    ...brandWordmark(36),
     marginBottom: 16,
   },
   title: {

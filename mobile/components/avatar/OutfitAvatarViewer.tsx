@@ -76,7 +76,7 @@ export function OutfitAvatarViewer({
             camera={{ position: [0, 1.05, 3.1], fov: 38 }}
             gl={{ antialias: true }}
             onCreated={({ gl, camera }) => {
-              gl.setClearColor('#F7F3EE');
+              gl.setClearColor('#EEF0F2');
               camera.lookAt(0, 0.88, 0);
             }}
           >

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { THEME, FONTS, editorialTitle } from '../constants/theme';
+import { THEME, brandWordmark } from '../constants/theme';
 
 const WORD = 'DressedUp';
 const LETTER_MS = 72;
@@ -23,7 +23,7 @@ export function BrandSplash({ authReady, onFinish }: Props) {
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const finished = useRef(false);
 
-  // Hide native splash as soon as this screen mounts — same cream bg, one continuous page.
+  // Hide native splash as soon as this screen mounts — same paper bg, one continuous page.
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
   }, []);
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   wordmark: {
-    ...editorialTitle(44),
+    ...brandWordmark(44),
     textAlign: 'center',
     minHeight: 52,
   },
@@ -136,11 +136,12 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   tagline: {
-    fontSize: 17,
-    fontFamily: FONTS.serif,
-    fontStyle: 'italic',
+    fontSize: 13,
+    fontWeight: '500',
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
     color: THEME.editorial.textMuted,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
   },
 });

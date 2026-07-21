@@ -37,10 +37,10 @@ interface OutfitHeroProps {
 }
 
 const SLOT_FALLBACK: Record<string, string> = {
-  top: '#B8956B',
-  bottom: '#5B6B7A',
-  shoes: '#6B6560',
-  outerwear: '#8A7355',
+  top: '#6B7686',
+  bottom: '#3E4A5A',
+  shoes: '#2A2E35',
+  outerwear: '#54606E',
 };
 
 export function OutfitHero({
@@ -291,11 +291,9 @@ const styles = StyleSheet.create({
     borderColor: THEME.editorial.border,
   },
   rationale: {
-    fontFamily: FONTS.serif,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 21,
     color: THEME.editorial.textMuted,
-    fontStyle: 'italic',
     textAlign: 'center',
   },
   emptyHero: {
@@ -305,7 +303,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...SHADOW.soft,
   },
-  emptyTitle: { fontFamily: FONTS.serif, fontSize: 22, color: THEME.editorial.text },
+  emptyTitle: { fontSize: 20, fontWeight: '700', letterSpacing: -0.4, color: THEME.editorial.text },
   emptySub: { fontSize: 14, color: THEME.editorial.textMuted, marginTop: 8, textAlign: 'center' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16 },
   actionBtn: { flex: 1 },

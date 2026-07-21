@@ -18,8 +18,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: THEME.brand.ink,
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: THEME.brand.accent,
+        tabBarInactiveTintColor: '#9AA3AD',
         tabBarStyle: {
           height: 72,
           paddingBottom: 10,

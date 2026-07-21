@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 15, fontWeight: '700', color: THEME.utility.text },
   when: { fontSize: 12, color: THEME.utility.textMuted },
   replyBtn: {
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
   },
   closeText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

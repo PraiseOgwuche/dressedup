@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   outfitPill: {
     alignSelf: 'flex-start',
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   cta: {
     marginTop: 8,
     borderWidth: 1.5,
-    borderColor: THEME.brand.ink,
+    borderColor: THEME.brand.accent,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',

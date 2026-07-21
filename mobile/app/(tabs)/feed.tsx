@@ -332,8 +332,8 @@ const styles = StyleSheet.create({
     borderColor: THEME.utility.border,
   },
   scopePillActive: {
-    backgroundColor: THEME.brand.ink,
-    borderColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
+    borderColor: THEME.brand.accent,
   },
   scopeText: {
     fontSize: 13,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 18,
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
   },
   discoverText: {
     fontSize: 12,

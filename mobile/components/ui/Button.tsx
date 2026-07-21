@@ -18,6 +18,7 @@ interface ButtonProps {
 }
 
 const INK = THEME.brand.ink;
+const ACCENT = THEME.brand.accent;
 
 export const Button: React.FC<ButtonProps> = ({
   title,
@@ -63,10 +64,10 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   primary: {
-    backgroundColor: INK,
+    backgroundColor: ACCENT,
   },
   secondary: {
-    backgroundColor: THEME.editorial.accentDark,
+    backgroundColor: INK,
   },
   outline: {
     backgroundColor: 'transparent',
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     borderColor: INK,
   },
   editorial: {
-    backgroundColor: INK,
+    backgroundColor: ACCENT,
   },
   editorialOutline: {
     backgroundColor: THEME.brand.white,

@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import { getApiErrorMessage } from '../../services/errors';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { THEME, editorialTitle } from '../../constants/theme';
+import { THEME, brandWordmark } from '../../constants/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    ...editorialTitle(40),
+    ...brandWordmark(40),
     marginBottom: 10,
   },
   subtitle: {

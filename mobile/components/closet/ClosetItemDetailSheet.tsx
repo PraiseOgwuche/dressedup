@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     ...SHADOW.soft,
   },
-  heroCutout: { backgroundColor: THEME.brand.sand, padding: 16 },
+  heroCutout: { backgroundColor: THEME.brand.mist, padding: 16 },
   heroImage: { width: '100%', height: '100%' },
   heroPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   heroEmoji: { fontSize: 64 },
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   pairCard: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     borderRadius: 16,
     padding: 14,
     gap: 4,

@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   when: { fontSize: 12, color: THEME.utility.textMuted },
   contactBtn: {
     marginTop: 8,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 12,
     paddingVertical: 10,
     alignItems: 'center',

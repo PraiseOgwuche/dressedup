@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   imageWrapCutout: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     padding: 10,
   },
   image: { width: '100%', height: '100%' },
@@ -211,8 +211,8 @@ const styles = StyleSheet.create({
     borderColor: THEME.utility.border,
   },
   actionBtnAccent: {
-    backgroundColor: THEME.brand.ink,
-    borderColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
+    borderColor: THEME.brand.accent,
   },
   actionText: {
     fontSize: 10,

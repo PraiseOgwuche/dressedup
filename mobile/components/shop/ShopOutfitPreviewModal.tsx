@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: THEME.utility.border,
   },
-  dotActive: { backgroundColor: THEME.brand.ink, width: 22 },
+  dotActive: { backgroundColor: THEME.brand.accent, width: 22 },
   caption: { fontSize: 14, fontWeight: '700', color: THEME.utility.text, textAlign: 'center' },
   hint: { fontSize: 13, lineHeight: 19, color: THEME.utility.textMuted, textAlign: 'center' },
   footer: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     borderTopColor: THEME.utility.border,
   },
   buyBtn: {
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',

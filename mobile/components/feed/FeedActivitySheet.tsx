@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     borderColor: THEME.utility.border,
   },
   rowUnread: {
-    borderColor: THEME.brand.sand,
-    backgroundColor: '#FBF7F2',
+    borderColor: THEME.brand.mist,
+    backgroundColor: THEME.utility.surfaceMuted,
   },
   iconWrap: {
     width: 36,
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
   },
   closeText: {
     color: '#fff',

@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.utility.surface,
     ...SHADOW.soft,
   },
-  itemTileActive: { borderColor: THEME.brand.ink },
+  itemTileActive: { borderColor: THEME.brand.accent },
   itemImage: { width: '100%', height: 110, backgroundColor: THEME.editorial.pill },
   itemPlaceholder: {
     height: 110,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: THEME.utility.border,
   },
-  typePillActive: { backgroundColor: THEME.brand.ink, borderColor: THEME.brand.ink },
+  typePillActive: { backgroundColor: THEME.brand.accent, borderColor: THEME.brand.accent },
   typeText: { fontSize: 13, color: THEME.utility.text, textTransform: 'capitalize' },
   typeTextActive: { color: '#fff', fontWeight: '700' },
   input: {

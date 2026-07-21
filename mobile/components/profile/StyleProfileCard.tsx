@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   zonePill: {
     alignSelf: 'flex-start',
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   barFill: {
     height: '100%',
     borderRadius: 4,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
   },
   barValue: { width: 20, fontSize: 12, fontWeight: '700', color: THEME.utility.textMuted, textAlign: 'right' },
   activityRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },

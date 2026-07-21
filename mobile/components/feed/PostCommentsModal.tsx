@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     alignItems: 'center',
     justifyContent: 'center',
   },

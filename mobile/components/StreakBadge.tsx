@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   badgeActive: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
   },
   flame: {
     fontSize: 14,

@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
   },
   tagMuted: { backgroundColor: THEME.utility.surfaceMuted },
   tagText: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.utility.surfaceMuted,
   },
   actionBtnActive: {
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
   },
   actionIcon: {
     fontSize: 16,

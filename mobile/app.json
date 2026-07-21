@@ -5,10 +5,10 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F7F3EE",
+    "backgroundColor": "#EEF0F2",
     "icon": "./assets/icon.png",
     "splash": {
-      "backgroundColor": "#F7F3EE"
+      "backgroundColor": "#EEF0F2"
     },
     "scheme": "dressedup",
     "ios": {
@@ -22,7 +22,7 @@
       "package": "com.dressedup.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F7F3EE"
+        "backgroundColor": "#EEF0F2"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO"

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 18,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
   },
   followBtnActive: {
     backgroundColor: THEME.utility.surfaceMuted,

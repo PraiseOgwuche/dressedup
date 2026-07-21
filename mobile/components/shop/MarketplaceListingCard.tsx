@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   description: { fontSize: 13, lineHeight: 18, color: THEME.utility.textMuted, marginTop: 4 },
   contactBtn: {
     marginTop: 10,
-    backgroundColor: THEME.brand.ink,
+    backgroundColor: THEME.brand.accent,
     borderRadius: 12,
     paddingVertical: 11,
     alignItems: 'center',
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   ownerRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   interestBtn: {
     width: '100%',
-    backgroundColor: THEME.brand.sand,
+    backgroundColor: THEME.brand.mist,
     borderRadius: 12,
     paddingVertical: 10,
     alignItems: 'center',
