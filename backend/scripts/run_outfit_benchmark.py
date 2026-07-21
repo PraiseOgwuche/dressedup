@@ -34,14 +34,22 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=BACKEND_ROOT / "benchmarks" / "baselines" / "outfit_v3.json",
     )
+    parser.add_argument(
+        "--embeddings",
+        choices=("off", "on"),
+        default="off",
+        help="Phase 10 ablation: run with OUTFIT_EMBEDDINGS_ENABLED off (baseline) or on.",
+    )
     return parser
 
 
 def main() -> int:
     args = _parser().parse_args()
+    embeddings_enabled = args.embeddings == "on"
     report = run_outfit_benchmark(
         seed=args.seed,
         runs_per_case=args.runs_per_case,
+        embeddings_enabled=embeddings_enabled,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
@@ -52,9 +60,11 @@ def main() -> int:
     summary = report["summary"]
     print(f"Wrote {args.output}")
     print(
-        "cases={case_count} runs={total_runs} hard-pass={hard_constraint_pass_rate:.1%} "
+        "embeddings={embeddings} cases={case_count} runs={total_runs} "
+        "hard-pass={hard_constraint_pass_rate:.1%} "
         "ranking={ranking_probe_pass_count}/{ranking_probe_count} "
         "fingerprint={fingerprint}".format(
+            embeddings=args.embeddings,
             **summary,
             fingerprint=report["deterministic_fingerprint"][:12],
         )

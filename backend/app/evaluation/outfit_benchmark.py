@@ -91,7 +91,13 @@ def _create_user(db: Session, case_id: str) -> User:
     return user
 
 
-def _create_item(db: Session, user_id: int, spec: ItemSpec) -> ClothingItem:
+def _create_item(
+    db: Session,
+    user_id: int,
+    spec: ItemSpec,
+    *,
+    with_stub_embedding: bool = False,
+) -> ClothingItem:
     item = ClothingItem(
         user_id=user_id,
         name=spec.name,
@@ -110,6 +116,17 @@ def _create_item(db: Session, user_id: int, spec: ItemSpec) -> ClothingItem:
         image_url=f"benchmark://garments/{_slug(spec.name)}.jpg",
         source="benchmark",
     )
+    if with_stub_embedding:
+        # Deterministic unit vector from the item name — activates hybrid
+        # retrieval / visual coherence without FashionCLIP weights.
+        seed = int(hashlib.sha256(spec.name.encode()).hexdigest()[:8], 16)
+        rng = random.Random(seed)
+        vector = [rng.gauss(0.0, 1.0) for _ in range(512)]
+        norm = sum(v * v for v in vector) ** 0.5 or 1.0
+        item.embedding = [v / norm for v in vector]
+        item.embedding_status = "ready"
+        item.embedding_model = "benchmark-stub"
+        item.embedding_version = "phase10"
     db.add(item)
     db.flush()
     return item
@@ -233,19 +250,24 @@ def _case_report(
     case_index: int,
     seed: int,
     runs_per_case: int,
+    *,
+    embeddings_enabled: bool = False,
 ) -> dict[str, Any]:
     user = _create_user(db, case.case_id)
-    items = [_create_item(db, user.id, spec) for spec in case.items]
+    items = [
+        _create_item(db, user.id, spec, with_stub_embedding=embeddings_enabled)
+        for spec in case.items
+    ]
     db.commit()
     items_by_name = {item.name: item for item in items}
 
     runs: list[dict[str, Any]] = []
     latencies_ms: list[float] = []
-    # Pin the v3 engine: the baseline must not depend on the developer's .env
-    # enabling v4 hybrid retrieval (Phase 10 ablation flips this deliberately).
+    # Default baseline pins embeddings off so developer .env cannot drift the
+    # frozen fingerprint. Phase 10 ablation flips this deliberately.
     with (
         patch.object(StylistService, "enhance_outfit", return_value=None),
-        patch.object(settings, "OUTFIT_EMBEDDINGS_ENABLED", False),
+        patch.object(settings, "OUTFIT_EMBEDDINGS_ENABLED", embeddings_enabled),
     ):
         for run_index in range(runs_per_case):
             run_seed = seed + case_index * 10_000 + run_index
@@ -282,33 +304,33 @@ def _case_report(
                 }
             )
 
-    signatures = [run["signature"] for run in runs]
-    unique_signatures = set(signatures)
-    consecutive_repeats = sum(
-        current == previous
-        for previous, current in zip(signatures, signatures[1:])
-    )
-    hard_count = sum(len(run["hard_violations"]) for run in runs)
-    expectation_count = sum(len(run["expectation_misses"]) for run in runs)
-    mismatch_runs = sum(bool(run["context_mismatches"]) for run in runs)
-    scores = [run["score"]["total"] for run in runs]
-    ranking = _ranking_results(db, user.id, case, items_by_name)
-    hard_violation_counts = Counter(
-        violation
-        for run in runs
-        for violation in run["hard_violations"]
-    )
-    expectation_miss_counts = Counter(
-        miss
-        for run in runs
-        for miss in run["expectation_misses"]
-    )
-    selected_item_counts = Counter(
-        name
-        for run in runs
-        for name in run["selected"].values()
-        if name is not None
-    )
+        signatures = [run["signature"] for run in runs]
+        unique_signatures = set(signatures)
+        consecutive_repeats = sum(
+            current == previous
+            for previous, current in zip(signatures, signatures[1:])
+        )
+        hard_count = sum(len(run["hard_violations"]) for run in runs)
+        expectation_count = sum(len(run["expectation_misses"]) for run in runs)
+        mismatch_runs = sum(bool(run["context_mismatches"]) for run in runs)
+        scores = [run["score"]["total"] for run in runs]
+        ranking = _ranking_results(db, user.id, case, items_by_name)
+        hard_violation_counts = Counter(
+            violation
+            for run in runs
+            for violation in run["hard_violations"]
+        )
+        expectation_miss_counts = Counter(
+            miss
+            for run in runs
+            for miss in run["expectation_misses"]
+        )
+        selected_item_counts = Counter(
+            name
+            for run in runs
+            for name in run["selected"].values()
+            if name is not None
+        )
 
     return {
         "case_id": case.case_id,
@@ -376,13 +398,26 @@ def run_outfit_benchmark(
     *,
     seed: int = DEFAULT_SEED,
     runs_per_case: int = DEFAULT_RUNS_PER_CASE,
+    embeddings_enabled: bool = False,
+    engine_version: str | None = None,
 ) -> dict[str, Any]:
     if runs_per_case < 1:
         raise ValueError("runs_per_case must be at least 1")
 
+    resolved_engine = engine_version or (
+        "outfit-v4-embeddings" if embeddings_enabled else ENGINE_VERSION
+    )
+
     with _isolated_session() as db:
         cases = [
-            _case_report(db, case, index, seed, runs_per_case)
+            _case_report(
+                db,
+                case,
+                index,
+                seed,
+                runs_per_case,
+                embeddings_enabled=embeddings_enabled,
+            )
             for index, case in enumerate(FIXTURES)
         ]
 
@@ -399,7 +434,8 @@ def run_outfit_benchmark(
 
     report: dict[str, Any] = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "engine_version": ENGINE_VERSION,
+        "engine_version": resolved_engine,
+        "embeddings_enabled": embeddings_enabled,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "seed": seed,
         "runs_per_case": runs_per_case,
@@ -426,9 +462,10 @@ def run_outfit_benchmark(
         },
         "limitations": [
             "Automated metrics do not measure subjective fashion quality.",
-            "Fixture image URLs are stable placeholders because v3 does not inspect pixels at suggestion time.",
+            "Fixture image URLs are stable placeholders because suggestion scoring does not require pixels when stub embeddings are attached.",
             "Latency is machine-dependent and excluded from the deterministic fingerprint.",
-            "Known-debt cases document existing v3 behavior; they do not make that behavior acceptable for v4.",
+            "Known-debt cases document existing engine behavior; they do not make that behavior acceptable long-term.",
+            "Blind pairwise preference (≥65% v4 over v3) is a human gate — see benchmarks/blind_review_template.json.",
         ],
         "cases": cases,
     }

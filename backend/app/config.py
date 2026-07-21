@@ -67,7 +67,8 @@ class Settings(BaseSettings):
     EMAIL_INGEST_ALLOW_SIMULATE: bool = False
 
     # Outfit Engine v4 — garment embeddings (FashionCLIP + pgvector).
-    # Master switch: when False, no embedding is computed or used in scoring.
+    # Master switch / kill-switch for production rollout (see benchmarks/ROLLOUT.md).
+    # When False, no embedding is computed or used in scoring.
     OUTFIT_EMBEDDINGS_ENABLED: bool = False
     # "stub" is deterministic and free (tests/dev). "fashionclip" runs the local
     # ONNX image encoder (download weights with scripts/download_fashionclip.py).

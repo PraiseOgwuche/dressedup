@@ -1,0 +1,56 @@
+{
+  "schema_version": "blind-review-1.0",
+  "purpose": "Human pairwise preference for Outfit Engine v4 vs the embeddings-off baseline. Target: ≥65% preference for v4.",
+  "protocol": [
+    "Generate v3 (embeddings off) and v4 (embeddings on) outfits from the same closet + context.",
+    "Render anonymized look boards with real item photos.",
+    "Randomize left/right ordering; hide engine labels.",
+    "Ask: Which outfit better fits this context? + confidence (1-5).",
+    "Store wardrobe snapshot, item IDs, context, choice, reviewer id, timestamp."
+  ],
+  "minimum_comparisons": 40,
+  "target_preference_rate": 0.65,
+  "categories": [
+    "tiny-closet",
+    "work-formality",
+    "cold-layering",
+    "warm-weather",
+    "workout",
+    "dress-full-body",
+    "large-closet"
+  ],
+  "comparisons": [],
+  "example_comparison": {
+    "id": "cmp-001",
+    "context": {
+      "occasion": "work",
+      "weather_tag": "cold",
+      "trend": null
+    },
+    "closet_user_id": null,
+    "left": {
+      "engine": "unknown_until_reveal",
+      "item_ids": {"top": 1, "bottom": 2, "shoes": 3, "outerwear": 4}
+    },
+    "right": {
+      "engine": "unknown_until_reveal",
+      "item_ids": {"top": 5, "bottom": 2, "shoes": 6, "outerwear": null}
+    },
+    "true_assignment": {
+      "left": "embeddings_off",
+      "right": "embeddings_on"
+    },
+    "choice": "left|right|tie",
+    "confidence": 3,
+    "reviewer": "initials",
+    "created_at": "ISO-8601"
+  },
+  "summary": {
+    "n": 0,
+    "prefer_embeddings_on": 0,
+    "prefer_embeddings_off": 0,
+    "ties": 0,
+    "preference_rate_on": null,
+    "pass": null
+  }
+}

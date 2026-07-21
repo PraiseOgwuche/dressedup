@@ -40,7 +40,7 @@
 | 7 Distinct directions | ✅ | Classic/Expressive/Relaxed scoring profiles (`direction_profiles.py`, weight 0.30), `GET /outfits/directions` returns 3 looks sharing ≤1 piece; home-screen direction picker |
 | 8 Vector personalization | ✅ | Taste centroids from wears/likes/dislikes/swaps (45-day decay); cold-start ramp until 3+ embedded positives; blends into prefs (22%) + retrieval query |
 | 9 Language styling | ✅ | Structured ask intent (anchors/exclusions/formality/direction/freshness) resolved to real closet IDs; every result via OutfitService — never invents pieces |
-| 10 Evaluation + rollout | Planned | v3/v4 ablation, blind review, feature-flag rollout |
+| 10 Evaluation + rollout | ✅ | Ablation + weight sensitivity + large-closet p95 + failure recovery (`run_phase10_eval.py`); blind-review template; `OUTFIT_EMBEDDINGS_ENABLED` rollout gates in `benchmarks/ROLLOUT.md` |
 
 ## Parked
 
