@@ -34,7 +34,7 @@
 | 1 Vector foundation | ✅ | `0017` migration: pgvector `vector(512)` + status metadata; `EmbeddingProvider` stub; `OUTFIT_EMBEDDINGS_ENABLED` flag (off) |
 | 2 Self-hosted FashionCLIP | ✅ | ONNX vision encoder (`EMBEDDING_PROVIDER=fashionclip`); ~455 MB RSS, ~120 ms/img warm; validated on real cutouts |
 | 3 Ingestion + backfill | ✅ | Auto-embed on create/photo-replace/cutout, resumable `backfill_embeddings.py`, failures land in `embedding_status` and never block the closet |
-| 4 Hybrid retrieval | Planned | Context filters + pgvector candidate retrieval |
+| 4 Hybrid retrieval | ✅ | Slot pools = freshness + visual-similarity + exploration quotas (query = locked anchors else closet centroid); v3 path byte-identical when flag off |
 | 5 Hybrid scoring | Planned | Visual coherence as a calibrated signal, joint outerwear scoring |
 | 6 Rich outfit structure | Planned | Dresses, jumpsuits, bags, accessories |
 | 7 Distinct directions | Planned | Multiple intentionally different styling profiles |

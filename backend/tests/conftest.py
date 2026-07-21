@@ -9,6 +9,9 @@ os.environ.setdefault("ENV", "test")
 os.environ.setdefault("MEDIA_DIR", tempfile.mkdtemp(prefix="dressedup-test-media-"))
 # Never let tests touch a real AI provider (no token spend, no network).
 os.environ.setdefault("VISION_PROVIDER", "stub")
+# Tests exercise embeddings explicitly via monkeypatch, never via developer .env.
+os.environ.setdefault("OUTFIT_EMBEDDINGS_ENABLED", "false")
+os.environ.setdefault("EMBEDDING_PROVIDER", "stub")
 os.environ.setdefault("ANTHROPIC_API_KEY", "")
 os.environ.setdefault("NOTIFICATION_SCHEDULER_ENABLED", "false")
 

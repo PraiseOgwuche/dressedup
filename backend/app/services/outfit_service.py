@@ -13,9 +13,11 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.fashion import FashionMatcher, MatchContext
 from app.fashion.style_rules import needs_outerwear, weather_seasons
 from app.models.clothing_item import ClothingItem
+from app.services import retrieval_service
 from app.services.preference_service import PreferenceService
 from app.services.style_signal_service import StyleSignalService
 from app.services.stylist_service import StylistService
@@ -99,6 +101,7 @@ class OutfitService:
         occasion: Optional[str],
         exclude_ids: Optional[set] = None,
         subcategory_set: Optional[set] = None,
+        query=None,
     ) -> List[ClothingItem]:
         exclude_ids = exclude_ids or set()
         subcategory_set = subcategory_set or set()
@@ -120,8 +123,20 @@ class OutfitService:
             matched = [i for i in pool if not i.occasion or occasion in i.occasion]
             if matched:
                 pool = matched
+        if settings.OUTFIT_EMBEDDINGS_ENABLED:
+            # Phase 4 hybrid retrieval: freshness + visual similarity + exploration.
+            return retrieval_service.hybrid_pool(pool, _SLOT_CAP, query)
         pool.sort(key=lambda x: x.times_worn or 0)
         return pool[:_SLOT_CAP]
+
+    @staticmethod
+    def _retrieval_query(items: List[ClothingItem], *anchors: Optional[ClothingItem]):
+        """Vector the hybrid retriever should match against, or None when off."""
+        if not settings.OUTFIT_EMBEDDINGS_ENABLED:
+            return None
+        return retrieval_service.anchor_query(
+            anchors, retrieval_service.closet_centroid(items)
+        )
 
     @classmethod
     def _get_owned(
@@ -171,15 +186,16 @@ class OutfitService:
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion, trend)
+        query = cls._retrieval_query(items)
 
         tops = cls._candidates(
-            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
         )
         bottoms = cls._candidates(
-            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES, query
         )
-        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
-        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
 
         best = cls._best_combo(db, user_id, tops, bottoms, shoes, context)
 
@@ -264,14 +280,17 @@ class OutfitService:
         elif swap_slot == "outerwear" and locked_outerwear:
             exclude_ids.add(locked_outerwear.id)
 
+        query = cls._retrieval_query(
+            items, locked_top, locked_bottom, locked_shoes, locked_outerwear
+        )
         tops = cls._candidates(
-            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
         )
         bottoms = cls._candidates(
-            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES, query
         )
-        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
-        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
 
         if swap_slot == "top":
             top_opts = tops
@@ -486,15 +505,16 @@ class OutfitService:
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion)
         exclude_ids = {item.id}
+        query = cls._retrieval_query(items, item)
 
         tops = cls._candidates(
-            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
         )
         bottoms = cls._candidates(
-            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES, query
         )
-        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids)
-        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids)
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
 
         locked_top = item if slot == "top" else None
         locked_bottom = item if slot == "bottom" else None

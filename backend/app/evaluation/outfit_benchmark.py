@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 import app.models  # noqa: F401 — register all model tables and relationships
+from app.config import settings
 from app.database import Base
 from app.evaluation.outfit_benchmark_fixtures import (
     FIXTURES,
@@ -236,7 +237,12 @@ def _case_report(
 
     runs: list[dict[str, Any]] = []
     latencies_ms: list[float] = []
-    with patch.object(StylistService, "enhance_outfit", return_value=None):
+    # Pin the v3 engine: the baseline must not depend on the developer's .env
+    # enabling v4 hybrid retrieval (Phase 10 ablation flips this deliberately).
+    with (
+        patch.object(StylistService, "enhance_outfit", return_value=None),
+        patch.object(settings, "OUTFIT_EMBEDDINGS_ENABLED", False),
+    ):
         for run_index in range(runs_per_case):
             run_seed = seed + case_index * 10_000 + run_index
             random.seed(run_seed)
