@@ -247,6 +247,8 @@ export default function ShopScreen() {
           ? []
           : listings;
     const interestData = passMode === 'interested' ? myInterests : [];
+    const listData: (ClosetListing | MyListingInterest)[] =
+      passMode === 'interested' ? interestData : data;
     const totalInterestCount = myListings.reduce((sum, l) => sum + (l.interest_count ?? 0), 0);
 
     return (
@@ -304,17 +306,15 @@ export default function ShopScreen() {
         </View>
 
         <FlatList
-          data={passMode === 'interested' ? interestData : data}
+          data={listData}
           keyExtractor={(item) =>
             passMode === 'interested' ? `interest-${item.id}` : item.id.toString()
           }
           numColumns={2}
-          columnWrapperStyle={(passMode === 'interested' ? interestData : data).length ? styles.gridRow : undefined}
+          columnWrapperStyle={listData.length ? styles.gridRow : undefined}
           onRefresh={loadPassItOn}
           refreshing={passLoading}
-          contentContainerStyle={
-            (passMode === 'interested' ? interestData : data).length ? styles.gridList : styles.emptyList
-          }
+          contentContainerStyle={listData.length ? styles.gridList : styles.emptyList}
           ListEmptyComponent={
             !passLoading ? (
               <View style={styles.emptyState}>
