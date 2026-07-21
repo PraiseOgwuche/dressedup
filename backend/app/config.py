@@ -40,12 +40,12 @@ class Settings(BaseSettings):
     # (and provide ANTHROPIC_API_KEY) to use a real model; falls back to stub if no key.
     VISION_PROVIDER: str = "stub"
     ANTHROPIC_API_KEY: str = ""
-    # Cheapest vision-capable Claude model; downscale + small output keep cost ~$0.002/scan.
+    # Default Anthropic vision model; images are downscaled to control cost.
     VISION_MODEL: str = "claude-haiku-4-5"
     VISION_MAX_IMAGE_PX: int = 768
     VISION_MAX_OUTPUT_TOKENS: int = 600
 
-    # LLM stylist (Phase 4) — outfit notes + shop gap insights. Reuses ANTHROPIC_API_KEY.
+    # Optional LLM stylist notes + shop gap insights (reuses ANTHROPIC_API_KEY).
     STYLIST_PROVIDER: str = "stub"
     STYLIST_MODEL: str = "claude-haiku-4-5"
     STYLIST_MAX_OUTPUT_TOKENS: int = 400

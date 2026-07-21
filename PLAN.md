@@ -1,47 +1,41 @@
-# DressedUp — Roadmap
+# DressedUp — product status
 
-**Goal:** A complete digital closet with minimal user effort, then outfits, laundry, and daily automation.
+Digital closet with low-effort capture, outfit suggestions, laundry tracking, and daily planning.
 
-**Ingestion strategy:** AI reads photos (visual attrs); brand/material come from care labels, receipts, or email import — never guessed from fabric alone. User confirms drafts; low-confidence fields are flagged.
+## Design principles
 
-**Principles:** Swappable `VisionProvider` (stub by default), taxonomy-first (`app/taxonomy.py`), cloud AI, Expo mobile.
+- Vision and stylist providers are swappable (`stub` by default; cloud optional)
+- Taxonomy and fashion rules live in code / YAML (`app/taxonomy.py`, `app/fashion/`)
+- Users confirm AI drafts; low-confidence fields are highlighted
+- Outfit suggestions never invent closet items that are not in the database
 
-## Phases
+## Shipped
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| A–C Foundation + ingest UX | ✅ | Rich items, stub vision, confirm flow |
-| D+E AI bridge | ✅ | Claude Haiku, optional, cost-capped |
-| G Bulk scan | ✅ | Many photos, review queue |
-| H Flat-lay multi-item | ✅ | `POST /closet/ingest/multi` |
-| Outfit engine v2 | ✅ | Scoring, variety, rationale |
-| **Outfit engine v3** | ✅ | Fashion knowledge base + preference learning |
-| **Fashion rulebook (YAML)** | ✅ | `app/fashion/knowledge.yaml` — colors, textures, occasions, trends |
-| **Trend tags + occasion palettes** | ✅ | quiet-luxury, streetwear, etc.; per-occasion color palettes |
-| Wear & laundry | ✅ | Category limits, hamper, wash-all |
-| I Daily plan + push | ✅ | Routines, scheduler; push needs dev build |
-| **F Receipt + label + email import** | ✅ | Photo receipt/label + Mailgun forward address |
-| **J Voice / text agent** | ✅ | `POST /outfits/ask` — natural language → outfit |
-| **Trip packing** | ✅ | Per-day outfits + deduplicated suitcase list + **live weather** |
-| Deploy + durable media | ✅ S3 provider | Set `STORAGE_PROVIDER=s3` on Render; local disk for dev |
-| **Shop v1** | ✅ | Curated catalog + virtual outfit-count scoring (`app/shop/catalog.yaml`) |
+| Area | Status |
+|------|--------|
+| Auth, closet CRUD, confirm flows | Done |
+| Ingestion: photo, batch, flat-lay, receipt, label, email | Done |
+| Video frame scan (on-device thumbnails → batch ingest) | Done |
+| Wear & laundry | Done |
+| Outfit engine (rules, personalization, directions, ask) | Done |
+| FashionCLIP embeddings + hybrid retrieval (feature-flagged) | Done |
+| Daily plan, routines, push hooks | Done |
+| Trips + weather-aware packing | Done |
+| Shop catalog scoring | Done |
+| Social feed | Done |
+| Deploy path (Render/Neon/S3) | Done |
+| 3D home mannequin (local mesh + color shells) | Done |
 
-## Outfit Engine v4
+## In progress / next
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 0 Baseline benchmark | ✅ | Deterministic v3 fixtures, constraints/ranking/diversity/latency metrics, frozen JSON report |
-| 1 Vector foundation | ✅ | `0017` migration: pgvector `vector(512)` + status metadata; `EmbeddingProvider` stub; `OUTFIT_EMBEDDINGS_ENABLED` flag (off) |
-| 2 Self-hosted FashionCLIP | ✅ | ONNX vision encoder (`EMBEDDING_PROVIDER=fashionclip`); ~455 MB RSS, ~120 ms/img warm; validated on real cutouts |
-| 3 Ingestion + backfill | ✅ | Auto-embed on create/photo-replace/cutout, resumable `backfill_embeddings.py`, failures land in `embedding_status` and never block the closet |
-| 4 Hybrid retrieval | ✅ | Slot pools = freshness + visual-similarity + exploration quotas (query = locked anchors else closet centroid); v3 path byte-identical when flag off |
-| 5 Hybrid scoring | ✅ | Signal 14: sweet-band coherence curve (peak cos 0.65, near-duplicates penalized), weight capped at 0.10; outerwear scored against the full outfit |
-| 6 Rich outfit structure | ✅ | Dresses/jumpsuits replace top+bottom (hard exclusion rule), bags/jewelry/headwear attach only when they improve the look; `0018` migration, new benchmark baseline |
-| 7 Distinct directions | ✅ | Classic/Expressive/Relaxed scoring profiles (`direction_profiles.py`, weight 0.30), `GET /outfits/directions` returns 3 looks sharing ≤1 piece; home-screen direction picker |
-| 8 Vector personalization | ✅ | Taste centroids from wears/likes/dislikes/swaps (45-day decay); cold-start ramp until 3+ embedded positives; blends into prefs (22%) + retrieval query |
-| 9 Language styling | ✅ | Structured ask intent (anchors/exclusions/formality/direction/freshness) resolved to real closet IDs; every result via OutfitService — never invents pieces |
-| 10 Evaluation + rollout | ✅ | Ablation + weight sensitivity + large-closet p95 + failure recovery (`run_phase10_eval.py`); blind-review template; `OUTFIT_EMBEDDINGS_ENABLED` rollout gates in `benchmarks/ROLLOUT.md` |
+| Area | Notes |
+|------|--------|
+| App Store / TestFlight | Waiting on Apple Developer Program enrollment |
+| Personalized 3D avatars | Provider TBD (Ready Player Me discontinued; Avatar SDK trial deferred until after ship) |
+| Production embedding rollout | See `backend/benchmarks/ROLLOUT.md` (coverage + blind review gates) |
 
 ## Parked
 
-3D closet view, on-device segmentation, trained recommender.
+- Full garment draping / try-on on the 3D body
+- On-device segmentation
+- Trained recommender beyond current personalization

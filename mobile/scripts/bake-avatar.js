@@ -286,7 +286,18 @@ function main() {
   const pantsCuff = ankleY + 0.022;
   const dressHem = kneeY - 0.04; // midi length — covers shorts territory
   const shoeCollar = ankleY + 0.075;
-  const hairline = neckY - 0.02; // cover the full skull, sit just above the collar
+  // Soft crown/sides/back only — leave the face surface as skin.
+  const hairline = neckY + 0.06;
+  const HAIR = (v) => {
+    if (!HEAD(v)) return false;
+    const [, y, z] = skinnedPos[v];
+    const [, ny, nz] = skinnedNorm[v];
+    if (y < hairline) return false;
+    // Keep crown + back/sides; drop the forward face plane.
+    if (z > 0.015 && ny < 0.5) return false;
+    if (nz > 0.12 && y < headY + 0.1) return false;
+    return true;
+  };
 
   // Each garment = union of parts. A part keeps triangles touching its bone
   // group, then clips them to a clean horizontal Y band (collar/hem/cuff).
@@ -317,7 +328,7 @@ function main() {
       { bones: LEGS, band: [shortsCut, pantsWaist] },
     ],
     shoes: [{ bones: FEET, band: [-Infinity, shoeCollar] }],
-    hair: [{ bones: HEAD, band: [hairline, Infinity] }],
+    hair: [{ bones: HAIR, band: [hairline, Infinity] }],
   };
 
   // Offsets are staggered so overlapping layers (shoes < bottoms < tops <

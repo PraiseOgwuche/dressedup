@@ -13,9 +13,9 @@ class BoundingBox(BaseModel):
 
 
 class DraftItem(BaseModel):
-    """AI-proposed clothing item the user confirms or corrects before saving.
+    """Proposed clothing item the user confirms or corrects before saving.
 
-    The stable contract every VisionProvider returns. `confidence` maps field
+    Stable contract every VisionProvider returns. `confidence` maps field
     name -> 0.0-1.0; low-confidence fields drive what the UI asks the user about.
     """
 

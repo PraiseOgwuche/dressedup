@@ -1,6 +1,6 @@
 """Controlled vocabulary for closet items.
 
-Single source of truth so AI-extracted attributes are normalized and queryable.
+Single source of truth so vision-extracted attributes are normalized and queryable.
 Kept intentionally small; extend as the product grows.
 """
 

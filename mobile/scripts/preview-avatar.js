@@ -20,7 +20,7 @@ const OUT = process.argv[2] || path.join(__dirname, 'avatar-preview.png');
 const YAW = ((Number(process.argv[3]) || 20) * Math.PI) / 180;
 
 const LIGHT = normalize([0.4, 0.8, 0.6]);
-const BG = [247, 243, 238];
+const BG = [238, 240, 242];
 
 function normalize(v) {
   const l = Math.hypot(...v) || 1;
@@ -33,8 +33,8 @@ function hexToRgb(hex) {
 }
 
 const layers = [
-  { mesh: baked.body, color: hexToRgb('#C48A68') },
-  { mesh: baked.garments.hair, color: hexToRgb('#2A2420') },
+  { mesh: baked.body, color: hexToRgb('#C99574') },
+  { mesh: baked.garments.hair, color: hexToRgb('#4A372C') },
   { mesh: baked.garments.tee, color: hexToRgb('#A14A32') },
   { mesh: baked.garments.shorts, color: hexToRgb('#C8B89A') },
   { mesh: baked.garments.shoes, color: hexToRgb('#F2F0EA') },

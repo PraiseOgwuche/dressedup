@@ -15,6 +15,7 @@ interface AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
+  updateAvatarUrl: (avatarUrl: string | null) => Promise<void>;
   clearError: () => void;
 }
 
@@ -75,6 +76,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await SecureStore.deleteItemAsync('access_token');
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
+  },
+
+  updateAvatarUrl: async (avatarUrl) => {
+    const user = await authAPI.updateProfile({ avatar_url: avatarUrl });
+    set({ user });
   },
 
   clearError: () => set({ error: null }),

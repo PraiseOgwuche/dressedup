@@ -1,16 +1,16 @@
-# Outfit Engine v4 — Phase 10 rollout
+# Outfit Engine v4 — embedding rollout
 
 ## Feature flag
 
 | Flag | Default | Role |
 |------|---------|------|
-| `OUTFIT_EMBEDDINGS_ENABLED` | `false` | Master kill-switch. When off, suggestion path is the Phase 6 structure engine (hybrid retrieval / visual coherence / taste off). |
+| `OUTFIT_EMBEDDINGS_ENABLED` | `false` | Master kill-switch. When off, suggestions use the structure engine only (no hybrid retrieval, visual coherence, or taste centroids). |
 
-Suggestions **never** call FashionCLIP live — only precomputed vectors are read.
+Suggestions never call FashionCLIP at request time — only precomputed vectors are read.
 
-## Automated gates (must pass before widening rollout)
+## Automated gates (required before widening rollout)
 
-Run from `backend/`:
+From `backend/`:
 
 ```bash
 python scripts/run_phase10_eval.py
@@ -34,12 +34,12 @@ python scripts/run_outfit_ablation.py --write-reports
 
 ## Rollout stages
 
-1. **Internal** — flag on for test accounts; run Phase 10 eval + spot-check Home / Ask / Directions.
+1. **Internal** — enable for test accounts; run release gates; spot-check Home / Ask / Directions.
 2. **Blind review** — ≥40 anonymized pairs across benchmark categories.
 3. **Coverage** — backfill production closets to ≥95% ready.
 4. **General availability** — set `OUTFIT_EMBEDDINGS_ENABLED=true` in production.
-5. **Kill-switch** — if hard violations or latency regress, flip the flag off (no redeploy of models required).
+5. **Kill-switch** — if hard violations or latency regress, flip the flag off (no model redeploy required).
 
-## What Phase 10 does *not* claim
+## Scope note
 
 Automated scores do not prove outfits look better. Preference comes only from the blind human protocol.

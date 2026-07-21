@@ -5,6 +5,7 @@ export interface User {
   is_active: boolean;
   is_premium: boolean;
   premium_trial_ends_at?: string | null;
+  avatar_url?: string | null;
   created_at: string;
 }
 

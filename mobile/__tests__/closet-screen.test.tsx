@@ -36,7 +36,11 @@ jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(),
   launchCameraAsync: jest.fn(),
   launchImageLibraryAsync: jest.fn(),
-  MediaTypeOptions: { Images: 'Images' },
+  MediaTypeOptions: { Images: 'Images', Videos: 'Videos' },
+}));
+
+jest.mock('expo-video-thumbnails', () => ({
+  getThumbnailAsync: jest.fn(),
 }));
 
 describe('ClosetScreen', () => {

@@ -21,6 +21,7 @@ class User(Base):
     is_premium = Column(Boolean, default=False)
     premium_trial_ends_at = Column(DateTime(timezone=True), nullable=True)
     ingest_token = Column(String(32), unique=True, index=True, nullable=False, default=_new_ingest_token)
+    avatar_url = Column(String(512), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     closet_items = relationship("ClothingItem", back_populates="user", cascade="all, delete-orphan")

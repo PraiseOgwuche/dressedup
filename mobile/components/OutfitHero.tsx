@@ -16,6 +16,7 @@ import { Button } from './ui/Button';
 import { OutfitSlotKey } from './OutfitCard';
 import { OutfitLookBoard } from './OutfitLookBoard';
 import { OutfitAvatarViewer } from './avatar/OutfitAvatarViewer';
+import { useAuthStore } from '../store/authStore';
 
 interface OutfitHeroProps {
   top?: ClosetItem | null;
@@ -106,6 +107,7 @@ export function OutfitHero({
   swappingSlot,
 }: OutfitHeroProps) {
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const avatarUrl = useAuthStore((s) => s.user?.avatar_url);
   const use3dAvatar = AVATAR_3D_ENABLED && !avatarFailed;
 
   const slots = dress
@@ -196,6 +198,7 @@ export function OutfitHero({
           {use3dAvatar ? (
             <>
               <OutfitAvatarViewer
+                avatarUrl={avatarUrl}
                 topUri={pieceUri(dress ?? top)}
                 bottomUri={pieceUri(bottom)}
                 shoesUri={pieceUri(shoes)}

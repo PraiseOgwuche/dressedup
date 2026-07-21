@@ -18,6 +18,24 @@ def test_auth_register_login_and_profile(client):
     me_response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert me_response.status_code == 200
     assert me_response.json()["email"] == payload["email"]
+    assert me_response.json().get("avatar_url") is None
+
+    avatar_url = "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb"
+    patch_response = client.patch(
+        "/api/v1/auth/me",
+        json={"avatar_url": avatar_url},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert patch_response.status_code == 200
+    assert patch_response.json()["avatar_url"] == avatar_url
+
+    clear_response = client.patch(
+        "/api/v1/auth/me",
+        json={"avatar_url": None},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert clear_response.status_code == 200
+    assert clear_response.json()["avatar_url"] is None
 
 
 def test_closet_crud_flow(client, auth_header):

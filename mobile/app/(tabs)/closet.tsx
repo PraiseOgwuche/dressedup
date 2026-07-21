@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 import { mediaUrl, TAXONOMY } from '../../constants/config';
 import { THEME, SHADOW, utilityTitle, FONTS } from '../../constants/theme';
@@ -42,8 +43,10 @@ import {
   formatAcceptedSummary,
   shouldUseSmartConfirm,
 } from '../../utils/confirmFields';
+import { sampleVideoTimestamps, videoDraftIdentity } from '../../utils/videoFrames';
 
 const BATCH_LIMIT = 15;
+const VIDEO_FRAME_LIMIT = 15;
 const SORT_OPTIONS: { key: ClosetSort; label: string }[] = [
   { key: 'newest', label: 'Newest' },
   { key: 'least_worn', label: 'Least worn' },
@@ -117,6 +120,7 @@ export default function ClosetScreen() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isIngesting, setIsIngesting] = useState(false);
+  const [ingestionMessage, setIngestionMessage] = useState('Finding items in your photo…');
   const [replacingPhoto, setReplacingPhoto] = useState(false);
   const [busyItemId, setBusyItemId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -128,13 +132,13 @@ export default function ClosetScreen() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>(undefined);
   const [source, setSource] = useState('manual');
   const [confidence, setConfidence] = useState<Record<string, number>>({});
-  // AI-detected hex carried through (powers color matching) but not directly edited.
+  // Vision-detected hex is kept for color matching; not edited in this form.
   const [colorHex, setColorHex] = useState<string | undefined>(undefined);
 
   // Bulk-scan review queue: confirm/skip drafts one at a time.
   const [queue, setQueue] = useState<QueueEntry[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
-  const [queueSource, setQueueSource] = useState<'batch' | 'multi' | 'receipt' | null>(null);
+  const [queueSource, setQueueSource] = useState<'batch' | 'multi' | 'receipt' | 'video' | null>(null);
   const inQueue = queue.length > 0;
   const [receiptContext, setReceiptContext] = useState<{ merchant?: string; purchase_date?: string }>({});
   const [receiptMeta, setReceiptMeta] = useState<{
@@ -465,7 +469,7 @@ export default function ClosetScreen() {
   const loadQueueItem = (
     entries: QueueEntry[],
     index: number,
-    source: 'batch' | 'multi' | 'receipt',
+    source: 'batch' | 'multi' | 'receipt' | 'video',
     context?: { merchant?: string; purchase_date?: string },
   ) => {
     const entry = entries[index];
@@ -538,6 +542,83 @@ export default function ClosetScreen() {
       Alert.alert('Scan failed', getApiErrorMessage(error, 'Could not analyze those photos.'));
     } finally {
       setIsIngesting(false);
+    }
+  };
+
+  const runVideoIngestion = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Enable video access in Settings to scan items from a video.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: false,
+      videoMaxDuration: 60,
+    });
+    if (result.canceled || !result.assets?.length) return;
+
+    const video = result.assets[0];
+    setIngestionMessage('Finding clear moments in your video…');
+    setIsIngesting(true);
+    try {
+      const timestamps = sampleVideoTimestamps(video.duration, VIDEO_FRAME_LIMIT);
+      const frames = await Promise.all(
+        timestamps.map((time) =>
+          VideoThumbnails.getThumbnailAsync(video.uri, {
+            time,
+            quality: 0.7,
+          }),
+        ),
+      );
+
+      setIngestionMessage(`Analyzing ${frames.length} video frame${frames.length === 1 ? '' : 's'}…`);
+      const batch = await closetAPI.ingestBatch(
+        frames.map((frame, index) => ({
+          uri: frame.uri,
+          name: `video-frame-${index + 1}.jpg`,
+          mimeType: 'image/jpeg',
+        })),
+      );
+      const entries: QueueEntry[] = [];
+      const seenDrafts = new Set<string>();
+      let analyzedFrames = 0;
+      batch.entries.forEach((entry, index) => {
+        if (entry.result) {
+          analyzedFrames += 1;
+          const identity = videoDraftIdentity(entry.result.draft);
+          if (seenDrafts.has(identity)) return;
+          seenDrafts.add(identity);
+          entries.push({
+            previewUri: frames[index]?.uri ?? mediaUrl(entry.result.image_url) ?? '',
+            imageUrl: entry.result.image_url,
+            thumbnailUrl: entry.result.thumbnail_url,
+            draft: { ...entry.result.draft, source: 'video' },
+          });
+        }
+      });
+
+      const failed = frames.length - analyzedFrames;
+      const duplicates = analyzedFrames - entries.length;
+      if (!entries.length) {
+        Alert.alert('Video scan failed', 'No clear clothing items could be analyzed from that video.');
+        return;
+      }
+      const skipped = [
+        failed > 0 ? `${failed} unclear frame${failed === 1 ? '' : 's'}` : '',
+        duplicates > 0 ? `${duplicates} repeated view${duplicates === 1 ? '' : 's'}` : '',
+      ].filter(Boolean);
+      Alert.alert(
+        'Video scanned',
+        `Found ${entries.length} possible item${entries.length === 1 ? '' : 's'}${skipped.length ? `; skipped ${skipped.join(' and ')}` : ''}. Review each one.`,
+      );
+      loadQueueItem(entries, 0, 'video');
+    } catch (error: any) {
+      Alert.alert('Video scan failed', getApiErrorMessage(error, 'Could not analyze that video.'));
+    } finally {
+      setIsIngesting(false);
+      setIngestionMessage('Finding items in your photo…');
     }
   };
 
@@ -642,6 +723,7 @@ export default function ClosetScreen() {
       { text: 'Scan care label only', onPress: () => runLabelIngestion(false) },
       { text: 'Flat-lay scan (many in 1 photo)', onPress: () => runMultiIngestion(false) },
       { text: 'Scan many photos', onPress: () => runBatchIngestion() },
+      { text: 'Scan a video', onPress: () => runVideoIngestion() },
       { text: 'Add manually', onPress: () => { resetForm(); setIsFormOpen(true); } },
       { text: 'Cancel', style: 'cancel' },
     ]);
@@ -1089,7 +1171,7 @@ export default function ClosetScreen() {
       {isIngesting ? (
         <View style={styles.overlay}>
           <ActivityIndicator size="large" color="#fff" />
-          <Text style={styles.overlayText}>Finding items in your photo…</Text>
+          <Text style={styles.overlayText}>{ingestionMessage}</Text>
         </View>
       ) : null}
 
@@ -1128,6 +1210,8 @@ export default function ClosetScreen() {
                   ? 'Flat-lay'
                   : queueSource === 'receipt'
                     ? 'Receipt'
+                    : queueSource === 'video'
+                      ? 'Video'
                     : 'Batch'}{' '}
                 — item {queueIndex + 1} of {queue.length}
               </Text>

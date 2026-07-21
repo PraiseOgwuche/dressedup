@@ -136,6 +136,11 @@ export const authAPI = {
     const response = await api.get<User>('/auth/me');
     return response.data;
   },
+
+  updateProfile: async (payload: { avatar_url?: string | null }): Promise<User> => {
+    const response = await api.patch<User>('/auth/me', payload);
+    return response.data;
+  },
 };
 
 export const closetAPI = {

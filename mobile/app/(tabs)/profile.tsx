@@ -25,12 +25,15 @@ import { getDeviceTimezone, registerPushWithBackend } from '../../services/pushN
 import { EmailIngestLog, EmailIngestSettings, hasPremiumAccess, StreakStats, StyleProfile } from '../../types';
 import { StreakCard } from '../../components/StreakBadge';
 import { StyleProfileCard } from '../../components/profile/StyleProfileCard';
+import { AvatarCreatorModal } from '../../components/avatar/AvatarCreatorModal';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateAvatarUrl } = useAuthStore();
   const { items, fetchItems } = useClosetStore();
   const { routine, fetchRoutine, saveRoutine, sendMyPlan, saving, loading } = useRoutineStore();
+  const [avatarCreatorOpen, setAvatarCreatorOpen] = useState(false);
+  const [savingAvatar, setSavingAvatar] = useState(false);
 
   const [wakeTime, setWakeTime] = useState('07:00');
   const [weekdayActivities, setWeekdayActivities] = useState<string[]>(['work']);
@@ -230,6 +233,35 @@ export default function ProfileScreen() {
           {hasPremiumAccess(user) ? 'Premium trial active' : 'Free Plan'}
         </Text>
 
+        <View style={styles.avatarActions}>
+          <Button
+            title="About 3D avatar"
+            onPress={() => setAvatarCreatorOpen(true)}
+            style={styles.avatarBtn}
+          />
+          {user?.avatar_url ? (
+            <Button
+              title="Clear saved avatar URL"
+              variant="outline"
+              onPress={async () => {
+                try {
+                  setSavingAvatar(true);
+                  await updateAvatarUrl(null);
+                } catch (error) {
+                  Alert.alert('Could not reset avatar', getApiErrorMessage(error, 'Try again.'));
+                } finally {
+                  setSavingAvatar(false);
+                }
+              }}
+              loading={savingAvatar}
+              style={styles.avatarBtn}
+            />
+          ) : null}
+          <Text style={styles.avatarHint}>
+            Personalized avatars are temporarily unavailable. Today uses the classic mannequin.
+          </Text>
+        </View>
+
         <View style={styles.stats}>
           <View style={styles.statBox}>
             <Text style={styles.statNumber}>{items.length}</Text>
@@ -375,6 +407,23 @@ export default function ProfileScreen() {
 
         <Button title="Log Out" onPress={handleLogout} variant="outline" style={styles.logoutButton} />
       </ScrollView>
+
+      <AvatarCreatorModal
+        visible={avatarCreatorOpen}
+        onClose={() => setAvatarCreatorOpen(false)}
+        onExported={async (url) => {
+          setAvatarCreatorOpen(false);
+          try {
+            setSavingAvatar(true);
+            await updateAvatarUrl(url);
+            Alert.alert('Avatar saved', 'Your new look will show on the Today tab.');
+          } catch (error) {
+            Alert.alert('Could not save avatar', getApiErrorMessage(error, 'Try again.'));
+          } finally {
+            setSavingAvatar(false);
+          }
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -394,6 +443,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   avatarText: { fontSize: 36, fontWeight: '800', color: '#fff' },
+  avatarActions: { width: '100%', marginBottom: 20, gap: 10 },
+  avatarBtn: { width: '100%' },
+  avatarHint: {
+    fontSize: 13,
+    color: THEME.utility.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
   name: { fontSize: 24, fontWeight: '700', color: THEME.utility.text, marginBottom: 4 },
   email: { fontSize: 14, color: THEME.utility.textMuted, marginBottom: 10 },
   premiumBadge: {

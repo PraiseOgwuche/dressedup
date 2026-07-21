@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.user import UserCreate, UserLogin, UserResponse, UserUpdate, Token
 from app.services.auth_service import AuthService
 from app.utils.dependencies import get_current_user
 from app.models.user import User
@@ -24,3 +24,13 @@ def login(login_data: UserLogin, db: Session = Depends(get_db)):
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
     return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_current_user(
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Update profile fields for the signed-in user (e.g. Ready Player Me avatar)."""
+    return AuthService.update_user(db, current_user, payload)

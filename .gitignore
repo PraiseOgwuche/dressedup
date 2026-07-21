@@ -18,3 +18,8 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local scratch / bake previews (do not commit)
+backend/scripts/cutout-test-*.png
+mobile/scripts/avatar-preview-phase*.png
+mobile/scripts/avatar-preview-tmp*.png

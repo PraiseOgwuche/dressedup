@@ -193,8 +193,7 @@ _LABEL_TOOL = {
 
 
 class AnthropicVisionProvider(VisionProvider):
-    """Real extraction via Claude. Images are downscaled before upload and output is
-    capped to keep per-scan cost minimal (~$0.002 on Haiku)."""
+    """Anthropic vision extraction. Images are downscaled and output is capped for cost control."""
 
     def __init__(self) -> None:
         self._client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)

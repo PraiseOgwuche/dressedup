@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from datetime import UTC, datetime, timedelta
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin
+from app.schemas.user import UserCreate, UserLogin, UserUpdate
 from app.utils.security import verify_password, get_password_hash, create_access_token
 
 class AuthService:
@@ -34,6 +34,30 @@ class AuthService:
         db.refresh(new_user)
 
         return new_user
+
+    @staticmethod
+    def update_user(db: Session, user: User, payload: UserUpdate) -> User:
+        data = payload.model_dump(exclude_unset=True)
+        if "avatar_url" in data:
+            url = data["avatar_url"]
+            if url is not None:
+                url = url.strip() or None
+            if url is not None:
+                if not url.startswith("https://"):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="avatar_url must be an https URL",
+                    )
+                if "readyplayer.me" not in url and "readyplayerme.com" not in url:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="avatar_url must be a Ready Player Me model URL",
+                    )
+            user.avatar_url = url
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
 
     @staticmethod
     def authenticate_user(db: Session, login_data: UserLogin) -> str:
