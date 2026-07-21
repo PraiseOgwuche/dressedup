@@ -204,7 +204,10 @@ class OutfitService:
         chosen_shoes = best["shoes"]
         anchor = chosen_top or chosen_bottom or chosen_shoes
 
-        chosen_outerwear = cls._best_outerwear(db, user_id, outerwear, anchor, context, weather_tag)
+        chosen_outerwear = cls._best_outerwear(
+            db, user_id, outerwear, anchor, context, weather_tag,
+            ensemble=[chosen_top, chosen_bottom, chosen_shoes],
+        )
 
         alternatives: List[ClothingItem] = []
         if include_alternative and anchor is not None:
@@ -315,11 +318,18 @@ class OutfitService:
             chosen_shoes = locked_shoes
             anchor = chosen_top or chosen_bottom or chosen_shoes
             pool = [o for o in outerwear if not locked_outerwear or o.id != locked_outerwear.id]
-            chosen_outerwear = (
-                max(pool, key=lambda ow: cls._score(db, user_id, [anchor, ow], context))
-                if pool and anchor
-                else (pool[0] if pool else locked_outerwear)
-            )
+            if pool and anchor:
+                if settings.OUTFIT_EMBEDDINGS_ENABLED:
+                    kept = [g for g in (chosen_top, chosen_bottom, chosen_shoes) if g is not None]
+                    chosen_outerwear = max(
+                        pool, key=lambda ow: cls._score(db, user_id, [*kept, ow], context)
+                    )
+                else:
+                    chosen_outerwear = max(
+                        pool, key=lambda ow: cls._score(db, user_id, [anchor, ow], context)
+                    )
+            else:
+                chosen_outerwear = pool[0] if pool else locked_outerwear
         else:
             best = cls._best_combo(db, user_id, top_opts, bottom_opts, shoe_opts, context)
             chosen_top = best["top"] if swap_slot == "top" else (locked_top or best["top"])
@@ -329,7 +339,10 @@ class OutfitService:
             if locked_outerwear and swap_slot != "outerwear":
                 chosen_outerwear = locked_outerwear
             else:
-                chosen_outerwear = cls._best_outerwear(db, user_id, outerwear, anchor, context, weather_tag)
+                chosen_outerwear = cls._best_outerwear(
+                    db, user_id, outerwear, anchor, context, weather_tag,
+                    ensemble=[chosen_top, chosen_bottom, chosen_shoes],
+                )
 
         slot_labels = {
             "top": "top",
@@ -438,6 +451,7 @@ class OutfitService:
         anchor: Optional[ClothingItem],
         context: MatchContext,
         weather_tag: Optional[str],
+        ensemble: Optional[List[ClothingItem]] = None,
     ) -> Optional[ClothingItem]:
         if not outerwear:
             return None
@@ -445,6 +459,10 @@ class OutfitService:
             return None
         if anchor is None:
             return outerwear[0]
+        if settings.OUTFIT_EMBEDDINGS_ENABLED and ensemble:
+            # Phase 5: judge the layer against the complete outfit, not one anchor.
+            chosen = [g for g in ensemble if g is not None]
+            return max(outerwear, key=lambda ow: cls._score(db, user_id, [*chosen, ow], context))
         return max(outerwear, key=lambda ow: cls._score(db, user_id, [anchor, ow], context))
 
     @classmethod
@@ -531,7 +549,8 @@ class OutfitService:
         chosen_shoes = locked_shoes or best["shoes"]
         anchor = chosen_top or chosen_bottom or chosen_shoes
         chosen_outerwear = locked_outerwear or cls._best_outerwear(
-            db, user_id, outerwear, anchor, context, weather_tag
+            db, user_id, outerwear, anchor, context, weather_tag,
+            ensemble=[chosen_top, chosen_bottom, chosen_shoes],
         )
 
         if not any([chosen_top, chosen_bottom, chosen_shoes]):

@@ -6,8 +6,10 @@ from dataclasses import dataclass, field
 from itertools import combinations
 from typing import TYPE_CHECKING, Optional
 
+from app.config import settings
 from app.fashion.color_harmony import outfit_color_score
 from app.fashion.context import MatchContext
+from app.fashion.visual_coherence import score_visual_coherence
 from app.fashion.style_rules import (
     needs_outerwear,
     score_archetype,
@@ -40,6 +42,11 @@ _W_ARCHETYPE = 0.05
 _W_WEATHER_MAT = 0.03
 _W_FRESH = 0.02
 
+# Signal 14 (Outfit Engine v4, flag-gated): FashionCLIP visual coherence.
+# Deliberately capped below color/formality — embeddings refine rule-based
+# choices, they never override a hard clash.
+_W_VISUAL = 0.10
+
 # Layer 2 — learned preferences can move the needle but not override hard clashes.
 _W_PERSONAL = 0.35
 
@@ -60,6 +67,7 @@ class ScoreBreakdown:
     archetype: float = 0.0
     weather_materials: float = 0.0
     freshness: float = 0.0
+    visual: float = 0.0
     personalization: float = 0.0
     highlights: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -161,6 +169,12 @@ class FashionMatcher:
         wears = sum((g.times_worn or 0) for g in garments)
         breakdown.freshness = -min(wears * 0.02, 0.25)
 
+        if settings.OUTFIT_EMBEDDINGS_ENABLED:
+            visual_raw, visual_hi, visual_warn = score_visual_coherence(garments)
+            breakdown.visual = visual_raw
+            breakdown.highlights.extend(visual_hi)
+            breakdown.warnings.extend(visual_warn)
+
         if personal_notes:
             breakdown.highlights.extend(personal_notes)
 
@@ -178,6 +192,7 @@ class FashionMatcher:
             + _W_ARCHETYPE * breakdown.archetype
             + _W_WEATHER_MAT * breakdown.weather_materials
             + _W_FRESH * breakdown.freshness
+            + _W_VISUAL * breakdown.visual
             + _W_PERSONAL * personalization
         )
         return breakdown

@@ -35,7 +35,7 @@
 | 2 Self-hosted FashionCLIP | ✅ | ONNX vision encoder (`EMBEDDING_PROVIDER=fashionclip`); ~455 MB RSS, ~120 ms/img warm; validated on real cutouts |
 | 3 Ingestion + backfill | ✅ | Auto-embed on create/photo-replace/cutout, resumable `backfill_embeddings.py`, failures land in `embedding_status` and never block the closet |
 | 4 Hybrid retrieval | ✅ | Slot pools = freshness + visual-similarity + exploration quotas (query = locked anchors else closet centroid); v3 path byte-identical when flag off |
-| 5 Hybrid scoring | Planned | Visual coherence as a calibrated signal, joint outerwear scoring |
+| 5 Hybrid scoring | ✅ | Signal 14: sweet-band coherence curve (peak cos 0.65, near-duplicates penalized), weight capped at 0.10; outerwear scored against the full outfit |
 | 6 Rich outfit structure | Planned | Dresses, jumpsuits, bags, accessories |
 | 7 Distinct directions | Planned | Multiple intentionally different styling profiles |
 | 8 Vector personalization | Planned | Taste centroids from wears/likes/dislikes/swaps |
