@@ -66,6 +66,12 @@ class Settings(BaseSettings):
     # Allow POST /closet/email-ingest/simulate in production (off by default).
     EMAIL_INGEST_ALLOW_SIMULATE: bool = False
 
+    # Outfit Engine v4 — garment embeddings (FashionCLIP + pgvector).
+    # Master switch: when False, no embedding is computed or used in scoring.
+    OUTFIT_EMBEDDINGS_ENABLED: bool = False
+    # "stub" is deterministic and free (tests/dev). "fashionclip" arrives in Phase 2.
+    EMBEDDING_PROVIDER: str = "stub"
+
     # Garment background removal (rembg/ONNX, runs locally — no API cost).
     # The cutout becomes thumbnail_url; failures silently keep the original.
     BG_REMOVAL_ENABLED: bool = True

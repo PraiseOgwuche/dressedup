@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
+from app.models.types import EMBEDDING_DIM, EmbeddingVector
 
 
 class ClothingItem(Base):
@@ -53,6 +54,15 @@ class ClothingItem(Base):
     confidence = Column(JSON, nullable=True)  # {field: 0.0-1.0}
     needs_review = Column(Boolean, default=False)
     ai_metadata = Column(JSON, nullable=True)  # raw extractor output for audit
+
+    # Outfit Engine v4 — visual style embedding (FashionCLIP, computed at ingest).
+    # status: pending -> ready | failed | skipped (no usable image).
+    embedding = Column(EmbeddingVector(EMBEDDING_DIM), nullable=True)
+    embedding_model = Column(String, nullable=True)
+    embedding_version = Column(String, nullable=True)
+    embedding_status = Column(String, nullable=False, server_default="pending", default="pending", index=True)
+    embedded_at = Column(DateTime(timezone=True), nullable=True)
+    embedding_error = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
