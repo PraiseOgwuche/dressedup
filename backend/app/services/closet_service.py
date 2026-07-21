@@ -21,6 +21,7 @@ from app.schemas.closet import (
     ClothingItemUpdate,
 )
 from app.schemas.ingestion import CutoutBackfillResult
+from app.services.embedding_service import EmbeddingService
 from app.services.image_processing import fetch_stored_image_bytes, remove_background
 from app.services.ingestion_service import IngestionService
 from app.services.outfit_service import OutfitService
@@ -75,17 +76,26 @@ class ClosetService:
         db.add(item)
         db.commit()
         db.refresh(item)
+        EmbeddingService.embed_item(db, item)
         return item
 
     @staticmethod
     def update_item(db: Session, user_id: int, item_id: int, payload: ClothingItemUpdate):
         item = ClosetService.get_item(db, user_id, item_id)
         update_data = payload.model_dump(exclude_unset=True)
+        photo_changed = any(
+            key in update_data and update_data[key] != getattr(item, key)
+            for key in ("image_url", "thumbnail_url")
+        )
         for key, value in update_data.items():
             setattr(item, key, value)
+        if photo_changed:
+            EmbeddingService.mark_stale(item)
         db.add(item)
         db.commit()
         db.refresh(item)
+        if photo_changed:
+            EmbeddingService.embed_item(db, item)
         return item
 
     @staticmethod
@@ -276,6 +286,8 @@ class ClosetService:
                 skipped += 1
                 continue
             item.thumbnail_url = storage.save(cutout, ext="png", subdir="cutouts")
+            EmbeddingService.mark_stale(item)
+            EmbeddingService.embed_item(db, item, commit=False)
             db.add(item)
             updated_ids.append(item.id)
 

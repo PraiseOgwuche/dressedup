@@ -38,7 +38,7 @@ Phone and Mac on the same Wi‑Fi. IP: `ipconfig getifaddr en0`.
 
 **AI scans** — free with `VISION_PROVIDER=stub` in `backend/.env`. Real Claude vision: set `VISION_PROVIDER=anthropic` + `ANTHROPIC_API_KEY` (~$0.002/scan).
 
-**Garment embeddings (Outfit Engine v4)** — free local FashionCLIP: `python scripts/download_fashionclip.py` (~336 MB, once), then set `EMBEDDING_PROVIDER=fashionclip` + `OUTFIT_EMBEDDINGS_ENABLED=true`. Defaults to a free stub otherwise.
+**Garment embeddings (Outfit Engine v4)** — free local FashionCLIP: `python scripts/download_fashionclip.py` (~336 MB, once), then set `EMBEDDING_PROVIDER=fashionclip` + `OUTFIT_EMBEDDINGS_ENABLED=true`. Defaults to a free stub otherwise. New items embed automatically at ingest; embed pre-existing closets with `python scripts/backfill_embeddings.py` (resumable, `--refresh-stale` re-embeds after model upgrades).
 
 **Tests:** `cd backend && pytest` · `cd mobile && npm test`
 
