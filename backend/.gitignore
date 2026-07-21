@@ -47,3 +47,6 @@ env/
 
 # Uploaded media (local storage)
 media/
+
+# Self-hosted model weights (download via scripts/download_fashionclip.py)
+models/

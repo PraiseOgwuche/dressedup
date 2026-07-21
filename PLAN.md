@@ -32,7 +32,7 @@
 |-------|--------|-------|
 | 0 Baseline benchmark | ✅ | Deterministic v3 fixtures, constraints/ranking/diversity/latency metrics, frozen JSON report |
 | 1 Vector foundation | ✅ | `0017` migration: pgvector `vector(512)` + status metadata; `EmbeddingProvider` stub; `OUTFIT_EMBEDDINGS_ENABLED` flag (off) |
-| 2 Self-hosted FashionCLIP | Planned | ONNX image encoder, memory/latency validation |
+| 2 Self-hosted FashionCLIP | ✅ | ONNX vision encoder (`EMBEDDING_PROVIDER=fashionclip`); ~455 MB RSS, ~120 ms/img warm; validated on real cutouts |
 | 3 Ingestion + backfill | Planned | Embed new and existing garment cutouts |
 | 4 Hybrid retrieval | Planned | Context filters + pgvector candidate retrieval |
 | 5 Hybrid scoring | Planned | Visual coherence as a calibrated signal, joint outerwear scoring |

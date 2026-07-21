@@ -69,8 +69,13 @@ class Settings(BaseSettings):
     # Outfit Engine v4 — garment embeddings (FashionCLIP + pgvector).
     # Master switch: when False, no embedding is computed or used in scoring.
     OUTFIT_EMBEDDINGS_ENABLED: bool = False
-    # "stub" is deterministic and free (tests/dev). "fashionclip" arrives in Phase 2.
+    # "stub" is deterministic and free (tests/dev). "fashionclip" runs the local
+    # ONNX image encoder (download weights with scripts/download_fashionclip.py).
     EMBEDDING_PROVIDER: str = "stub"
+    # Where FashionCLIP ONNX weights live (~350 MB, git-ignored).
+    EMBEDDING_MODEL_DIR: str = str(_BACKEND_ROOT / "models" / "fashionclip")
+    # Cap ONNX intra-op threads: embedding runs at ingest, not in the hot path.
+    EMBEDDING_INTRA_OP_THREADS: int = 2
 
     # Garment background removal (rembg/ONNX, runs locally — no API cost).
     # The cutout becomes thumbnail_url; failures silently keep the original.
