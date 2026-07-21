@@ -15,6 +15,7 @@ type ViewerProps = {
   bottomSubcategory?: string | null;
   shoesSubcategory?: string | null;
   outerSubcategory?: string | null;
+  topCategory?: string | null;
   topColor?: string;
   bottomColor?: string;
   shoesColor?: string;
@@ -56,6 +57,7 @@ export function OutfitAvatarViewer({
   bottomSubcategory,
   shoesSubcategory,
   outerSubcategory,
+  topCategory,
   topColor,
   bottomColor,
   shoesColor,
@@ -73,18 +75,18 @@ export function OutfitAvatarViewer({
         <AvatarErrorBoundary onError={() => { setGlFailed(true); onFailed?.(); }} fallback={null}>
           <Canvas
             style={styles.canvas}
-            camera={{ position: [0, 1.05, 3.1], fov: 38 }}
+            camera={{ position: [0, 0.9, 2.75], fov: 35 }}
             gl={{ antialias: true }}
             onCreated={({ gl, camera }) => {
-              gl.setClearColor('#EEF0F2');
-              camera.lookAt(0, 0.88, 0);
+              gl.setClearColor('#F4F2EE');
+              camera.lookAt(0, 0.8, 0);
             }}
           >
-            {/* Soft three-point studio lighting */}
-            <ambientLight intensity={0.55} />
-            <directionalLight position={[2.5, 4, 3]} intensity={1.5} />
-            <directionalLight position={[-3, 2.5, 1]} intensity={0.6} color="#FFF4E6" />
-            <directionalLight position={[0, 3, -4]} intensity={0.8} color="#E8EEF5" />
+            <ambientLight intensity={0.58} />
+            <directionalLight position={[2.4, 4.4, 2.6]} intensity={1.4} />
+            <directionalLight position={[-2.6, 2.4, 1.4]} intensity={0.5} color="#FFF5EA" />
+            <directionalLight position={[0.2, 2.8, -3.4]} intensity={0.75} color="#E6ECF3" />
+            <hemisphereLight args={['#FAF8F4', '#D2CCC2', 0.4]} />
             <MannequinScene
               topUri={topUri}
               bottomUri={bottomUri}
@@ -94,6 +96,7 @@ export function OutfitAvatarViewer({
               bottomSubcategory={bottomSubcategory}
               shoesSubcategory={shoesSubcategory}
               outerSubcategory={outerSubcategory}
+              topCategory={topCategory}
               topColor={topColor}
               bottomColor={bottomColor}
               shoesColor={shoesColor}

@@ -5,7 +5,7 @@
 export const AVATAR_3D_ENABLED = true;
 
 /** Slow spin speed (radians per second). */
-export const AVATAR_SPIN_SPEED = 0.45;
+export const AVATAR_SPIN_SPEED = 0.32;
 
 /** Canvas height on Home hero. */
-export const AVATAR_VIEWPORT_HEIGHT = 300;
+export const AVATAR_VIEWPORT_HEIGHT = 360;

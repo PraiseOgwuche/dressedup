@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 
 import { getGarmentGeometry, GarmentShellName } from './bakedAvatar';
-import { useNativeTexture } from './useNativeTexture';
 
 /**
- * Garment shells are slices of the actual body surface, inflated a few
- * millimeters along the vertex normals at bake time — so every garment
- * drapes perfectly over the avatar with no boxes or intersections.
+ * Garment shells are slices of the actual body surface, inflated along vertex
+ * normals at bake time. We paint them as opaque fabric from the item color —
+ * never as transparent flat-lay / cutout photos (those read as floating cards
+ * on the mannequin). Real photos stay in the swap gallery below the avatar.
  */
 
 const TOP_SHELLS: Record<string, GarmentShellName> = {
@@ -18,6 +18,8 @@ const TOP_SHELLS: Record<string, GarmentShellName> = {
   camisole: 'tank',
   't-shirt': 'tee',
   tee: 'tee',
+  crewneck: 'tee',
+  'crew-neck': 'tee',
   polo: 'tee',
   'athletic-top': 'tee',
   jersey: 'tee',
@@ -32,77 +34,83 @@ const TOP_SHELLS: Record<string, GarmentShellName> = {
   tracksuit: 'long',
 };
 
+const DRESS_SUBS = new Set([
+  'dress',
+  'midi',
+  'maxi',
+  'mini',
+  'jumpsuit',
+  'romper',
+  'gown',
+  'sundress',
+]);
+
 const SHORT_BOTTOMS = new Set([
   'shorts',
   'athletic-shorts',
   'board-shorts',
   'skirt',
+  'drawstring',
+  'drawstring-shorts',
+  'chino-shorts',
+  'denim-shorts',
   'mini',
-  'midi',
 ]);
 
-export function topShellFor(subcategory?: string | null): GarmentShellName {
+export function isDressCategory(category?: string | null, subcategory?: string | null): boolean {
+  const cat = (category ?? '').toLowerCase();
+  const sub = (subcategory ?? '').toLowerCase();
+  return cat === 'dress' || cat === 'jumpsuit' || DRESS_SUBS.has(sub) || sub.includes('jumpsuit');
+}
+
+export function topShellFor(
+  subcategory?: string | null,
+  category?: string | null,
+): GarmentShellName {
+  if (isDressCategory(category, subcategory)) return 'dress';
   const key = (subcategory ?? '').toLowerCase();
   return TOP_SHELLS[key] ?? 'tee';
 }
 
 export function bottomShellFor(subcategory?: string | null): GarmentShellName {
   const key = (subcategory ?? '').toLowerCase();
-  return SHORT_BOTTOMS.has(key) ? 'shorts' : 'pants';
-}
-
-/** True when the URI points at a background-removed cutout from the backend. */
-export function isCutoutUri(uri?: string | null): boolean {
-  if (!uri) return false;
-  const lower = uri.toLowerCase();
-  return lower.includes('/cutouts/') || lower.endsWith('.png');
+  if (SHORT_BOTTOMS.has(key)) return 'shorts';
+  if (key.includes('short') || key.includes('skirt')) return 'shorts';
+  return 'pants';
 }
 
 type GarmentShellProps = {
   shell: GarmentShellName;
   color: string;
-  /** Optional item photo, applied as a subtle fabric swatch over the color. */
+  /** Kept for API compatibility; photos are not UV-mapped onto shells. */
   uri?: string | null;
   roughness?: number;
+  metalness?: number;
 };
 
-export function GarmentShell({ shell, color, uri, roughness = 0.82 }: GarmentShellProps) {
+export function GarmentShell({
+  shell,
+  color,
+  roughness = 0.78,
+  metalness,
+}: GarmentShellProps) {
   const geometry = getGarmentGeometry(shell);
-  const texture = useNativeTexture(uri);
+  const metal = metalness ?? (shell === 'shoes' ? 0.12 : 0.02);
 
-  const material = useMemo(() => {
-    const cutout = isCutoutUri(uri);
-    if (texture) {
-      texture.wrapS = THREE.ClampToEdgeWrapping;
-      texture.wrapT = THREE.ClampToEdgeWrapping;
-      if (cutout) {
-        // Backend cutout: garment-only transparent PNG — map the full image.
-        texture.repeat.set(1, 1);
-        texture.offset.set(0, 0);
-      } else {
-        // Original flat-lay photo still has bed/floor — sample the center swatch.
-        texture.repeat.set(0.42, 0.42);
-        texture.offset.set(0.29, 0.29);
-      }
-      texture.needsUpdate = true;
-      return new THREE.MeshStandardMaterial({
-        map: texture,
-        color: '#ffffff',
+  const material = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: color || '#888888',
         roughness,
-        metalness: 0,
-        side: THREE.DoubleSide,
-        transparent: cutout,
-        alphaTest: cutout ? 0.06 : 0,
-        depthWrite: !cutout,
-      });
-    }
-    return new THREE.MeshStandardMaterial({
-      color,
-      roughness,
-      metalness: 0,
-      side: THREE.DoubleSide,
-    });
-  }, [texture, color, roughness]);
+        metalness: metal,
+        side: THREE.FrontSide,
+        depthWrite: true,
+        polygonOffset: true,
+        polygonOffsetFactor: shell === 'outer' ? -2 : -1,
+        polygonOffsetUnits: shell === 'outer' ? -2 : -1,
+      }),
+    [color, roughness, metal, shell],
+  );
 
   return <mesh geometry={geometry} material={material} />;
 }

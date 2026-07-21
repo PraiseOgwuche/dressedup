@@ -258,26 +258,35 @@ function main() {
   const hipY = (jointY['thigh.L'] + jointY['thigh.R']) / 2;
   const kneeY = (jointY['shin.L'] + jointY['shin.R']) / 2;
   const ankleY = (jointY['foot.L'] + jointY['foot.R']) / 2;
+  const headY = jointY['spine.005'] ?? HUMANOID_HEIGHT * 0.95;
+  const neckY = jointY['spine.004'];
 
   const nameOf = (v) => (dominantJoint[v] >= 0 ? jointNames[dominantJoint[v]] : '');
   const isBone = (v, ...prefixes) => prefixes.some((p) => nameOf(v) === p || nameOf(v).startsWith(`${p}.`));
 
   // --- Bone groups ---
+  // Keep groups tight: including `spine` in LEGS used to pull torso triangles
+  // into shorts/pants, which Y-clipping then shredded into floating slivers.
   const TORSO = (v) => isBone(v, 'spine', 'spine.001', 'spine.002', 'spine.003', 'spine.004', 'shoulder');
   const ARMS = (v) => isBone(v, 'shoulder', 'upper_arm', 'forearm');
-  const LEGS = (v) => isBone(v, 'spine', 'pelvis', 'thigh', 'shin', 'foot');
-  const FEET = (v) => isBone(v, 'foot', 'toe', 'heel', 'shin');
+  const HIPS = (v) => isBone(v, 'pelvis', 'spine', 'spine.001');
+  const LEGS = (v) => isBone(v, 'pelvis', 'thigh', 'shin');
+  const DRESS_BODY = (v) =>
+    isBone(v, 'spine', 'spine.001', 'spine.002', 'spine.003', 'spine.004', 'shoulder', 'pelvis', 'thigh');
+  const FEET = (v) => isBone(v, 'foot', 'toe', 'heel') || (isBone(v, 'shin') && skinnedPos[v][1] < ankleY + 0.08);
+  const HEAD = (v) => isBone(v, 'spine.005') || (isBone(v, 'spine.004') && skinnedPos[v][1] > neckY + 0.04);
 
-  const neckY = jointY['spine.004'];
-  const collarY = neckY + 0.015;
-  const shortSleeveCut = elbowY + 0.5 * (shoulderY - elbowY);
-  const longSleeveCut = wristY + 0.1 * (elbowY - wristY);
-  const teeHem = hipY - 0.01;
-  const jacketHem = hipY - 0.07;
-  const pantsWaist = waistY - 0.03;
-  const shortsCut = kneeY + 0.45 * (hipY - kneeY);
-  const pantsCuff = ankleY + 0.015;
-  const shoeCollar = ankleY + 0.05;
+  const collarY = neckY + 0.03;
+  const shortSleeveCut = elbowY + 0.32 * (shoulderY - elbowY);
+  const longSleeveCut = wristY + 0.04 * (elbowY - wristY);
+  const teeHem = hipY + 0.025;
+  const jacketHem = hipY - 0.05;
+  const pantsWaist = waistY + 0.018;
+  const shortsCut = kneeY + 0.12 * (hipY - kneeY);
+  const pantsCuff = ankleY + 0.022;
+  const dressHem = kneeY - 0.04; // midi length — covers shorts territory
+  const shoeCollar = ankleY + 0.075;
+  const hairline = neckY - 0.02; // cover the full skull, sit just above the collar
 
   // Each garment = union of parts. A part keeps triangles touching its bone
   // group, then clips them to a clean horizontal Y band (collar/hem/cuff).
@@ -285,31 +294,44 @@ function main() {
     tank: [{ bones: TORSO, band: [teeHem, collarY] }],
     tee: [
       { bones: TORSO, band: [teeHem, collarY] },
-      { bones: ARMS, band: [shortSleeveCut, collarY] },
+      { bones: ARMS, band: [shortSleeveCut, collarY + 0.018] },
     ],
     long: [
       { bones: TORSO, band: [teeHem, collarY] },
-      { bones: ARMS, band: [longSleeveCut, collarY] },
+      { bones: ARMS, band: [longSleeveCut, collarY + 0.018] },
     ],
     outer: [
-      { bones: TORSO, band: [jacketHem, collarY] },
-      { bones: ARMS, band: [longSleeveCut, collarY] },
+      { bones: TORSO, band: [jacketHem, collarY + 0.012] },
+      { bones: ARMS, band: [longSleeveCut, collarY + 0.018] },
     ],
-    pants: [{ bones: LEGS, band: [pantsCuff, pantsWaist] }],
-    shorts: [{ bones: LEGS, band: [shortsCut, pantsWaist] }],
+    dress: [
+      { bones: DRESS_BODY, band: [dressHem, collarY] },
+      { bones: ARMS, band: [shortSleeveCut, collarY + 0.018] },
+    ],
+    pants: [
+      { bones: HIPS, band: [hipY - 0.04, pantsWaist] },
+      { bones: LEGS, band: [pantsCuff, pantsWaist] },
+    ],
+    shorts: [
+      { bones: HIPS, band: [hipY - 0.04, pantsWaist] },
+      { bones: LEGS, band: [shortsCut, pantsWaist] },
+    ],
     shoes: [{ bones: FEET, band: [-Infinity, shoeCollar] }],
+    hair: [{ bones: HEAD, band: [hairline, Infinity] }],
   };
 
   // Offsets are staggered so overlapping layers (shoes < bottoms < tops <
   // outerwear) always keep a few mm of separation — no z-fighting.
   const inflation = {
-    tank: 0.016,
-    tee: 0.016,
-    long: 0.016,
-    outer: 0.03,
-    pants: 0.011,
-    shorts: 0.011,
-    shoes: 0.007,
+    tank: 0.026,
+    tee: 0.029,
+    long: 0.029,
+    outer: 0.044,
+    dress: 0.03,
+    pants: 0.015,
+    shorts: 0.016,
+    shoes: 0.012,
+    hair: 0.014,
   };
 
   const round = (x) => Math.round(x * 10000) / 10000;
@@ -412,6 +434,39 @@ function main() {
     return { p, n, uv, i };
   };
 
+  /** Turn the foot shell into a readable low sneaker: flat sole, toe box, bulk. */
+  const morphSneakers = (mesh, ankle) => {
+    const { p, n } = mesh;
+    for (let k = 0; k < p.length; k += 3) {
+      let x = p[k];
+      let y = p[k + 1];
+      let z = p[k + 2];
+      const nx = n[k];
+      const ny = n[k + 1];
+      const nz = n[k + 2];
+
+      // Height within the shoe (0 at sole, 1 at collar).
+      const h = Math.max(0, Math.min(1, y / Math.max(0.02, ankle + 0.06)));
+      // Sole plate: flatten + thicken print.
+      if (h < 0.22 || ny < -0.35) {
+        y = 0.008 + h * 0.02;
+        x *= 1.16;
+        z *= 1.22;
+      } else {
+        // Upper: rounded bulk, more at midfoot, toe pushed forward.
+        const mid = Math.sin(Math.PI * Math.min(1, h * 1.15));
+        const toe = Math.max(0, nz) * 0.035 * (1 - h);
+        x *= 1.1 + 0.08 * mid;
+        z = z * (1.12 + 0.1 * mid) + toe;
+        y += 0.006 * mid;
+      }
+      if (y < 0.005) y = 0.005;
+      p[k] = round(x);
+      p[k + 1] = round(y);
+      p[k + 2] = round(z);
+    }
+  };
+
   const body = {
     p: skinnedPos.flatMap(([x, y, z]) => [round(x), round(y), round(z)]),
     n: skinnedNorm.flatMap(([x, y, z]) => [round(x), round(y), round(z)]),
@@ -421,6 +476,7 @@ function main() {
   const garments = {};
   for (const [name, predicate] of Object.entries(regions)) {
     garments[name] = buildShell(predicate, inflation[name]);
+    if (name === 'shoes') morphSneakers(garments[name], ankleY);
     const tris = garments[name].i.length / 3;
     console.log(`  ${name}: ${garments[name].p.length / 3} verts, ${tris} tris`);
   }
@@ -436,6 +492,8 @@ function main() {
         shoulderY: round(shoulderY),
         elbowY: round(elbowY),
         wristY: round(wristY),
+        headY: round(headY),
+        neckY: round(neckY),
       },
     },
     body,

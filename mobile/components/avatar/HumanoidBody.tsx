@@ -1,27 +1,41 @@
 import React, { useMemo } from 'react';
 import * as THREE from 'three';
 
-import { getBodyGeometry } from './bakedAvatar';
-
-const SKIN_COLOR = '#D9A57E';
+import { getBodyGeometry, getGarmentGeometry } from './bakedAvatar';
 
 export { AVATAR_HEIGHT as HUMANOID_HEIGHT } from './bakedAvatar';
 
 /**
- * The human base body, pre-baked to static geometry (1.72m tall, feet at
- * y=0, facing +Z) by scripts/bake-avatar.js — no GLTF parsing at runtime.
+ * The human base body + a soft hair cap, pre-baked by scripts/bake-avatar.js.
  */
 export function HumanoidBody() {
-  const geometry = getBodyGeometry();
-  const material = useMemo(
+  const bodyGeo = getBodyGeometry();
+  const hairGeo = getGarmentGeometry('hair');
+
+  const skin = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: SKIN_COLOR,
-        roughness: 0.55,
+        color: '#C48A68',
+        roughness: 0.58,
+        metalness: 0.03,
+      }),
+    [],
+  );
+
+  const hair = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#2A2420',
+        roughness: 0.9,
         metalness: 0.02,
       }),
     [],
   );
 
-  return <mesh geometry={geometry} material={material} />;
+  return (
+    <group>
+      <mesh geometry={bodyGeo} material={skin} />
+      <mesh geometry={hairGeo} material={hair} />
+    </group>
+  );
 }

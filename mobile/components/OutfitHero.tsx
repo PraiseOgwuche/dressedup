@@ -47,6 +47,42 @@ const SLOT_FALLBACK: Record<string, string> = {
   outerwear: '#54606E',
 };
 
+/** Named closet colors → hex when color_hex is missing. */
+const NAMED_COLORS: Record<string, string> = {
+  black: '#1A1A1A',
+  white: '#F2F0EA',
+  grey: '#8A8580',
+  gray: '#8A8580',
+  charcoal: '#3A3A3A',
+  navy: '#1F2A44',
+  blue: '#3B5BDB',
+  red: '#B33A2B',
+  rust: '#A14A32',
+  orange: '#C56A2B',
+  yellow: '#D4A017',
+  green: '#3E6B4F',
+  olive: '#6B6E3F',
+  beige: '#C8B89A',
+  tan: '#B8956A',
+  brown: '#6B4A32',
+  cream: '#F0E6D2',
+  pink: '#D4899A',
+  purple: '#6B4C7A',
+  khaki: '#B5A67A',
+};
+
+function fabricColor(item?: ClosetItem | null, fallback = '#888888'): string {
+  if (!item) return fallback;
+  if (item.color_hex) return item.color_hex;
+  const named = (item.color || '').toLowerCase().trim();
+  return NAMED_COLORS[named] || fallback;
+}
+
+function pieceUri(item?: ClosetItem | null): string | null {
+  if (!item) return null;
+  return mediaUrl(item.thumbnail_url ?? item.image_url) || '';
+}
+
 export function OutfitHero({
   top,
   bottom,
@@ -160,18 +196,19 @@ export function OutfitHero({
           {use3dAvatar ? (
             <>
               <OutfitAvatarViewer
-                topUri={mediaUrl((dress ?? top)?.thumbnail_url ?? (dress ?? top)?.image_url)}
-                bottomUri={mediaUrl(bottom?.thumbnail_url ?? bottom?.image_url)}
-                shoesUri={mediaUrl(shoes?.thumbnail_url ?? shoes?.image_url)}
-                outerUri={mediaUrl(outerwear?.thumbnail_url ?? outerwear?.image_url)}
-                topSubcategory={top?.subcategory}
+                topUri={pieceUri(dress ?? top)}
+                bottomUri={pieceUri(bottom)}
+                shoesUri={pieceUri(shoes)}
+                outerUri={pieceUri(outerwear)}
+                topCategory={(dress ?? top)?.category}
+                topSubcategory={(dress ?? top)?.subcategory}
                 bottomSubcategory={bottom?.subcategory}
                 shoesSubcategory={shoes?.subcategory}
                 outerSubcategory={outerwear?.subcategory}
-                topColor={top?.color_hex || SLOT_FALLBACK.top}
-                bottomColor={bottom?.color_hex || SLOT_FALLBACK.bottom}
-                shoesColor={shoes?.color_hex || SLOT_FALLBACK.shoes}
-                outerColor={outerwear?.color_hex || SLOT_FALLBACK.outerwear}
+                topColor={fabricColor(dress ?? top, SLOT_FALLBACK.top)}
+                bottomColor={fabricColor(bottom, SLOT_FALLBACK.bottom)}
+                shoesColor={fabricColor(shoes, SLOT_FALLBACK.shoes)}
+                outerColor={fabricColor(outerwear, SLOT_FALLBACK.outerwear)}
                 onFailed={() => setAvatarFailed(true)}
               />
               {onSwapSlot ? (

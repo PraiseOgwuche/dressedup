@@ -9,7 +9,16 @@ import * as THREE from 'three';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const baked = require('../../assets/avatar/baked-avatar.json') as BakedAvatar;
 
-export type GarmentShellName = 'tank' | 'tee' | 'long' | 'outer' | 'pants' | 'shorts' | 'shoes';
+export type GarmentShellName =
+  | 'tank'
+  | 'tee'
+  | 'long'
+  | 'outer'
+  | 'dress'
+  | 'pants'
+  | 'shorts'
+  | 'shoes'
+  | 'hair';
 
 type BakedMesh = {
   p: number[];

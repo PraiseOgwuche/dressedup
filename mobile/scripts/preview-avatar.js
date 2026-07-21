@@ -33,10 +33,11 @@ function hexToRgb(hex) {
 }
 
 const layers = [
-  { mesh: baked.body, color: hexToRgb('#E3B48C') },
-  { mesh: baked.garments.tee, color: hexToRgb('#B14A32') },
-  { mesh: baked.garments.pants, color: hexToRgb('#D9CBB4') },
-  { mesh: baked.garments.shoes, color: hexToRgb('#EDEDE8') },
+  { mesh: baked.body, color: hexToRgb('#C48A68') },
+  { mesh: baked.garments.hair, color: hexToRgb('#2A2420') },
+  { mesh: baked.garments.tee, color: hexToRgb('#A14A32') },
+  { mesh: baked.garments.shorts, color: hexToRgb('#C8B89A') },
+  { mesh: baked.garments.shoes, color: hexToRgb('#F2F0EA') },
 ];
 
 // Collect world-space triangles from all layers.
