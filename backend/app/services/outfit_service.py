@@ -189,6 +189,7 @@ class OutfitService:
         outerwear_id: Optional[int] = None,
         dress_id: Optional[int] = None,
         trend: Optional[str] = None,
+        direction: Optional[str] = None,
     ):
         if swap_slot:
             return cls._swap_piece(
@@ -208,6 +209,8 @@ class OutfitService:
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
         context = cls._context(weather_tag, occasion, trend)
+        if direction:
+            context.direction = direction
         query = cls._retrieval_query(db, user_id, items)
 
         tops = cls._candidates(
@@ -762,6 +765,10 @@ class OutfitService:
         item_id: int,
         weather_tag: Optional[str] = None,
         occasion: Optional[str] = None,
+        *,
+        exclude_ids: Optional[set] = None,
+        direction: Optional[str] = None,
+        trend: Optional[str] = None,
     ) -> Optional[dict]:
         """Build an outfit with this piece locked — does not record a swap signal."""
         item = cls._get_owned(db, user_id, item_id)
@@ -772,18 +779,21 @@ class OutfitService:
             return None
 
         items = db.query(ClothingItem).filter(ClothingItem.user_id == user_id).all()
-        context = cls._context(weather_tag, occasion)
-        exclude_ids = {item.id}
+        context = cls._context(weather_tag, occasion, trend)
+        if direction:
+            context.direction = direction
+        blocked = set(exclude_ids or set())
+        blocked.add(item.id)
         query = cls._retrieval_query(db, user_id, items, item)
 
         tops = cls._candidates(
-            items, cls.TOP_CATEGORIES, weather_tag, occasion, exclude_ids, cls.TOP_SUBCATEGORIES, query
+            items, cls.TOP_CATEGORIES, weather_tag, occasion, blocked, cls.TOP_SUBCATEGORIES, query
         )
         bottoms = cls._candidates(
-            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, exclude_ids, cls.BOTTOM_SUBCATEGORIES, query
+            items, cls.BOTTOM_CATEGORIES, weather_tag, occasion, blocked, cls.BOTTOM_SUBCATEGORIES, query
         )
-        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
-        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, exclude_ids, query=query)
+        shoes = cls._candidates(items, cls.SHOE_CATEGORIES, weather_tag, occasion, blocked, query=query)
+        outerwear = cls._candidates(items, cls.OUTERWEAR_CATEGORIES, weather_tag, occasion, blocked, query=query)
 
         locked_top = item if slot == "top" else None
         locked_bottom = item if slot == "bottom" else None
@@ -830,7 +840,7 @@ class OutfitService:
             "title": f"Pairs with {item.name}",
             "weather_tag": weather_tag,
             "occasion": occasion,
-            "trend": None,
+            "trend": trend,
             "rationale": rationale,
             "dress": chosen_dress,
             "top": chosen_top,
@@ -843,7 +853,7 @@ class OutfitService:
             db,
             user_id,
             payload,
-            cls._accessory_pools(items, weather_tag, occasion, exclude_ids, query),
+            cls._accessory_pools(items, weather_tag, occasion, blocked, query),
             context,
         )
         if locked_accessory is not None:

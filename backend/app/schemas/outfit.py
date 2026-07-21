@@ -116,6 +116,14 @@ class ParsedOutfitIntent(BaseModel):
     occasion: Optional[str] = None
     weather_tag: Optional[str] = None
     trend: Optional[str] = None
+    formality: Optional[str] = None
+    direction: Optional[str] = None
+    preferred_colors: list[str] = []
+    excluded_tokens: list[str] = []
+    anchor_item_id: Optional[int] = None
+    anchor_label: Optional[str] = None
+    exclude_item_ids: list[int] = []
+    freshness_slot: Optional[str] = None
     interpretation: str
 
 

@@ -16,8 +16,8 @@ from app.schemas.outfit import (
     ParsedOutfitIntent,
     TrendOption,
 )
+from app.services.outfit_ask_service import fulfill_outfit_ask
 from app.services.outfit_service import OutfitService
-from app.services.outfit_ask_service import parse_outfit_query
 from app.services.plan_service import PlanService
 from app.services.preference_service import PreferenceService
 from app.services.routine_service import RoutineService
@@ -99,23 +99,17 @@ def ask_for_outfit(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Natural language → parsed context → outfit suggestion.
+    """Natural language → structured intent → deterministic closet-grounded outfit.
 
-    Examples: "Dress me for a cold work day, quiet luxury vibe"
+    The parser may interpret anchors, exclusions, formality, and vibe, but every
+    piece comes from owned closet item IDs via the outfit engine — nothing is invented.
     """
-    parsed = parse_outfit_query(payload.query)
-    suggestion = OutfitService.get_suggestion(
-        db=db,
-        user_id=current_user.id,
-        weather_tag=parsed.weather_tag,
-        occasion=parsed.occasion,
-        trend=parsed.trend,
-        include_alternative=True,
-    )
+    result = fulfill_outfit_ask(db, current_user.id, payload.query)
+    parsed = result["parsed"]
     return {
-        "query": payload.query.strip(),
+        "query": result["query"],
         "parsed": ParsedOutfitIntent(**parsed.to_dict()),
-        "suggestion": suggestion,
+        "suggestion": result["suggestion"],
     }
 
 

@@ -239,6 +239,14 @@ export interface ParsedOutfitIntent {
   occasion?: string | null;
   weather_tag?: string | null;
   trend?: string | null;
+  formality?: string | null;
+  direction?: string | null;
+  preferred_colors?: string[];
+  excluded_tokens?: string[];
+  anchor_item_id?: number | null;
+  anchor_label?: string | null;
+  exclude_item_ids?: number[];
+  freshness_slot?: string | null;
   interpretation: string;
 }
 
